@@ -1,0 +1,10 @@
+Package: dataSHEEP
+Version: 0.0.1
+Date: 2022-09-05
+Title: dataSHEEP
+Description: dataSHEET is a plotting package that aims to facilitate the creation of datasheets for hydrological research purposes.
+Author: Louis Héraut <louis.heraut@inrae.fr>
+Maintainer: Louis Héraut <louis.heraut@inrae.fr>
+Encoding: UTF-8
+License: GPL-3
+RoxygenNote: 7.1.2
