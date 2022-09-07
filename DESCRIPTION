@@ -1,8 +1,8 @@
-Package: dataSHEEP
+Package: WaterSheep
 Version: 0.0.1
 Date: 2022-09-05
-Title: dataSHEEP
-Description: dataSHEET is a plotting package that aims to facilitate the creation of datasheets for hydrological research purposes.
+Title: WaterSheep
+Description: WaterSheep is a plotting package that aims to facilitate the creation of datasheets for hydrological research purposes.
 Author: Louis Héraut <louis.heraut@inrae.fr>
 Maintainer: Louis Héraut <louis.heraut@inrae.fr>
 Encoding: UTF-8
