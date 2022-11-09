@@ -104,8 +104,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 df_trend_code = df_trend[df_trend$Code == code,]
 
                 # Extract start and end of trend periods
-                Start = df_trend_code$period_start[j]
-                End = df_trend_code$period_end[j]
+                Start = df_trend_code$start[j]
+                End = df_trend_code$end[j]
 
                 StartY = format(Start, '%Y')
                 EndY = format(End, '%Y')
@@ -120,8 +120,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                                  & df_data_code$Date <= End,]
                 # Same for trend
                 df_trend_code_per = 
-                    df_trend_code[df_trend_code$period_start == Start 
-                                  & df_trend_code$period_end == End,]
+                    df_trend_code[df_trend_code$start == Start 
+                                  & df_trend_code$end == End,]
 
                 # Computes the number of trend analysis selected
                 Ntrend = nrow(df_trend_code_per)
@@ -137,11 +137,11 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 # If it is a flow variable
                 if (type == 'sévérité') {
                     # Normalises the trend value by the mean of the data
-                    trendValue = df_trend_code_per$trend / dataMean
+                    trendValue = df_trend_code_per$a / dataMean
                 # If it is a date variable
                 } else if (type == 'saisonnalité') {
                     # Just stocks the trend value
-                    trendValue = df_trend_code_per$trend
+                    trendValue = df_trend_code_per$a
                 }
 
                 # Gets the color associated to the averaged trend

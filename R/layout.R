@@ -42,7 +42,7 @@ theme_ash = function () {
     theme =
         theme(
             # White background
-            panel.background=element_rect(fill='white'),
+            panel.background=element_rect(fill='grey97'),
             # Font
             text=element_text(family='sans'),
             # Border of plot
@@ -52,6 +52,8 @@ theme_ash = function () {
             # Grid
             panel.grid.major.x=element_blank(),
             panel.grid.major.y=element_blank(),
+            panel.grid.minor.x=element_blank(),
+            panel.grid.minor.y=element_blank(),
             # Ticks marker
             axis.ticks.x=element_line(color='grey75', size=0.3),
             axis.ticks.y=element_line(color='grey75', size=0.3),
@@ -192,7 +194,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                          figdir='', filedir_opt='', filename_opt='',
                          variable='', df_trend=NULL,
                          alpha=0.1, unit2day=365.25, var='',
-                         type='', event='', unit='', hydroPeriod='',
+                         type='', event='', unit='', samplePeriod='',
                          glose=NULL, trend_period=NULL,
                          mean_period=NULL, colorForce=FALSE,
                          exQprob=0.01,
@@ -299,8 +301,8 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
         unit = rep(unit[1], nbp)
     }
 
-    if (length(hydroPeriod) != nbp) {
-        hydroPeriod = rep(hydroPeriod, nbp)
+    if (length(samplePeriod) != nbp) {
+        samplePeriod = rep(samplePeriod, nbp)
     }
 
     # Creates a blank list to store all the data of each type of plot
@@ -317,7 +319,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                        type=type[[i]],
                        event=event[[i]],
                        unit=unit[[i]],
-                       hydroPeriod=hydroPeriod[[i]],
+                       samplePeriod=samplePeriod[[i]],
                        glose=glose[[i]])
         # Stores it
         list_df2plot[[i]] = df2plot
@@ -421,7 +423,6 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                                   time_header=time_header,
                                   foot_note=foot_note,
                                   structure=structure,
-                                  layout_matrix=layout_matrix,
                                   info_height=info_height,
                                   time_height=time_height,
                                   var_ratio=var_ratio,
@@ -720,13 +721,10 @@ foot_panel = function (name, n_page, foot_height, logo_path) {
         widths = c(widths, width)
     }
 
-    text_page = paste(
-        name, "  <b>p. ", n_page, "</b>",
-        sep='')
+    text_page = paste0(name, "  <b>p. ", n_page, "</b>")
     
-    text_date = paste (
-        format(Sys.Date(), "%B %Y"),
-        sep='')
+    text_date = format(Sys.Date(),
+                       "%B<span style='color:white'>&#95;</span>%Y")
 
     # Converts all texts to graphical object in the right position
     gtext_page = richtext_grob(text_page,

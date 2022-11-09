@@ -40,7 +40,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                       colorForce=FALSE, exQprob=0.01, codeLight=NULL,
                       mapType='trend', margin=NULL, showSea=TRUE,  
                       foot_note=FALSE, foot_height=0,
-                      logo_path=NULL, zone_to_show='France',
+                      logo_path=NULL, zone_to_show='France', mode="",
                       df_page=NULL, outdirTmp_pdf='',
                       outdirTmp_png='', verbose=TRUE) {
     
@@ -183,6 +183,18 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
             # Makes it the default one to remove useless warning
             cf$default = TRUE
 
+            if (mode == "dark") {
+                FRfill_color = NA
+                RV_color = "grey40"
+                HBcontour_color = NA
+                FRcontour_color = "#FAFAFA"
+            } else {
+                FRfill_color = "grey97"
+                RV_color = "grey80"
+                HBcontour_color = "grey70"
+                FRcontour_color = "grey40"
+            }
+            
             # Open a new plot with the personalise theme
             map = ggplot() + theme_void() +
                 
@@ -193,13 +205,14 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 # Plot the background of France
                 geom_sf(data=france,
                         color=NA,
-                        fill="grey97")
+                        fill=FRfill_color)
+            
             # If the river shapefile exists
             if (!is.null(river)) {
                 # Plot the river
                 map = map +
                     geom_sf(data=river,
-                            color="grey80",
+                            color=RV_color,
                             fill=NA,
                             size=sizerv)
             }
@@ -207,7 +220,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
             map = map +
                 # Plot the hydrological basin
                 geom_sf(data=basin,
-                        color="grey70",
+                        color=HBcontour_color,
                         fill=NA,
                         size=sizebs)
             
@@ -215,7 +228,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 map = map +
                     # Plot the hydrological sub-basin
                     geom_sf(data=subBasin,
-                            color="grey70",
+                            color=HBcontour_color,
                             fill=NA,
                             size=sizebs)
             }
@@ -223,7 +236,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
             map = map +
                 # Plot the countour of France
                 geom_sf(data=france,
-                        color="grey40",
+                        color=FRcontour_color,
                         fill=NA,
                         size=sizefr)
             
@@ -332,29 +345,30 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 }
             }
 
-            
-            map = map +
-                # Adds the base line of the scale
-                geom_line(aes(x=c(xmin, max(xint)+xmin),
-                              y=c(ymin, ymin)),
-                          color="grey40", size=0.2) +
-                # Adds the 'km' unit
-                annotate("text",
-                         x=max(xint)+xmin+gpct(1, xlim), y=ymin,
-                         vjust=0, hjust=0, label="km",
-                         color="grey40", size=sizekm)
-            # For all graduations
-            for (x in xint) {
+            if (mapType != "minimal") {
                 map = map +
-                    # Draws the tick
-                    annotate("segment",
-                             x=x+xmin, xend=x+xmin, y=ymin, yend=ymax,
-                             color="grey40", size=0.2) +
-                    # Adds the value
+                    # Adds the base line of the scale
+                    geom_line(aes(x=c(xmin, max(xint)+xmin),
+                                  y=c(ymin, ymin)),
+                              color="grey40", size=0.2) +
+                    # Adds the 'km' unit
                     annotate("text",
-                             x=x+xmin, y=ymax+gpct(0.5, ylim),
-                             vjust=0, hjust=0.5, label=x/1E3,
-                             color="grey40", size=size)
+                             x=max(xint)+xmin+gpct(1, xlim), y=ymin,
+                             vjust=0, hjust=0, label="km",
+                             color="grey40", size=sizekm)
+                # For all graduations
+                for (x in xint) {
+                    map = map +
+                        # Draws the tick
+                        annotate("segment",
+                                 x=x+xmin, xend=x+xmin, y=ymin, yend=ymax,
+                                 color="grey40", size=0.2) +
+                        # Adds the value
+                        annotate("text",
+                                 x=x+xmin, y=ymax+gpct(0.5, ylim),
+                                 vjust=0, hjust=0.5, label=x/1E3,
+                                 color="grey40", size=size)
+                }
             }
             
             map = map +
@@ -410,8 +424,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     df_trend_code = df_trend[df_trend$Code == code,]
                     
                     # Extract start and end of trend periods
-                    Start = df_trend_code$period_start[idPer_trend]
-                    End = df_trend_code$period_end[idPer_trend]
+                    Start = df_trend_code$start[idPer_trend]
+                    End = df_trend_code$end[idPer_trend]
 
                     # Extracts the corresponding data for the period
                     df_data_code_per =
@@ -419,8 +433,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                                      & df_data_code$Date <= End,]
                     # Same for trend
                     df_trend_code_per = 
-                        df_trend_code[df_trend_code$period_start == Start 
-                                      & df_trend_code$period_end == End,]
+                        df_trend_code[df_trend_code$start == Start 
+                                      & df_trend_code$end == End,]
 
                     # Computes the number of trend analysis selected
                     Ntrend = nrow(df_trend_code_per)
@@ -437,10 +451,10 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                                         na.rm=TRUE)
                         # Normalises the trend value by the mean
                         # of the data
-                        value = df_trend_code_per$trend / dataMean
+                        value = df_trend_code_per$a / dataMean
                         # If it is a date variable
                     } else if (unit == 'jour' | unit == "jour de l'année") {
-                        value = df_trend_code_per$trend
+                        value = df_trend_code_per$a
                     }
 
                     minValue = minTrendValue[idPer_trend, i]
@@ -643,7 +657,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                                     hjust=0, vjust=0, size=10) +
                     
                     # Writes glose
-                    geom_shadowtext(data=tibble(x=0, y=85.2,
+                    geom_shadowtext(data=tibble(x=0, y=85,
                                                 label=gloseName),
                                     aes(x=x, y=y, label=label),
                                     fontface="bold",
@@ -881,14 +895,18 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 # Makes a tibble to plot the distribution
                 plot_value = tibble(xValue=xValue, yValue=yValueNorm)
 
-                leg = leg +
-                    # Plots the point of the distribution
-                    geom_point(data=plot_value,
-                               aes(x=xValue, y=yValue),
-                               shape=shape,
-                               color=color,
-                               fill=color, stroke=0.4,
-                               alpha=1)
+                if (nCode <= 60) {
+                    leg = leg +
+                        # Plots the point of the distribution
+                        geom_point(data=plot_value,
+                                   aes(x=xValue, y=yValue),
+                                   shape=shape,
+                                   color=color,
+                                   fill=color, stroke=0.4,
+                                   alpha=1)
+                } else {
+                    len_hist = start_hist
+                }
 
                 if (unit == 'm^{3}' | unit == 'm^{3}.s^{-1}') {
                     labelArrow = 'Plus sévère'
@@ -947,24 +965,42 @@ peu altérés par les activités humaines."
 
                 
             # If there is a specified station code
-            } else if (mapType == 'mini') {
-                # Extract data of all stations not to highlight
-                plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
-                # Extract data of the station to highlight
-                plot_map_code = plot_map[plot_map$Code == codeLight,]
-
-                # Plots only the localisation
-                map = map +
-                    # For all stations not to highlight
-                    geom_point(data=plot_map_codeNo,
-                               aes(x=lon, y=lat),
-                               shape=21, size=0.5, stroke=0.5,
-                               color='grey50', fill='grey50') +
-                    # For the station to highlight
-                    geom_point(data=plot_map_code,
-                               aes(x=lon, y=lat),
-                               shape=21, size=2, stroke=0.5,
-                               color='grey97', fill='#00A3A8')
+            } else if (mapType %in% c('mini', 'minimal')) {
+                if (!is.null(codeLight)) {
+                    
+                    # Extract data of all stations not to highlight
+                    plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
+                    # Extract data of the station to highlight
+                    plot_map_code = plot_map[plot_map$Code == codeLight,]
+                    # Plots only the localisation
+                    map = map +
+                        # For all stations not to highlight
+                        geom_point(data=plot_map_codeNo,
+                                   aes(x=lon, y=lat),
+                                   shape=21, size=0.5, stroke=0.5,
+                                   color="grey50",
+                                   fill="grey50") +
+                        # For the station to highlight
+                        geom_point(data=plot_map_code,
+                                   aes(x=lon, y=lat),
+                                   shape=21, size=2, stroke=0.5,
+                                   color='grey97',
+                                   fill='#00A3A8')
+                } else {
+                    if (mode == "dark") {
+                        codeAll_color = '#FAFAFA'
+                    } else {
+                        codeAll_color = 'grey50'
+                    }
+                    # Plots only the localisation
+                    map = map +
+                        # For all stations not to highlight
+                        geom_point(data=plot_map,
+                                   aes(x=lon, y=lat),
+                                   shape=21, size=0.5, stroke=0.5,
+                                   color=codeAll_color,
+                                   fill=codeAll_color)
+                }
                 
                 leg = void()
                 
@@ -1083,10 +1119,10 @@ peu altérés par les activités humaines."
                     footName = 'carte des régimes hydrologiques'
                 }
                 
-                if (is.null(df_page)) {
+                if (is.null(df_page) | nrow(df_page) == 0) {
                     n_page = i
                 }
-                
+
                 foot = foot_panel(footName, n_page,
                                   foot_height, logo_path)
 
@@ -1138,7 +1174,7 @@ peu altérés par les activités humaines."
 
             # If there is no specified station code to highlight
             # (mini map)
-            if (mapType != 'mini') {
+            if (!(mapType %in% c("mini", "minimal"))) {
                 # Saving matrix plot
                 ggsave(plot=plot,
                        path=outdirTmp_pdf,
@@ -1154,7 +1190,7 @@ peu altérés par les activités humaines."
     }
     # If there is no specified station code to highlight
     # (mini map)
-    if (mapType != 'mini') {
+    if (!(mapType %in% c('mini', "minimal"))) {
         return (df_page)
         # Returns the map object
     } else {

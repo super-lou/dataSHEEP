@@ -40,7 +40,7 @@
 datasheet_panel = function (list_df2plot, df_meta, trend_period,
                             mean_period, linetype_per, axis_xlim,
                             colorForce, exQprob, info_header, time_header,
-                            foot_note, structure, layout_matrix,
+                            foot_note, structure,
                             info_height, time_height,
                             var_ratio, foot_height,
                             paper_size, shapefile_list, logo_path,
@@ -199,7 +199,6 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
         }
 
         # Computes the number of column of plot asked on the datasheet
-        nbcol = ncol(as.matrix(layout_matrix))
         var_plotted = c()
         # For all variable
         for (i in 1:nVar) {
@@ -217,13 +216,13 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
             type = list_df2plot[[i]]$type
             event = list_df2plot[[i]]$event
             unit = list_df2plot[[i]]$unit
-            hydroPeriod = list_df2plot[[i]]$hydroPeriod
+            samplePeriod = list_df2plot[[i]]$samplePeriod
 
-            if (is.tbl(hydroPeriod)) {
-                hydroPeriod_code =
-                    hydroPeriod$Value[hydroPeriod$Code == code]
+            if (is.tbl(samplePeriod)) {
+                samplePeriod_code =
+                    samplePeriod$Value[samplePeriod$Code == code]
             } else {
-                hydroPeriod_code = hydroPeriod
+                samplePeriod_code = samplePeriod
             }
             
             # Extracts the data corresponding to the code
@@ -242,8 +241,8 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                     # if (df_trend_code$p[j] <= alpha | colorForce){
                     if (df_trend_code$p[j] <= alpha){
                         # Extract start and end of trend periods
-                        Start = df_trend_code$period_start[j]
-                        End = df_trend_code$period_end[j]
+                        Start = df_trend_code$start[j]
+                        End = df_trend_code$end[j]
 
                         # Extracts the corresponding data for the period
                         df_data_code_per =
@@ -251,8 +250,8 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                                          & df_data_code$Date <= End,]
                         # Same for trend
                         df_trend_code_per = 
-                            df_trend_code[df_trend_code$period_start == Start 
-                                          & df_trend_code$period_end == End,]
+                            df_trend_code[df_trend_code$start == Start 
+                                          & df_trend_code$end == End,]
 
                         # Computes the number of trend analysis selected
                         Ntrend = nrow(df_trend_code_per)
@@ -269,10 +268,10 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                                             na.rm=TRUE)
                             # Normalises the trend value by the mean
                             # of the data
-                            value = df_trend_code_per$trend / dataMean
+                            value = df_trend_code_per$a / dataMean
                             # If it is a date variable
                         } else if (unit == "jour de l'année" | unit == 'jour' | unit == 'jour.an^{-1}') {
-                            value = df_trend_code_per$trend
+                            value = df_trend_code_per$a
                         }
 
 
@@ -313,10 +312,10 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
             }
 
             print(paste0("Time panel for ", var))
-            
+
             res = time_panel(df_data_code, df_trend_code, var=var, 
                              type=type, unit=unit,
-                             hydroPeriod_code=hydroPeriod_code,
+                             samplePeriod_code=samplePeriod_code,
                              linetype_per=linetype_per,
                              alpha=alpha, colorForce=colorForce,
                              missRect=FALSE,
@@ -419,12 +418,13 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                 } else {
                     nbi = 0
                 }
-                
+
                 if (!is.null(time_header)) {
                     if (event == "Resume") {
                         id_plot = c(which(df_P$name == "Q"
                                           & df_P$first == TRUE),
-                                    which(df_P$name == "\\sqrt{Q}"))
+                                    which(df_P$name == "\\sqrt{Q}"
+                                          & df_P$first == FALSE))
                         nbt = 2
                     } else if (event == "Étiage")  {
                         id_plot = which(df_P$name == "\\sqrt{Q}"
@@ -435,6 +435,7 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                                         & df_P$first == TRUE)
                         nbt = 1
                     }
+
                     LM_id = c(LM_id, id_plot)
                     LM_name = c(LM_name, df_P$name[id_plot])
                 } else {
@@ -455,9 +456,11 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                 
                 nGraphMiss = nVar_max - length(var_to_place_page)
 
-                for (i in 1:nGraphMiss) {
-                    LM_id = c(LM_id, NA)
-                    LM_name = c(LM_name, "void")
+                if (nGraphMiss > 0) {
+                    for (i in 1:nGraphMiss) {
+                        LM_id = c(LM_id, NA)
+                        LM_name = c(LM_name, "void")
+                    }
                 }
 
                 if (foot_note) {
@@ -489,11 +492,11 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                 LMcol = ncol(LM_id)
 
                 margin_height = 0.5
-
+                
                 Norm_ratio = height * var_ratio * nVar_max / (height - 2*margin_height - time_height*nbt - foot_height*nbf - info_height*nbi)
 
                 var_height = height * var_ratio / Norm_ratio
-
+                
                 Hcut = LM_name[, 2]
                 heightLM = rep(0, times=LMrow)        
                 
@@ -510,6 +513,7 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
                 Wcut = LM_name[(LMrow-1),]
                 widthLM = rep(col_width, times=LMcol)
                 widthLM[Wcut == "margin"] = margin_height
+
                 
                 LM_inline = Pevent[as.vector(LM_id)]
                 
@@ -564,6 +568,8 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
             }
         }
 
+        print("")
+
         if (!is.null(df_page)) {
             section = 'Fiche station'
             subsection = code
@@ -588,7 +594,7 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
 #' @title Time panel
 #' @export
 time_panel = function (df_data_code, df_trend_code, var, type, unit,
-                       hydroPeriod_code=NULL,
+                       samplePeriod_code=NULL,
                        linetype_per='solid', alpha=0.1,
                        colorForce=FALSE, missRect=FALSE,
                        unit2day=365.25, trend_period=NULL,
@@ -596,128 +602,14 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                        ymin_lim=NULL, color=NULL,
                        first=FALSE, last=FALSE, lim_pct=10) {
 
+    isDate = as.Date("1970-01-01")
 
-    # Issue for negative values in the y axis ticks : if Value is a
-    # number of days that can be negative, it adds a year in order
-    # to always be positive
-    if (unit == "jour de l'année") {
-        df_data_code$Value = df_data_code$Value + 365
-        df_trend_code$intercept = df_trend_code$intercept + 365
-    }
-        
-    # Compute max and min of flow
+    # # Compute max and min of flow
     maxQ = max(df_data_code$Value, na.rm=TRUE)
     minQ = min(df_data_code$Value, na.rm=TRUE)
 
-    spread = maxQ - minQ
-    
-    nTick = 6
-    maxQ_win = maxQ + spread*lim_pct/100
-    minQ_win = minQ - spread*lim_pct/100
-
-    if (minQ_win < 0) {
-        minQtmp_lim = 0
-    } else {
-        minQtmp_lim = minQ_win
-    }
-
-    if (!is.null(ymin_lim)) {
-        minQ_win = ymin_lim
-    }
-    
-    spreadtmp = maxQ_win - minQtmp_lim
-    
-    breakQtmp = spreadtmp / (nTick - 1)
-
-    GradQ_10 = c(0, 1, 1.5, 2, 2.5, 3, 4, 5, 10)
-
-    Grad = GradQ_10 * 10^get_power(breakQtmp)
-    dist = abs(Grad - breakQtmp)
-    idGrad = which.min(dist)
-    breakQ = Grad[idGrad]
-    
-    if (is.null(ymin_lim)) {
-        Grad = GradQ_10 * 10^get_power(minQtmp_lim)      
-        Grad[Grad > minQtmp_lim] = NA        
-        dist = abs(Grad - minQtmp_lim)        
-        idGrad = which.min(dist)
-        minQ_lim = Grad[idGrad]
-    } else {
-        minQ_lim = ymin_lim
-    }
-    maxQ_list = c()
-    i = 1
-    maxQtmp = minQ_lim
-    
-    while (maxQtmp <= maxQ_win) {
-        maxQtmp = minQ_lim + i*breakQ
-        i = i + 1
-    }   
-    maxQ_lim = maxQtmp    
-        
-    # If x axis limits are specified
-    if (!is.null(axis_xlim)) {
-        axis_xlim = as.Date(axis_xlim)
-        minor_minDatetmp_lim = axis_xlim[1]
-        minor_maxDatetmp_lim = axis_xlim[2]
-    # Otherwise
-    } else {
-        minor_minDatetmp_lim = as.Date(df_data_code$Date[1]) 
-        minor_maxDatetmp_lim =
-            as.Date(df_data_code$Date[length(df_data_code$Date)])
-    }
-
-    minor_minDatetmp_lim = as.numeric(format(minor_minDatetmp_lim, "%Y"))
-    minor_maxDatetmp_lim = as.numeric(format(minor_maxDatetmp_lim, "%Y"))
-
-    minDatetmp_lim = minor_minDatetmp_lim
-    maxDatetmp_lim = minor_maxDatetmp_lim
-
-    nTick = 8
-    
-    spreadtmp = minor_maxDatetmp_lim - minor_minDatetmp_lim
-    breakDatetmp = spreadtmp / (nTick - 1)
-
-    GradDate_10 = c(1, 2.5, 5, 10)
-
-    Grad = GradDate_10 * 10^get_power(breakDatetmp)
-    dist = abs(Grad - breakDatetmp)
-    idGrad = which.min(dist)
-    breakDate = Grad[idGrad]
-
-    listDate = seq(round(minDatetmp_lim, -1)-10^(get_power(breakDate)+1),
-                   round(maxDatetmp_lim, -1)+10^(get_power(breakDate)+1),
-                   by=breakDate)
-
-    minDate_lim = listDate[which.min(abs(listDate - minDatetmp_lim))]
-    maxDate_lim = listDate[which.min(abs(listDate - maxDatetmp_lim))]
-    minDate_lim = as.Date(paste(minDate_lim, '-01-01', sep=''))
-    maxDate_lim = as.Date(paste(maxDate_lim, '-01-01', sep=''))
-
-
-    minor_breakDatetmp = breakDate / 5
-    
-    GradMinorDate_10 = c(1, 2, 5, 10)
-
-    Grad = GradMinorDate_10 * 10^get_power(minor_breakDatetmp)
-    dist = abs(Grad - minor_breakDatetmp)
-    idGrad = which.min(dist)
-    minor_breakDate = Grad[idGrad]
-    
-    listDate = seq(round(minor_minDatetmp_lim,
-                         -1) - 10^(get_power(minor_breakDate)+1),
-                   round(minor_maxDatetmp_lim,
-                         -1) + 10^(get_power(minor_breakDate)+1),
-                   by=minor_breakDate)
-
-    minor_minDate_lim =
-        listDate[which.min(abs(listDate - minor_minDatetmp_lim))]
-    minor_maxDate_lim =
-        listDate[which.min(abs(listDate - minor_maxDatetmp_lim))]
-    minor_minDate_lim = as.Date(paste(round(minor_minDate_lim),
-                                      '-01-01', sep=''))
-    minor_maxDate_lim = as.Date(paste(round(minor_maxDate_lim),
-                                      '-01-01', sep=''))
+    maxQ_win = maxQ * 1.05
+    minQ_win = minQ * 0.95#expansion
     
     # Open new plot
     p = ggplot() + theme_ash()
@@ -775,14 +667,6 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                 maxPer = max(df_data_code$Date)
             }
         }
-
-        # Draw rectangle to delimiting the sub period
-        p = p + 
-            geom_rect(aes(xmin=minPer,
-                          ymin=minQ_win, 
-                          xmax=maxPer,
-                          ymax= maxQ_win),
-                      linetype=0, fill='grey97')
     }
 
     ## Mean step ##
@@ -865,7 +749,7 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Create temporary tibble with variable
             # to create rectangle for mean step
             plot_meantmp = tibble(xmin=xmin, xmax=xmax, 
-                                  ymin=minQ_win, ymax=ymax, period=j)
+                                  ymin=-Inf, ymax=ymax, period=j)
             # Bind it to the main tibble to store it with other period
             plot_mean = bind_rows(plot_mean, plot_meantmp)
 
@@ -879,19 +763,37 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Bind it to the main tibble to store it with other period
             plot_line =  bind_rows(plot_line, plot_linetmp)
         }
-        # Plot rectangles
-        p = p + 
-            geom_rect(data=plot_mean,
-                      aes(xmin=xmin, ymin=ymin, 
-                          xmax=xmax, ymax=ymax),
+        if (unit == "jour de l'année") {
+            # Plot rectangles
+            p = p + 
+            geom_rect(aes(xmin=plot_mean$xmin,
+                          ymin=as.Date(plot_mean$ymin + isDate), 
+                          xmax=plot_mean$xmax,
+                          ymax=as.Date(plot_mean$ymax + isDate)),
                       linetype=0, fill='grey93')
-        # Plot upper line for rectangle
-        p = p +
-            geom_line(data=plot_line,
-                      aes(x=abs, y=ord, group=period),
-                      color='grey80',
-                      size=0.15)
-
+            # Plot upper line for rectangle
+            p = p +
+                geom_line(aes(x=plot_line$abs,
+                              y=as.Date(plot_line$ord + isDate),
+                              group=period),
+                          color='grey80',
+                          size=0.15)
+        } else {
+            # Plot rectangles
+            p = p + 
+            geom_rect(aes(xmin=plot_mean$xmin,
+                          ymin=plot_mean$ymin, 
+                          xmax=plot_mean$xmax,
+                          ymax=plot_mean$ymax),
+                      linetype=0, fill='grey93')
+            # Plot upper line for rectangle
+            p = p +
+                geom_line(aes(x=plot_line$abs,
+                              y=plot_line$ord,
+                              group=period),
+                          color='grey80',
+                          size=0.15)
+        }
         
         # for all the sub periods except the last one
         for (i in 1:(nPeriod_mean - 1)) {
@@ -907,10 +809,19 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                 # Make a tibble to store data
                 plot_lim = tibble(x=c(xLim, xLim), y=c(minQ_win, yLim))
                 # Plot the limit of rectangles
-                p = p + 
-                    geom_line(data=plot_lim, aes(x=x, y=y),
-                              linetype='dashed', size=0.15,
-                              color='grey80')
+                if (unit == "jour de l'année") {
+                    p = p + 
+                        geom_line(aes(x=plot_lim$x,
+                                      y=as.Date(plot_lim$y + isDate)),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80')
+                } else {
+                    p = p + 
+                        geom_line(aes(x=plot_lim$x,
+                                      y=plot_lim$y),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80')
+                }
                 
             } else {
                 # Takes the x and y limits for the ith rectangle
@@ -926,67 +837,64 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                                   x_i1=c(xLim_i1, xLim_i1),
                                   y_i1=c(minQ_win, yLim_i1))
                 # Plot the limit of rectangles
-                p = p + 
-                    geom_line(data=plot_lim, aes(x=x_i, y=y_i),
-                              linetype='dashed', size=0.15,
-                              color='grey80') +
-                    geom_line(data=plot_lim, aes(x=x_i1, y=y_i1),
-                              linetype='dashed', size=0.15,
-                              color='grey80')
-            }      
+                if (unit == "jour de l'année") {
+                    p = p +
+                        geom_line(aes(x=plot_lim$x_i,
+                                      y=as.Date(plot_lim$y_i + isDate)),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80') +
+                        geom_line(aes(x=plot_lim$x_i1,
+                                      y=as.Date(plot_lim$y_i1 + isDate)),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80')
+                } else {
+                    p = p +
+                        geom_line(aes(x=plot_lim$x_i,
+                                      y=plot_lim$y_i),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80') +
+                        geom_line(aes(x=plot_lim$x_i1,
+                                      y=plot_lim$y_i1),
+                                  linetype='dashed', size=0.15,
+                                  color='grey80')
+                }
+            }   
         }
     }
 
-    ### Grid ###
+    # ### Grid ###
     if (grid) {
-        # If there is no axis limit
-        if (is.null(axis_xlim)) {
-            # The min and the max is set by
-            # the min and the max of the date data 
-            xmin = min(df_data_code$Date)
-            xmax = max(df_data_code$Date)
-        } else {
-            # Min and max is set with the limit axis parameter
-            xmin = axis_xlim[1]
-            xmax = axis_xlim[2]
-        }
-        # Create a vector for all the y grid position
-        ygrid = seq(minQ_win, maxQ_win, breakQ)
-        # Blank vector to store position
-        ord = c() 
-        abs = c()
-        # For all the grid element
-        for (i in 1:length(ygrid)) {
-            # Store grid position
-            ord = c(ord, rep(ygrid[i], times=2))
-            abs = c(abs, xmin, xmax)
-        }
-        # Create a tibble to store all the position
-        plot_grid = tibble(abs=as.Date(abs, origin="1970-01-01"),
-                           ord=ord)
-        # Plot the y grid
         p = p +
-            geom_line(data=plot_grid, 
-                      aes(x=abs, y=ord, group=ord),
-                      color='grey80',
-                      size=0.15)
+            theme(panel.grid.major.y=element_line(color='grey80',
+                                                  size=0.3))
     }
 
+    
     ### Data ###
     # If it is a square root flow or flow
     if (var == '\\sqrt{Q}' | var == 'Q') {
         # Plot the data as line
         p = p +
-            geom_line(aes(x=df_data_code$Date, y=df_data_code$Value),
+            geom_line(aes(x=df_data_code$Date,
+                          y=df_data_code$Value),
                       color='grey20',
                       size=0.3,
                       lineend="round")
     } else {
         # Plot the data as point
-        p = p +
-            geom_point(aes(x=df_data_code$Date, y=df_data_code$Value),
-                       shape=19, color='grey50', alpha=1,
-                       stroke=0, size=1)
+        if (unit == "jour de l'année") {
+            p = p +
+                geom_point(aes(x=df_data_code$Date,
+                               y=as.Date(df_data_code$Value + isDate)),
+                           shape=19, color='grey50', alpha=1,
+                           stroke=0, size=1)
+        } else {
+            p = p +
+                geom_point(aes(x=df_data_code$Date,
+                               y=df_data_code$Value),
+                           shape=19, color='grey50', alpha=1,
+                           stroke=0, size=1)
+        }
     }
 
     ### Missing data ###
@@ -1005,20 +913,20 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
 
         # Plot the missing data period
         p = p +
-            geom_rect(aes(xmin=NAdate_Down, 
-                          ymin=minQ_win, 
-                          xmax=NAdate_Up, 
-                          ymax=maxQ_win),
+            geom_rect(aes(xmin=as.Date(NAdate_Down), 
+                          ymin=-Inf, 
+                          xmax=as.Date(NAdate_Up), 
+                          ymax=Inf),
                       linetype=0, fill='#66c1bf', alpha=0.4)
     }
-
+        
     ### Trend ###
     # If there is trends
     if (!is.null(df_trend_code)) {
 
         # Extract start and end of trend periods
-        Start = df_trend_code$period_start
-        End = df_trend_code$period_end
+        Start = df_trend_code$start
+        End = df_trend_code$end
         # Get the name of the different period
         UStart = levels(factor(Start))        
         UEnd = levels(factor(End))
@@ -1044,8 +952,8 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             
             # Get the trend associated to the first period
             df_trend_code_per = 
-                df_trend_code[df_trend_code$period_start == Start[i] 
-                              & df_trend_code$period_end == End[i],]
+                df_trend_code[df_trend_code$start == Start[i] 
+                              & df_trend_code$end == End[i],]
             
             # Number of trend selected
             Ntrend = nrow(df_trend_code_per)
@@ -1087,8 +995,8 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Convert the number of day to the unit of the period
             abs_num = as.numeric(abs, origin="1970-01-01") / unit2day
             # Compute the y of the trend
-            ord = abs_num * df_trend_code_per$trend +
-                df_trend_code_per$intercept
+            ord = abs_num * df_trend_code_per$a +
+                df_trend_code_per$b
 
             # Create temporary tibble with variable to plot trend
             # for each period
@@ -1105,7 +1013,7 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                 codeDate = df_data_code$Date
             }
             # The y limit is stored in a vector
-            codeValue = c(minQ_win, maxQ_win)
+            codeValue = c(minQ, maxQ)
 
             # Position of the x beginning and end of the legend symbol
             x = gpct(1.5, codeDate, shift=TRUE)
@@ -1114,7 +1022,7 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Spacing between legend symbols
             dy = gpct(9, codeValue, min_lim=ymin_lim)
             # Position of the y beginning and end of the legend symbol
-            y = gpct(92, codeValue,
+            y = gpct(100, codeValue,
                      min_lim=ymin_lim, shift=TRUE) - (i-1)*dy
             yend = y
 
@@ -1134,7 +1042,7 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             ymaxR = y + gpct(5, codeValue, min_lim=ymin_lim)
 
             # Gets the trend
-            trend = df_trend_code_per$trend
+            trend = df_trend_code_per$a
             # Gets the p value
             pVal = df_trend_code_per$p
             
@@ -1167,21 +1075,21 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Gets the power of ten of magnitude
             brk = 10^power
             # Converts trend to character for sientific expression
-            trendC = as.character(format(round(trend / brk, 2),
+            aC = as.character(format(round(trend / brk, 2),
                                          nsmall=2))
             # If the trend is positive
-            if (trendC >= 0) {
+            if (aC >= 0) {
                 # Adds two spaces in order to compensate for the minus
                 # sign that sometimes is present for the other periods
-                trendC = paste('  ', trendC, sep='')
+                aC = paste('  ', aC, sep='')
             }
             # Converts mean trend to character
-            trendMeanC = as.character(format(round(trendMean*100, 2),
+            aMeanC = as.character(format(round(trendMean*100, 2),
                                              nsmall=2))
-            if (trendMeanC >= 0) {
+            if (aMeanC >= 0) {
                 # Adds two spaces in order to compensate for the minus
                 # sign that sometimes is present for the other periods
-                trendMeanC = paste('  ', trendMeanC, sep='')
+                aMeanC = paste('  ', aMeanC, sep='')
             }
 
             # Create temporary tibble with variable to plot legend
@@ -1190,10 +1098,10 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
                                   xt=xt,
                                   colorLine=colorLine,
                                   colorLabel=colorLabel,
-                                  trendC=trendC,
+                                  aC=aC,
                                   powerC=powerC,
                                   spaceC=spaceC,
-                                  trendMeanC=trendMeanC,
+                                  aMeanC=aMeanC,
                                   xminR=xminR, yminR=yminR,
                                   xmaxR=xmaxR, ymaxR=ymaxR,
                                   period=i)
@@ -1215,68 +1123,102 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             # Extract the trend of the current sub period
             leg_trend_per = leg_trend[leg_trend$period == i,]
 
-            # Plot the background for legend
-            p = p +
-                geom_rect(data=leg_trend_per,
-                          aes(xmin=xminR, 
-                              ymin=yminR, 
-                              xmax=xmaxR, 
-                              ymax=ymaxR),
-                          linetype=0, fill='white', alpha=0.3)
-
+            if (nPeriod_trend > 1) {
+                # Plot the background for legend
+                if (unit == "jour de l'année") {
+                    p = p +
+                        geom_rect(aes(xmin=leg_trend_per$xminR,
+                                      ymin=as.Date(leg_trend_per$yminR
+                                                   + isDate),
+                                      xmax=leg_trend_per$xmaxR,
+                                      ymax=as.Date(leg_trend_per$ymaxR
+                                                   + isDate)),
+                                  linetype=0, fill='white', alpha=0.3)
+                } else {
+                    p = p +
+                        geom_rect(aes(xmin=leg_trend_per$xminR,
+                                      ymin=leg_trend_per$yminR,
+                                      xmax=leg_trend_per$xmaxR,
+                                      ymax=leg_trend_per$ymaxR),
+                                  linetype=0, fill='white', alpha=0.3)
+                }
+            }
+                
             # Get the character variable for naming the trend
             colorLine = leg_trend_per$colorLine
             colorLabel = leg_trend_per$colorLabel
-            trendC = leg_trend_per$trendC
+            aC = leg_trend_per$aC
             powerC = leg_trend_per$powerC
             spaceC = leg_trend_per$spaceC
-            trendMeanC = leg_trend_per$trendMeanC
+            aMeanC = leg_trend_per$aMeanC
 
             unitF = gsub(" ", "\\\\,", unit)
             if (unit == 'hm^{3}' | unit == 'm^{3}.s^{-1}') {
-                label = paste0("\\textbf{", trendC,
+                label = paste0("\\textbf{", aC,
                                " x 10$^{$", powerC,"}}",
                                spaceC,
                                " ", "\\[$", unitF, ".an^{-1}$", "\\]",
-                               "\\;", "\\textbf{", trendMeanC, "}",
+                               "\\;", "\\textbf{", aMeanC, "}",
                                " ", "\\[%$.an^{-1}$\\]")
                 
             } else if (unit == "jour de l'année" | unit == "jour") {
-                label = paste0("\\textbf{", trendC,
+                label = paste0("\\textbf{", aC,
                                " x 10$^{$", powerC,"}}",
                                spaceC,
                                " ", "\\[", "jour$.an^{-1}$", "\\]")
             } else if (unit == 'jour.an^{-1}') {
-                label = paste0("\\textbf{", trendC,
+                label = paste0("\\textbf{", aC,
                                " x 10$^{$", powerC,"}}",
                                spaceC,
                                " ", "\\[", "jour$.an^{-2}$", "\\]")
             }
 
-            # Plot the trend symbole and value of the legend
-            p = p +
-                annotate("segment",
-                         x=leg_trend_per$x, xend=leg_trend_per$xend,
-                         y=leg_trend_per$y, yend=leg_trend_per$yend,
-                         color=colorLine,
-                         linetype=linetypeLeg_per[i],
-                         lwd=0.8,
-                         lineend="round") +
-                
-                annotate("text",
-                         label=TeX(label), size=2.8,
-                         x=leg_trend_per$xt, y=leg_trend_per$y, 
-                         hjust=0, vjust=0.5,
-                         color=colorLabel)
-            
-                # geom_shadowtext(data=tibble(x=leg_trend_per$xt,
-                #                             y=leg_trend_per$y,
-                #                             label=label),
-                #                 aes(x=x, y=y, label=TeX(label)),
-                #                 color=colorLabel,
-                #                 bg.colour="white",
-                #                 hjust=0, vjust=0.5,
-                #                 size=2.8)
+            if (nPeriod_trend > 1) {
+                if (unit == "jour de l'année") {
+                    # Plot the trend symbole and value of the legend
+                    p = p +
+                        annotate("segment",
+                                 x=leg_trend_per$x,
+                                 xend=leg_trend_per$xend,
+                                 y=as.Date(leg_trend_per$y + isDate),
+                                 yend=as.Date(leg_trend_per$yend + isDate),
+                                 color=colorLine,
+                                 linetype=linetypeLeg_per[i],
+                                 lwd=0.8,
+                                 lineend="round") +
+                        annotate("text",
+                                 label=TeX(label), size=2.8,
+                                 x=leg_trend_per$xt,
+                                 y=as.Date(leg_trend_per$y + isDate), 
+                                 hjust=0, vjust=0.5,
+                                 color=colorLabel)
+                } else {
+                    # Plot the trend symbole and value of the legend
+                    p = p +
+                        annotate("segment",
+                                 x=leg_trend_per$x,
+                                 xend=leg_trend_per$xend,
+                                 y=leg_trend_per$y,
+                                 yend=leg_trend_per$yend,
+                                 color=colorLine,
+                                 linetype=linetypeLeg_per[i],
+                                 lwd=0.8,
+                                 lineend="round") +
+                        annotate("text",
+                                 label=TeX(label), size=2.8,
+                                 x=leg_trend_per$xt,
+                                 y=leg_trend_per$y, 
+                                 hjust=0, vjust=0.5,
+                                 color=colorLabel)
+                }
+            } else {
+                p = p +
+                    theme(plot.title=element_text(size=7,
+                                                  vjust=-1.5, 
+                                                  hjust=0,
+                                                  color=colorLabel)) + 
+                    ggtitle(TeX(label))
+            }
         }
 
         # For all periods
@@ -1285,13 +1227,24 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             plot_trend_per = plot_trend[plot_trend$period == i,]
             
             # Plot the line of white background of each trend
-            p = p + 
-                geom_line(data=plot_trend_per, 
-                          aes(x=abs, y=ord),
-                          color='white',
-                          linetype='solid',
-                          size=1.5,
-                          lineend="round")
+            if (unit == "jour de l'année") {
+                p = p + 
+                    geom_line(aes(x=plot_trend_per$abs,
+                                  y=as.Date(plot_trend_per$ord
+                                            + isDate)),
+                              color='white',
+                              linetype='solid',
+                              size=1.5,
+                              lineend="round")
+            } else {
+                p = p + 
+                    geom_line(aes(x=plot_trend_per$abs,
+                                  y=plot_trend_per$ord),
+                              color='white',
+                              linetype='solid',
+                              size=1.5,
+                              lineend="round")
+            }
         }
         
         # For all periods
@@ -1300,17 +1253,28 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
             plot_trend_per = plot_trend[plot_trend$period == i,]
 
             # Plot the line of trend
-            p = p + 
-                geom_line(data=plot_trend_per, 
-                          aes(x=abs, y=ord),
-                          color=color[i],
-                          linetype=linetype_per[i],
-                          size=0.75,
-                          lineend="round")
+            if (unit == "jour de l'année") {
+                p = p + 
+                    geom_line(aes(x=plot_trend_per$abs,
+                                  y=as.Date(plot_trend_per$ord
+                                            + isDate)),
+                              color=color[i],
+                              linetype=linetype_per[i],
+                              size=0.75,
+                              lineend="round")
+            } else {
+                p = p + 
+                    geom_line(aes(x=plot_trend_per$abs,
+                                  y=plot_trend_per$ord),
+                              color=color[i],
+                              linetype=linetype_per[i],
+                              size=0.75,
+                              lineend="round")
+            }
         }
     }
 
-    if (!is.null(hydroPeriod_code)) {
+    if (!is.null(samplePeriod_code)) {
         # If there is a x axis limit
         if (!is.null(axis_xlim)) {
             # The x axis limit is selected
@@ -1327,25 +1291,25 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
         # Position of the y beginning and end of the legend symbol
         hPy = gpct(50, codeValue, min_lim=ymin_lim, shift=TRUE)
 
-        if (length(hydroPeriod_code) > 1) {
+        if (length(samplePeriod_code) > 1) {
             hPlabel = paste0(
                 "$^{$",
                 "\\small{",
                 format(as.Date(paste0("1970-",
-                                      hydroPeriod_code[1])), "%d %B"),
+                                      samplePeriod_code[1])), "%d %B"),
                 " / ",
                 format(as.Date(paste0("1970-",
-                                      hydroPeriod_code[2])), "%d %B"),
+                                      samplePeriod_code[2])), "%d %B"),
                 "}}")
         } else {
             hPlabel = paste0(
                 "$^{$",
                 "\\small{",
                 format(as.Date(paste0("1970-",
-                                      hydroPeriod_code)), "%d %B"),
+                                      samplePeriod_code)), "%d %B"),
                 " / ",
                 format(as.Date(paste0("1970-",
-                                      hydroPeriod_code))-1, "%d %B"),
+                                      samplePeriod_code))-1, "%d %B"),
                 "}}")
         }
     }
@@ -1360,7 +1324,7 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
     unitF = gsub(" ", "\\\\,", unit)
     ylabel = paste0("\\textbf{", varF, "}", "\\;", "\\[$", unitF, "$\\]")
 
-    if (!is.null(hydroPeriod_code)) {
+    if (!is.null(samplePeriod_code)) {
         yTeXlabel = bquote(atop(.(TeX(ylabel)[[1]]),.(TeX(hPlabel)[[1]])))
     } else {
         yTeXlabel = bquote(atop(.(TeX(ylabel)[[1]])," "))
@@ -1381,35 +1345,49 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
         limits = axis_xlim
     }
 
-    if (breakDate < 1) {
-        breaks = waiver()
-        minor_breaks = waiver()
-        date_labels = waiver()
-    } else {
-        breaks = seq(minDate_lim, maxDate_lim,
-                     by=paste(breakDate, 'years'))
-        minor_breaks = seq(minor_minDate_lim,
-                           minor_maxDate_lim,
-                           by=paste(minor_breakDate,
-                                    'years'))
-        date_labels = "%Y"
+    breaks = function(X) {
+        Xmin = min(X)
+        Xmax = max(X)
+        seq.Date(from=as.Date(paste0(
+                     round(lubridate::year(Xmin), -1),
+                     "-01-01")),
+                 to=as.Date(paste0(
+                     round(lubridate::year(Xmax), -1),
+                     "-01-01")),
+                 by="10 years")
     }
+
+    minor_breaks = function(X) {
+        Xmin = min(X)
+        Xmax = max(X)
+        seq.Date(from=as.Date(paste0(
+                     round(lubridate::year(Xmin), -1),
+                     "-01-01")),
+                 to=as.Date(paste0(
+                     round(lubridate::year(Xmax), -1),
+                     "-01-01")),
+                 by="2 years")
+    }
+    
+    date_labels = "%Y"
 
     # Parameters of the x axis contain the limit of the date data
     p = p +
-        scale_x_date(breaks=breaks,
-                     minor_breaks=minor_breaks,
-                     guide='axis_minor',
-                     date_labels=date_labels,
-                     limits=limits,
-                     position=position, 
-                     expand=c(0, 0))    
+        scale_x_date(
+            breaks=breaks,
+            minor_breaks=minor_breaks,
+            guide='axis_minor',
+            date_labels=date_labels,
+            limits=limits,
+            position=position, 
+            expand=c(0, 0)
+        )
 
     # Parameters of the y axis
     # If it is a flow variable
     if (unit == 'jour' | unit == 'hm^{3}' | unit == 'm^{3}.s^{-1}' | unit == 'm^{3/2}.s^{-1/2}' | unit == 'jour.an^{-1}') {
         
-        if (get_power(minQ_lim) >= 4) {
+        if (get_power(minQ) >= 4) {
             labels = function(X) {
                 TeX(paste0(format(
                     round(X/10^get_power(X), 1), nsmall=1),
@@ -1420,61 +1398,79 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
         } else {
             labels = waiver()
         }
-        
-        breaks = seq(minQ_lim, maxQ_lim, breakQ)
-        breaks = breaks[minQ_win <= breaks & breaks <= maxQ_win]
-        p = p +
-            scale_y_continuous(breaks=breaks,
-                               limits=c(minQ_win, maxQ_win),
-                               expand=c(0, 0),
-                               labels=labels)
+
+        if (!is.null(ymin_lim)) {
+            p = p +
+                scale_y_continuous(limits=c(ymin_lim, NA),
+                                   n.breaks=5,
+                                   labels=labels,
+                                   expand=expansion(mult=c(0, 0.1)))
+        } else {
+            p = p +
+                scale_y_continuous(n.breaks=5,
+                                   labels=labels,
+                                   expand=expansion(mult=c(0.1, 0.1)))
+        }
 
     # If it is a date variable
     } else if (unit == "jour de l'année") {
-        monthStart = as.Date(paste(substr(
-            as.Date(minQ_lim, origin="1970-01-01"), 1, 7),
-            '-01', sep=''))
-        monthEnd = as.Date(paste(substr(
-            as.Date(maxQ_lim, origin="1970-01-01"), 1, 7),
-            '-01', sep=''))
-
-        byMonth = round(breakQ/30.4, 0)
-        if (byMonth == 0) {
-            byMonth = 1
+        monthSpread = (maxQ - minQ) %% 365.25 / 30.4375
+        if (6 <= monthSpread) {
+            p = p +
+                scale_y_date(date_breaks="2 month",
+                             date_labels="%b",
+                             expand=expansion(mult=c(0.1, 0.1)))
+        } else if (3 <= monthSpread & monthSpread < 6) {
+            p = p +
+                scale_y_date(date_breaks="month",
+                             date_labels="%b",
+                             expand=expansion(mult=c(0.1, 0.1)))
+        } else if (monthSpread < 3) {
+            p = p +
+                scale_y_date(date_breaks="2 week",
+                             date_labels="%d %b",
+                             expand=expansion(mult=c(0.1, 0.1)))
         }
-        
-        breaksDate = seq(monthStart, monthEnd,
-                         by=paste(byMonth, 'months'))
-        breaksNum = as.numeric(breaksDate)
-        breaksMonth = as.numeric(format(breaksDate, "%m"))
-
-        monthName = c('Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui',
-                      'Jui', 'Aou', 'Sep', 'Oct', 'Nov', 'Déc')
-        
-        labels = monthName[breaksMonth]
-        
-        p = p +
-            scale_y_continuous(breaks=breaksNum,
-                               limits=c(minQ_win, maxQ_win),
-                               labels=labels,  
-                               expand=c(0, 0))
     }
 
     # Margins
+    if (!is.null(df_trend_code)) {
+        if (nPeriod_trend > 1) {
+            tt = 2.5
+            t = 2
+            tb = 3
+            b = 2
+        } else {
+            tt = 0
+            t = 0
+            tb = 0
+            b = 0
+        }
+    } else {
+        tt = 2.5
+        t = 2
+        tb = 3
+        b = 2
+    }
+    
     if (last == "all") {
         pLastTRUE = p
         pLastFALSE = p
         if (first) {
             pLastFALSE = pLastFALSE +
-                theme(plot.margin=margin(t=2.5, r=0, b=3, l=0, unit="mm"))
+                theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
+                                         unit="mm"))
             pLastTRUE = pLastTRUE +
-                theme(plot.margin=margin(t=2.5, r=0, b=0, l=0, unit="mm"))
+                theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
+                                         unit="mm"))
         } else {
             pLastFALSE = pLastFALSE + 
-                theme(plot.margin=margin(t=2, r=0, b=2, l=0, unit="mm"),
+                theme(plot.margin=margin(t=t, r=0, b=b, l=0,
+                                         unit="mm"),
                       axis.text.x=element_blank())
             pLastTRUE = pLastTRUE +
-                theme(plot.margin=margin(t=2, r=0, b=0, l=0, unit="mm"))
+                theme(plot.margin=margin(t=t, r=0, b=0, l=0,
+                                         unit="mm"))
         }
 
         res = list(lastTRUE=pLastTRUE, lastFALSE=pLastFALSE)
@@ -1483,16 +1479,20 @@ time_panel = function (df_data_code, df_trend_code, var, type, unit,
     } else {
         if (first & !last) {
             p = p +
-                theme(plot.margin=margin(t=2.5, r=0, b=3, l=0, unit="mm"))
+                theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
+                                         unit="mm"))
         } else if (!first & last) {
             p = p + 
-                theme(plot.margin=margin(t=2, r=0, b=0, l=0, unit="mm"))
+                theme(plot.margin=margin(t=t, r=0, b=0, l=0,
+                                         unit="mm"))
         } else if (first & last) {
             p = p + 
-                theme(plot.margin=margin(t=2.5, r=0, b=0, l=0, unit="mm"))
+                theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
+                                         unit="mm"))
         } else if (!first & !last){
             p = p + 
-                theme(plot.margin=margin(t=2, r=0, b=2, l=0, unit="mm"),
+                theme(plot.margin=margin(t=t, r=0, b=b, l=0,
+                                         unit="mm"),
                       axis.text.x=element_blank())
         }
         return(p)
@@ -1725,7 +1725,7 @@ hydrograph_panel = function (df_data_code, period, margin=NULL) {
     hyd = ggplot() + theme_ash() +
         # Theme modification
         theme(
-            # plot.background=element_rect(fill=NA, color="#EC4899"),
+            panel.background=element_rect(fill="white"),
             panel.border=element_blank(),
             axis.text.x=element_text(margin=unit(c(0, 0, 0, 0), "mm"),
                                      vjust=1, hjust=0.5),
