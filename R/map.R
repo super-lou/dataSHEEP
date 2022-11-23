@@ -59,7 +59,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
     }
     
     # Get all different stations code
-    Code = rle(df_data$Code)$value
+    Code = rle(data$Code)$value
     nCode = length(Code)
 
     if (mapType == 'trend' & !is.null(trend_period)) {
@@ -74,8 +74,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                                 nVar, nCode, valueType="trend",
                                 colorForce=colorForce,
                                 minQprob=exQprob, maxQprob=1-exQprob)
-        minTrendValue = res$min
-        maxTrendValue = res$max
+        minTrendX = res$min
+        maxTrendX = res$max
     }
 
     # If there is a 'mean_period'
@@ -89,9 +89,9 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                                 nPeriod_mean, nVar, nCode,
                                 valueType="break",
                                 minQprob=exQprob, maxQprob=1-exQprob)
-        minBreakValue = res$min
-        maxBreakValue = res$max
-        breakValue_code = res$value
+        minBreakX = res$min
+        maxBreakX = res$max
+        breakX_code = res$value
 
         nMap = nPeriod_mean - 1
         
@@ -394,7 +394,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
             lat = c()
             fill = c()
             shape = c()
-            Value = c()
+            X = c()
             OkVal = c()
             # For all code
             for (k in 1:nCode) {
@@ -402,23 +402,23 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 code = Code[k]
 
                 if (mapType == 'mean') {
-                    value = breakValue_code[j+1, i, k]
-                    minValue = minBreakValue[j+1, i]
-                    maxValue = maxBreakValue[j+1, i]
+                    value = breakX_code[j+1, i, k]
+                    minX = minBreakX[j+1, i]
+                    maxX = maxBreakX[j+1, i]
                     pVal = 0
                     
                 } else if (mapType == 'trend') {
 
                     # Extracts the data corresponding to the
                     # current variable
-                    df_data = list_df2plot[[i]]$data
+                    data = list_df2plot[[i]]$data
                     # Extracts the trend corresponding to the
                     # current variable
                     df_trend = list_df2plot[[i]]$trend
                     # Gets the risk of the test
-                    alpha = list_df2plot[[i]]$alpha
+                    level = list_df2plot[[i]]$level
                     # Extracts the data corresponding to the code
-                    df_data_code = df_data[df_data$Code == code,]
+                    data_code = data[data$Code == code,]
 
                     # Extracts the trend corresponding to the code
                     df_trend_code = df_trend[df_trend$Code == code,]
@@ -428,9 +428,9 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     End = df_trend_code$end[idPer_trend]
 
                     # Extracts the corresponding data for the period
-                    df_data_code_per =
-                        df_data_code[df_data_code$Date >= Start 
-                                     & df_data_code$Date <= End,]
+                    data_code_per =
+                        data_code[data_code$Date >= Start 
+                                     & data_code$Date <= End,]
                     # Same for trend
                     df_trend_code_per = 
                         df_trend_code[df_trend_code$start == Start 
@@ -447,7 +447,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     # If it is a flow variable
                     if (unit == 'm^{3}' | unit == 'm^{3}.s^{-1}') {
                         # Computes the mean of the data on the period
-                        dataMean = mean(df_data_code_per$Value,
+                        dataMean = mean(data_code_per$X,
                                         na.rm=TRUE)
                         # Normalises the trend value by the mean
                         # of the data
@@ -457,28 +457,28 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                         value = df_trend_code_per$a
                     }
 
-                    minValue = minTrendValue[idPer_trend, i]
-                    maxValue = maxTrendValue[idPer_trend, i]
+                    minX = minTrendX[idPer_trend, i]
+                    maxX = maxTrendX[idPer_trend, i]
                     pVal = df_trend_code_per$p
 
                 } else {
                     value = NA
-                    minValue = NULL
-                    maxValue = NULL
+                    minX = NULL
+                    maxX = NULL
                     pVal = 0
                 }
                 
                 # Computes the color associated to the trend
                 color_res = get_color(value,
-                                      minValue,
-                                      maxValue,
+                                      minX,
+                                      maxX,
                                       Palette=Palette_ground(),
                                       colorStep=colorStep,
                                       reverse=FALSE)
                 
                 if (mapType == 'trend') {
                     # If it is significative
-                    if (pVal <= alpha){
+                    if (pVal <= level){
                         # The computed color is stored
                         filltmp = color_res
                         # If the mean tend is positive
@@ -492,7 +492,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                             # of the marker
                             shapetmp = 25
                         }
-                    } else if (pVal > alpha & colorForce) {
+                    } else if (pVal > level & colorForce) {
                         # The computed color is stored
                         filltmp = color_res
                         # The marker is a circle
@@ -522,9 +522,9 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 lat = c(lat, lattmp)
                 fill = c(fill, filltmp)
                 shape = c(shape, shapetmp)
-                Value = c(Value, value)
+                X = c(X, value)
                 # If the trend analysis is significative a TRUE is stored
-                OkVal = c(OkVal, pVal <= alpha)
+                OkVal = c(OkVal, pVal <= level)
             }
             
             # Creates a tibble to stores all the data to plot
@@ -558,8 +558,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 }
 
                 # Computes the colorbar info
-                palette_res = compute_colorBin(minValue,
-                                               maxValue,
+                palette_res = compute_colorBin(minX,
+                                               maxX,
                                                Palette=Palette_ground(),
                                                colorStep=colorStep,
                                                reverse=FALSE)
@@ -679,8 +679,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                            '%Y'),
                     sep='-')
                                     
-                    ValueName1 = "Tendances observées"
-                    ValueName2 = paste("sur la période ",
+                    XName1 = "Tendances observées"
+                    XName2 = paste("sur la période ",
                                        periodName_trend, sep='')
                     # If it is a flow variable
                     if (unit == 'm^{3}' | unit == 'm^{3}.s^{-1}') {
@@ -706,8 +706,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                            '%Y'),
                     sep='-')
                                     
-                    ValueName1 = "Écarts observés entre"
-                    ValueName2 = paste(periodName1_mean,
+                    XName1 = "Écarts observés entre"
+                    XName2 = paste(periodName1_mean,
                                        " et ",
                                        periodName2_mean,
                                        sep='')
@@ -726,13 +726,13 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     # Name of the colorbar
                     annotate('text',
                              x=0, y=81.5,
-                             label=ValueName1,
+                             label=XName1,
                              hjust=0, vjust=0.5,
                              size=6, color='grey40') +
                     # Second line
                     annotate('text',
                              x=0, y=78.8,
-                             label=ValueName2,
+                             label=XName2,
                              hjust=0, vjust=0.5,
                              size=6, color='grey40') +
                     # Unit legend of the colorbar
@@ -802,12 +802,12 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                 
 
                 # Takes only the significative ones
-                yValueOk = Value[OkVal]
-                yValueNOk = Value[!OkVal]
+                yXOk = X[OkVal]
+                yXNOk = X[!OkVal]
 
                 # Histogram distribution
                 # Computes the histogram of values
-                res_hist = hist(yValueOk,
+                res_hist = hist(yXOk,
                                 breaks=c(-Inf, bin, Inf),
                                 plot=FALSE)
                 # Extracts the number of counts per cells
@@ -820,7 +820,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
 
                 # Histogram distribution
                 # Computes the histogram of values
-                res_hist = hist(yValueNOk,
+                res_hist = hist(yXNOk,
                                 breaks=c(-Inf, bin, Inf),
                                 plot=FALSE)
                 # Extracts the number of counts per cells
@@ -830,8 +830,8 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
 
                 # Blank vectors to store position of points of
                 # the distribution to plot
-                xValue = c()
-                yValue = c()
+                xX = c()
+                yX = c()
                 color = c()
                 shape = c()
                 # Start X position of the distribution
@@ -858,15 +858,15 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     if (counts[ii] != 0) {
                         # Stores the X positions of points of the 
                         # distribution for the current cell
-                        xValue = c(
-                            xValue,
+                        xX = c(
+                            xX,
                             seq(start_hist,
                                 start_hist+(counts[ii]-1)*hist_sep,
                                 by=hist_sep))
                     }
                     # Stores the Y position which is the middle of the
                     # current cell the number of times it has been counted
-                    yValue = c(yValue, rep(mids[ii],
+                    yX = c(yX, rep(mids[ii],
                                            times=counts[ii]))
                     
                     color = c(color, rep('grey50',
@@ -889,17 +889,17 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
                     }
                 }
 
-                yValueNorm =
-                    (yValue - min(midBin)) / (max(midBin) - min(midBin)) * valNorm + base - 0.2
+                yXNorm =
+                    (yX - min(midBin)) / (max(midBin) - min(midBin)) * valNorm + base - 0.2
                 
                 # Makes a tibble to plot the distribution
-                plot_value = tibble(xValue=xValue, yValue=yValueNorm)
+                plot_value = tibble(xX=xX, yX=yXNorm)
 
                 if (nCode <= 60) {
                     leg = leg +
                         # Plots the point of the distribution
                         geom_point(data=plot_value,
-                                   aes(x=xValue, y=yValue),
+                                   aes(x=xX, y=yX),
                                    shape=shape,
                                    color=color,
                                    fill=color, stroke=0.4,

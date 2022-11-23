@@ -188,16 +188,16 @@ get_reverse = function (var) {
 # Generates a PDF that gather datasheets, map and summarize table about the trend analyses realised on selected stations
 #' @title Layout panel
 #' @export
-layout_panel = function (df_data, df_meta, structure, layout_matrix,
+layout_panel = function (data, df_meta, structure, layout_matrix,
                          to_plot=c('datasheet', 'table', 'map',
                                    'map_regime', 'map_trend', 'map_mean'),
                          figdir='', filedir_opt='', filename_opt='',
                          variable='', df_trend=NULL,
-                         alpha=0.1, unit2day=365.25, var='',
-                         type='', event='', unit='', samplePeriod='',
+                         level=0.1, unit2day=365.25, var='',
+                         event='', unit='', samplePeriod='',
                          glose=NULL, trend_period=NULL,
                          mean_period=NULL, colorForce=FALSE,
-                         exQprob=0.01,
+                         exXprob=0.01,
                          linetype_per='solid',
                          axis_xlim=NULL,
                          paper_size='A4',
@@ -262,19 +262,19 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
     }
 
     # Number of type/variable
-    nbp = length(df_data)
+    nbp = length(data)
 
     # Convert data tibble to list of tibble if it is not the case
-    if (all(class(df_data) != 'list')) {
-        df_data = list(df_data)
+    if (all(class(data) != 'list')) {
+        data = list(data)
     }
 
     if (all(class(df_trend) != 'list')) {
         df_trend = list(df_trend)
     }
 
-    if (length(alpha) != nbp) {
-        alpha = rep(alpha[1], nbp)
+    if (length(level) != nbp) {
+        level = rep(level[1], nbp)
     }
     
     if (length(unit2day) != nbp) {
@@ -287,10 +287,6 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
 
     if (length(glose) != nbp) {
         glose = rep(glose[1], nbp)
-    }
-
-    if (length(type) != nbp) {
-        type = rep(type[1], nbp)
     }
 
     if (length(event) != nbp) {
@@ -311,12 +307,11 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
     # For all the type of graph / number of studied variables
     for (i in 1:nbp) {
         # Creates a list that gather all the info for one type of graph
-        df2plot = list(data=df_data[[i]], 
+        df2plot = list(data=data[[i]], 
                        trend=df_trend[[i]],
-                       alpha=alpha[[i]],
+                       level=level[[i]],
                        unit2day=unit2day[[i]],
                        var=var[[i]],
-                       type=type[[i]],
                        event=event[[i]],
                        unit=unit[[i]],
                        samplePeriod=samplePeriod[[i]],
@@ -339,7 +334,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                                 trend_period=trend_period,
                                 mean_period=mean_period,
                                 colorForce=colorForce,
-                                exQprob=exQprob,
+                                exXprob=exXprob,
                                 mapType='regime',
                                 shapefile_list=shapefile_list,
                                 foot_note=foot_note,
@@ -359,7 +354,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                             trend_period=trend_period,
                             mean_period=mean_period,
                             colorForce=colorForce,
-                            exQprob=exQprob,
+                            exXprob=exXprob,
                             mapType='trend',
                             shapefile_list=shapefile_list,
                             foot_note=foot_note,
@@ -378,7 +373,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                                 trend_period=trend_period,
                                 mean_period=mean_period,
                                 colorForce=colorForce,
-                                exQprob=exQprob,
+                                exXprob=exXprob,
                                 mapType='mean',
                                 shapefile_list=shapefile_list,
                                 foot_note=foot_note,
@@ -397,7 +392,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                               trend_period,
                               mean_period,
                               colorForce=colorForce,
-                              exQprob=exQprob,
+                              exXprob=exXprob,
                               slice=19,
                               paper_size='A3',
                               foot_note=foot_note,
@@ -418,7 +413,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
                                   linetype_per=linetype_per,
                                   axis_xlim=axis_xlim,
                                   colorForce=colorForce,
-                                  exQprob=exQprob,
+                                  exXprob=exXprob,
                                   info_header=info_header,
                                   time_header=time_header,
                                   foot_note=foot_note,
@@ -460,7 +455,7 @@ layout_panel = function (df_data, df_meta, structure, layout_matrix,
 
     if (pdf_chunk == 'by_code') {
         # Get all different stations code
-        Code = rle(df_data[[1]]$Code)$value
+        Code = rle(data[[1]]$Code)$value
         for (code in Code) {
             listfile_code_path = listfile_path[grepl(code, listfile_path)]
             pdf_combine(input=listfile_code_path,

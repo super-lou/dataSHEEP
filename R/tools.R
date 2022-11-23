@@ -287,7 +287,7 @@ gpct = function (pct, L, min_lim=NULL, shift=FALSE) {
 #' @return A list of shapefiles converted as tibbles that can be plot
 #' with 'geom_polygon' or 'geom_path'.
 #' @export
-load_shapefile = function (resources_path, df_data,
+load_shapefile = function (resources_path, data,
                            fr_shpdir, fr_shpname,
                            bs_shpdir, bs_shpname,
                            sbs_shpdir, sbs_shpname,
@@ -296,7 +296,7 @@ load_shapefile = function (resources_path, df_data,
                            river_selection=c('all'),
                            toleranceRel=10000) {
 
-    Code = rle(df_data$Code)$value
+    Code = rle(data$Code)$value
     
     # Path for shapefile
     fr_shppath = file.path(resources_path, fr_shpdir, fr_shpname)

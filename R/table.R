@@ -51,7 +51,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
     nVar = length(list_df2plot)
     
     # Get all different stations code
-    Code = rle(df_data$Code)$value    
+    Code = rle(data$Code)$value    
     nCode = length(Code)
 
     # Convert 'trend_period' to list
@@ -66,8 +66,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                             valueType="trend",
                             colorForce=colorForce,
                             minQprob=exQprob, maxQprob=1-exQprob)
-    minTrendValue = res$min
-    maxTrendValue = res$max
+    minTrendX = res$min
+    maxTrendX = res$max
 
     # Blank vectors to store info about trend analyses
     Period_trend = c()
@@ -75,8 +75,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
     Var_trend = c()
     Type_trend = c()
     Code_trend = c()
-    Alpha_trend = c()
-    TrendValue_trend = c()
+    Level_trend = c()
+    TrendX_trend = c()
     DataMean_trend = c()
     Fill_trend = c()
     Color_trend = c()
@@ -89,17 +89,17 @@ table_panel = function (list_df2plot, df_meta, trend_period,
             # For all variable
             for (i in 1:nVar) {
                 # Extracts the data corresponding to the current variable
-                df_data = list_df2plot[[i]]$data
+                data = list_df2plot[[i]]$data
                 # Extracts the trend corresponding to the
                 # current variable
                 df_trend = list_df2plot[[i]]$trend
-                alpha = list_df2plot[[i]]$alpha
+                level = list_df2plot[[i]]$level
                 # Extract the variable of the plot
                 var = list_df2plot[[i]]$var
                 # Extract the type of the variable to plot
                 type = list_df2plot[[i]]$type
                 # Extracts the data corresponding to the code
-                df_data_code = df_data[df_data$Code == code,]
+                data_code = data[data$Code == code,]
                 # Extracts the trend corresponding to the code
                 df_trend_code = df_trend[df_trend$Code == code,]
 
@@ -115,9 +115,9 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                                 sep=' / ')
 
                 # Extracts the corresponding data for the period
-                df_data_code_per =
-                    df_data_code[df_data_code$Date >= Start 
-                                 & df_data_code$Date <= End,]
+                data_code_per =
+                    data_code[data_code$Date >= Start 
+                                 & data_code$Date <= End,]
                 # Same for trend
                 df_trend_code_per = 
                     df_trend_code[df_trend_code$start == Start 
@@ -132,22 +132,22 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 }
 
                 # Computes the mean of the data on the period
-                dataMean = mean(df_data_code_per$Value, na.rm=TRUE)
+                dataMean = mean(data_code_per$X, na.rm=TRUE)
 
                 # If it is a flow variable
                 if (type == 'sévérité') {
                     # Normalises the trend value by the mean of the data
-                    trendValue = df_trend_code_per$a / dataMean
+                    trendX = df_trend_code_per$a / dataMean
                 # If it is a date variable
                 } else if (type == 'saisonnalité') {
                     # Just stocks the trend value
-                    trendValue = df_trend_code_per$a
+                    trendX = df_trend_code_per$a
                 }
 
                 # Gets the color associated to the averaged trend
-                color_res = get_color(trendValue,
-                                      minTrendValue[j, i],
-                                      maxTrendValue[j, i],
+                color_res = get_color(trendX,
+                                      minTrendX[j, i],
+                                      maxTrendX[j, i],
                                       Palette=Palette_ground(),
                                       colorStep=10,
                                       reverse=FALSE)
@@ -155,24 +155,24 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 pVal = df_trend_code_per$p
                 
                 # If the p value is under the threshold
-                if (pVal <= alpha){
+                if (pVal <= level){
                     # Specifies the color fill and contour of
                     # table cells
                     fill = color_res
                     color = color_res
-                    Alpha = 'TRUE'
+                    Level = 'TRUE'
                     
-                } else if (pVal > alpha & colorForce) {
+                } else if (pVal > level & colorForce) {
                     # Specifies the color fill and contour of
                     # table cells
                     fill = 'white'
                     color = color_res
-                    Alpha = 'FORCE'
+                    Level = 'FORCE'
                 # Otherwise it is not significative
                 } else { 
                     fill = 'white'
                     color = 'grey80'  
-                    Alpha = 'FALSE'
+                    Level = 'FALSE'
                 }
 
                 # Stores info needed to plot
@@ -181,8 +181,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 Var_trend = append(Var_trend, var)
                 Type_trend = append(Type_trend, type)
                 Code_trend = append(Code_trend, code)
-                Alpha_trend = append(Alpha_trend, Alpha)
-                TrendValue_trend = append(TrendValue_trend, trendValue)
+                Level_trend = append(Level_trend, Level)
+                TrendX_trend = append(TrendX_trend, trendX)
                 DataMean_trend = append(DataMean_trend, dataMean)
                 Fill_trend = append(Fill_trend, fill)
                 Color_trend = append(Color_trend, color)
@@ -201,8 +201,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                                 nPeriod_mean, nVar, nCode,
                                 valueType="break",
                                 minQprob=exQprob, maxQprob=1-exQprob)
-        minBreakValue = res$min
-        maxBreakValue = res$max
+        minBreakX = res$min
+        maxBreakX = res$max
     } else {
         nPeriod_mean = 1
     }
@@ -216,7 +216,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
         Type_mean = c()
         Code_mean = c()
         DataMean_mean = c()
-        BreakValue_mean = c()
+        BreakX_mean = c()
         
         # Blank array to store mean for a temporary period in order
         # to compute the difference of mean with a second period
@@ -233,26 +233,26 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 for (i in 1:nVar) {
                     # Extracts the data corresponding to
                     # the current variable
-                    df_data = list_df2plot[[i]]$data
+                    data = list_df2plot[[i]]$data
                     # Extract the variable of the plot
                     var = list_df2plot[[i]]$var
                     # Extract the type of the variable to plot
                     type = list_df2plot[[i]]$type
                     # Extracts the data corresponding to the code
-                    df_data_code = df_data[df_data$Code == code,] 
+                    data_code = data[data$Code == code,] 
                     
                     # Get the current start and end of the sub period
                     Start_mean = mean_period[[j]][1]
                     End_mean = mean_period[[j]][2]
                     
                     # Extract the data corresponding to this sub period
-                    df_data_code_per =
-                        df_data_code[df_data_code$Date >= Start_mean 
-                                     & df_data_code$Date <= End_mean,]
+                    data_code_per =
+                        data_code[data_code$Date >= Start_mean 
+                                     & data_code$Date <= End_mean,]
                     
                     # Min max for the sub period
-                    Start = min(df_data_code_per$Date)
-                    End = max(df_data_code_per$Date)
+                    Start = min(data_code_per$Date)
+                    End = max(data_code_per$Date)
 
                     StartY = format(Start, '%Y')
                     EndY = format(End, '%Y')
@@ -262,7 +262,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                                     sep=' / ')
 
                     # Mean of the flow over the sub period
-                    dataMean = mean(df_data_code_per$Value,
+                    dataMean = mean(data_code_per$X,
                                     na.rm=TRUE)
 
                     # If this in not the first period
@@ -279,11 +279,11 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                     if (type == 'sévérité') {
                         # Normalises the break by the mean of the
                         # initial period
-                        breakValue = Break / dataMeantmp[i, k]
+                        breakX = Break / dataMeantmp[i, k]
                     # If it is a date variable
                     } else if (type == 'saisonnalité') {
                         # Just stocks the break value
-                        breakValue = Break
+                        breakX = Break
                     }
                     
                     # Stores temporarily the mean of the current period
@@ -296,8 +296,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                     Type_mean = append(Type_mean, type)
                     Code_mean = append(Code_mean, code)
                     DataMean_mean = append(DataMean_mean, dataMean)
-                    BreakValue_mean = append(BreakValue_mean,
-                                            breakValue)
+                    BreakX_mean = append(BreakX_mean,
+                                            breakX)
                 }
             }
         }
@@ -315,11 +315,11 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 # For all variable
                 for (i in 1:nVar) {
                     # Extracts averaged breaking
-                    breakValue = BreakValue_mean[ii]
+                    breakX = BreakX_mean[ii]
                     # Gets the color associated
-                    color_res = get_color(breakValue,
-                                          minBreakValue[j, i],
-                                          maxBreakValue[j, i],
+                    color_res = get_color(breakX,
+                                          minBreakX[j, i],
+                                          maxBreakX[j, i],
                                           Palette=Palette_ground(),
                                           colorStep=10,
                                           reverse=FALSE)
@@ -428,8 +428,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
 
                     Var = Var_trend[OKper]
                     MeanVal = DataMean_trend[OKper]
-                    TrendVal = TrendValue_trend[OKper]
-                    Alpha = Alpha_trend[OKper]
+                    TrendVal = TrendX_trend[OKper]
+                    Level = Level_trend[OKper]
                     nVar_trend = length(Var)
 
                     for (i in 1:nVar_trend) {
@@ -465,7 +465,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         }
                         trendValC = as.character(signif(trendVal, 4))
 
-                        if (Alpha[i] == 'TRUE') {
+                        if (Level[i] == 'TRUE') {
                             trendValC_S = trendValC
                         } else {
                             trendValC_S = ''
@@ -517,7 +517,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
 
                     Var = Var_mean[OKper]
                     MeanVal = DataMean_mean[OKper]
-                    BreakVal = BreakValue_mean[OKper]
+                    BreakVal = BreakX_mean[OKper]
                     nVar_mean = length(Var)
                     
                     for (i in 1:nVar_mean) {
@@ -664,8 +664,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 subVar_trend = Var_trend[OKtrend]
                 subType_trend = Type_trend[OKtrend]
                 subCode_trend = Code_trend[OKtrend]
-                subAlpha_trend = Alpha_trend[OKtrend]
-                subTrendValue_trend = TrendValue_trend[OKtrend]
+                subLevel_trend = Level_trend[OKtrend]
+                subTrendX_trend = TrendX_trend[OKtrend]
                 subDataMean_trend = DataMean_trend[OKtrend]
                 subFill_trend = Fill_trend[OKtrend]
                 subColor_trend = Color_trend[OKtrend]
@@ -680,7 +680,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                 subType_mean = Type_mean[OKmean]
                 subCode_mean = Code_mean[OKmean]
                 subDataMean_mean = DataMean_mean[OKmean]
-                subBreakValue_mean = BreakValue_mean[OKmean]
+                subBreakX_mean = BreakX_mean[OKmean]
                 subFill_mean = Fill_mean[OKmean]
                 subColor_mean = Color_mean[OKmean]
                 
@@ -755,10 +755,10 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         subType_trend[subNPeriod_trend == j]
                     Code_trend_per =
                         subCode_trend[subNPeriod_trend == j]
-                    Alpha_trend_per =
-                        subAlpha_trend[subNPeriod_trend == j]
-                    TrendValue_trend_per =
-                        subTrendValue_trend[subNPeriod_trend == j]
+                    Level_trend_per =
+                        subLevel_trend[subNPeriod_trend == j]
+                    TrendX_trend_per =
+                        subTrendX_trend[subNPeriod_trend == j]
                     DataMean_trend_per =
                         subDataMean_trend[subNPeriod_trend == j]
                     Fill_trend_per =
@@ -840,9 +840,9 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                     }
 
                     # For all averaged trends on this periods
-                    for (i in 1:length(TrendValue_trend_per)) {
+                    for (i in 1:length(TrendX_trend_per)) {
                         # Extracts the value of the averaged trend
-                        trendValue = TrendValue_trend_per[i]
+                        trendX = TrendX_trend_per[i]
                         type = Type_trend_per[i]
 
                         # If it is a flow variable
@@ -850,26 +850,26 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                             Nsign_mean = 2
                             # Converts it to the right format with
                             # two significant figures
-                            trendValueC = signif(trendValue*100, 2)
+                            trendXC = signif(trendX*100, 2)
                         # If it is a date variable
                         } else if (type == 'saisonnalité') {
                             # Fixes the significants number for mean to 3
                             Nsign_mean = 3
                             # Converts the trend value with two
                             # significant figures
-                            trendValueC = signif(trendValue, 2)
+                            trendXC = signif(trendX, 2)
                         }
-                        trendValueC = as.character(trendValueC)
+                        trendXC = as.character(trendXC)
                         
                         # If it is significative
-                        if (Alpha_trend_per[i] == 'TRUE') {
+                        if (Level_trend_per[i] == 'TRUE') {
                             # The text color is white
                             Tcolor = 'white'
                             
-                        } else if (Alpha_trend_per[i] == 'FORCE') {
+                        } else if (Level_trend_per[i] == 'FORCE') {
                             Tcolor = Color_trend_per[i]
                         # Otherwise
-                        } else if (Alpha_trend_per[i] == 'FALSE') {
+                        } else if (Level_trend_per[i] == 'FALSE') {
                             # The text is grey
                             Tcolor = 'grey80'
                         }
@@ -882,7 +882,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         mat = mat +
                             # Writes the mean trend
                             annotate('text', x=X[i], y=Y[i],
-                                     label=bquote(bold(.(trendValueC))),
+                                     label=bquote(bold(.(trendXC))),
                                      hjust=0.5, vjust=0.5, 
                                      size=3, color=Tcolor) + 
                             # Writes the mean of the associated variable
@@ -989,8 +989,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         subCode_mean[subNPeriod_mean == j]
                     DataMean_mean_per =
                         subDataMean_mean[subNPeriod_mean == j]
-                    BreakValue_mean_per =
-                        subBreakValue_mean[subNPeriod_mean == j]
+                    BreakX_mean_per =
+                        subBreakX_mean[subNPeriod_mean == j]
                     Fill_mean_per =
                         subFill_mean[subNPeriod_mean == j]
                     Color_mean_per =
@@ -1175,24 +1175,24 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         # If this is not the first period
                         if (j > 1) {
                             # Extracts values of breaking between periods
-                            breakValue = BreakValue_mean_per[i]
+                            breakX = BreakX_mean_per[i]
                             # If it is a flow variable
                             if (type == 'sévérité') {
                                 # Converts it to the right format with two
                                 # significant figures
-                                breakValueC = signif(breakValue*100, 2)
+                                breakXC = signif(breakX*100, 2)
                             # If it is a date variable
                             } else if (type == 'saisonnalité') {
                                 # Converts the break value with two
                                 # significant figures
-                                breakValueC = signif(breakValue, 2)
+                                breakXC = signif(breakX, 2)
                             }
-                            breakValueC = as.character(breakValueC)
+                            breakXC = as.character(breakXC)
 
                             # Writes breaking values
                             mat = mat +
                                 annotate('text', x=Xr_mean[i], y=Y[i],
-                                    label=bquote(bold(.(breakValueC))),
+                                    label=bquote(bold(.(breakXC))),
                                          hjust=0.5, vjust=0.5, 
                                          size=3, color='white')   
                         }
