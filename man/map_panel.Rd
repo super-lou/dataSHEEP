@@ -21,6 +21,7 @@ map_panel(
   foot_height = 0,
   logo_path = NULL,
   zone_to_show = "France",
+  mode = "",
   df_page = NULL,
   outdirTmp_pdf = "",
   outdirTmp_png = "",

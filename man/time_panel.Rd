@@ -5,14 +5,13 @@
 \title{Time panel}
 \usage{
 time_panel(
-  df_data_code,
+  data_code,
   df_trend_code,
   var,
-  type,
   unit,
-  hydroPeriod_code = NULL,
+  samplePeriod_code = NULL,
   linetype_per = "solid",
-  alpha = 0.1,
+  level = 0.1,
   colorForce = FALSE,
   missRect = FALSE,
   unit2day = 365.25,

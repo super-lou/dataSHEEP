@@ -4,7 +4,7 @@
 \alias{hydrograph_panel}
 \title{Hydrograph panel}
 \usage{
-hydrograph_panel(df_data_code, period, margin = NULL)
+hydrograph_panel(data_code, period, margin = NULL)
 }
 \description{
 Hydrograph panel

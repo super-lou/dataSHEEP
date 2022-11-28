@@ -12,7 +12,7 @@ info_panel(
   period = NULL,
   shapefile_list = NULL,
   codeLight = NULL,
-  df_data_code = NULL,
+  data_code = NULL,
   to_do = "all",
   zone_to_show = "France"
 )

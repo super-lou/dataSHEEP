@@ -242,7 +242,7 @@ datasheet_panel = function (list_df2plot, df_meta, trend_period,
             if (!is.null(trend_period)) {
                 # For all the period
                 for (j in 1:nPeriod_trend) {
-                    
+
                     # If the trend is significant
                     if (df_trend_code$p[j] <= level){
                         # Extract start and end of trend periods

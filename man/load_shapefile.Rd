@@ -6,7 +6,7 @@
 \usage{
 load_shapefile(
   resources_path,
-  df_data,
+  data,
   fr_shpdir,
   fr_shpname,
   bs_shpdir,
