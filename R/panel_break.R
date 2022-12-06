@@ -35,29 +35,11 @@
 ### 1.1. Histogram ___________________________________________________
 #' @title Histogram
 #' @export
-histogram = function (df_break, df_meta, title='', figdir='', filedir_opt='break_hist') {
+panel_break_histogram = function (df_break, df_meta, title='') {
 
     # Get all different stations code
     Code = rle(data$Code)$value
     nCode = length(Code)
-
-    # If there is not a dedicated figure directory it creats one
-    outdir = file.path(figdir, filedir_opt, sep='')
-    if (!(file.exists(outdir))) {
-        dir.create(outdir)
-    }
-
-    outdir_pdf = file.path(outdir, 'pdf')
-    # Creates it if it does not exist
-    if (!(file.exists(outdir_pdf))) {
-        dir.create(outdir_pdf)
-    }
-
-    outdir_png = file.path(outdir, 'png')
-    # Creates it if it does not exist
-    if (!(file.exists(outdir_png))) {
-        dir.create(outdir_png)
-    }
 
     # Fix the major and minor date break between tick for axis
     datebreak = 10
@@ -91,7 +73,7 @@ histogram = function (df_break, df_meta, title='', figdir='', filedir_opt='break
     midsOk = as.Date(res_histOk$mids)
 
     # Open a new plot with personal theme
-    p = ggplot() + theme_ash() +
+    plot = ggplot() + theme_ash() +
         
               # Y grid
         theme(panel.grid.major.y=element_line(color='grey80', size=0.15),
@@ -130,45 +112,17 @@ histogram = function (df_break, df_meta, title='', figdir='', filedir_opt='break
                                     max(counts_pct)*1.1),
                            expand=c(0, 0))
 
-    # Saving plot
-    ggsave(plot=p, 
-           path=outdir_pdf,
-           filename=paste(title, 'hist_break_date', '.pdf', sep=''),
-           width=10, height=10, units='cm', dpi=100)
-    
-    # Saving
-    ggsave(plot=p, 
-           path=outdir_png,
-           filename=paste(title, 'hist_break_date', '.png', sep=''),
-           width=10, height=10, units='cm', dpi=300)
+    return (plot)
 }
 
 ### 1.2. Cumulative __________________________________________________
 #' @title Cumulative
 #' @export
-cumulative = function (df_break, df_meta, title='', dyear=10, figdir='', filedir_opt='break_cumul') {
+panel_break_cumulative = function (df_break, df_meta, title='', dyear=10) {
 
     # Get all different stations code
     Code = rle(data$Code)$value
     nCode = length(Code)
-
-    # If there is not a dedicated figure directory it creats one
-    outdir = file.path(figdir, filedir_opt, sep='')
-    if (!(file.exists(outdir))) {
-        dir.create(outdir)
-    }
-
-    outdir_pdf = file.path(outdir, 'pdf')
-    # Creates it if it does not exist
-    if (!(file.exists(outdir_pdf))) {
-        dir.create(outdir_pdf)
-    }
-
-    outdir_png = file.path(outdir, 'png')
-    # Creates it if it does not exist
-    if (!(file.exists(outdir_png))) {
-        dir.create(outdir_png)
-    }
 
     # Fix the major and minor date break between tick for axis
     datebreak = 10
@@ -252,7 +206,7 @@ cumulative = function (df_break, df_meta, title='', dyear=10, figdir='', filedir
     
 
     # Open a new plot with personal theme
-    p = ggplot() + theme_ash() +
+    plot = ggplot() + theme_ash() +
         
               # Y grid
         theme(panel.grid.major.y=element_line(color='grey80', size=0.15),
@@ -297,15 +251,5 @@ cumulative = function (df_break, df_meta, title='', dyear=10, figdir='', filedir
         title = paste(title, '_', sep='')
     }
     
-    # Saving plot
-    ggsave(plot=p, 
-           path=outdir_pdf,
-           filename=paste(title, 'cumul_break_date', '.pdf', sep=''),
-           width=10, height=10, units='cm', dpi=100)
-    
-    # Saving
-    ggsave(plot=p, 
-           path=outdir_png,
-           filename=paste(title, 'cumul_break_date', '.png', sep=''),
-           width=10, height=10, units='cm', dpi=300)
+    return (plot)
 }

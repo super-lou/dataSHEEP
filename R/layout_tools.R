@@ -26,142 +26,16 @@
 # ///
 #
 #
-# R/plotting/tools.R
+# R/plotting/layout.R
+#
+# Regroups general parameters about plotting like the theme used ang
+# color management. It mainly deals with the calling to specific
+# plotting functions and the organisation of each plot for the
+# generation of the PDF.
 
 
-## 1. COLOR MANAGEMENT
-### 1.1. Color on colorbar ___________________________________________
-#' @title Compute color bin
-#' @export
-compute_colorBin = function (min, max, Palette, colorStep=256,
-                             reverse=FALSE) {
-
-    # Gets the number of discrete colors in the palette
-    nSample = length(Palette)
-
-    if (reverse) {
-        Palette = rev(Palette)
-    }
-    # Recreates a continuous color palette
-    PaletteColors = colorRampPalette(Palette)(colorStep)
-
-    # Computes the absolute max
-    maxAbs = max(abs(max), abs(min))
-
-    bin = seq(-maxAbs, maxAbs, length.out=colorStep-1)
-    upBin = c(bin, Inf)
-    lowBin = c(-Inf, bin)
-
-    res = list(Palette=PaletteColors, bin=bin, upBin=upBin, lowBin=lowBin)
-    return (res)
-}
-
-#' @title Compute color
-#' @export
-compute_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE) {
-
-    # If the value is a NA return NA color
-    if (is.na(value)) {
-        return (NA)
-    }
-    
-    res = compute_colorBin(min=min, max=max, Palette=Palette,
-                           colorStep=colorStep, reverse=reverse)
-    upBin = res$upBin
-    lowBin = res$lowBin
-    PaletteColors = res$Palette
-
-    if (value > 0) {
-        id = which(value <= upBin & value > lowBin)
-    } else {
-        id = which(value <= upBin & value > lowBin)
-    }
-    color = PaletteColors[id]
-    return(color)
-}
-
-# compute_color(-51, -50, 40, Palette, colorStep=10)
-
-#' @title Get color
-#' @export
-get_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE, noneColor='black') {
-    
-    color = sapply(value, compute_color,
-                   min=min,
-                   max=max,
-                   Palette=Palette,
-                   colorStep=colorStep,
-                   reverse=reverse)
-    
-    color[is.na(color)] = noneColor    
-    return(color)
-}
 
 
-### 1.3. Palette tester ______________________________________________
-# Allows to display the current personal palette
-#' @title Palette tester
-#' @export
-palette_tester = function (Palette, colorStep=256) {
-
-    outdir = 'palette'
-    if (!(file.exists(outdir))) {
-        dir.create(outdir)
-    }
-
-    # An arbitrary x vector
-    X = 1:colorStep
-    # All the same arbitrary y position to create a colorbar
-    Y = rep(0, times=colorStep)
-
-    # Recreates a continuous color palette
-    Palette = colorRampPalette(Palette)(colorStep)
-
-    # Open a void plot
-    p = ggplot() + theme_void()
-
-    for (x in X) {
-        # Plot the palette
-        p = p +
-            annotate("segment",
-                     x=x, xend=x,
-                     y=0, yend=1,
-                     color=Palette[x], size=1)
-    }
-
-    p = p +
-        scale_x_continuous(limits=c(0, colorStep),
-                           expand=c(0, 0)) +
-        
-        scale_y_continuous(limits=c(0, 1),
-                           expand=c(0, 0))
-
-    # Saves the plot
-    outname = deparse(substitute(Palette))
-    
-    ggsave(plot=p,
-           path=outdir,
-           filename=paste(outname, '.pdf', sep=''),
-           width=10, height=10, units='cm', dpi=100)
-
-    ggsave(plot=p,
-           path=outdir,
-           filename=paste(outname, '.png', sep=''),
-           width=10, height=10, units='cm', dpi=300)
-}
-
-
-#' @title Get palette
-#' @export
-get_palette = function (Palette, colorStep=256) {
-    
-    # Gets the number of discrete colors in the palette
-    nSample = length(Palette)
-    # Recreates a continuous color palette
-    Palette = colorRampPalette(Palette)(colorStep)
-
-    return (Palette)
-}
 
 
 ## 2. PERSONAL PLOT __________________________________________________
@@ -408,3 +282,74 @@ split_path = function (path) {
   if (dirname(path) %in% c(".", path)) return(basename(path))
   return(c(basename(path), split_path(dirname(path))))
 }
+
+
+## 2. USEFUL GENERICAL PLOT __________________________________________
+### 2.1. Void plot ___________________________________________________
+# A plot completly blank
+#' @title Void plot
+#' @export
+void = function () {
+    plot = ggplot() + geom_blank(aes(1,1)) +
+        theme(
+            plot.background = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_blank(), 
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.line = element_blank()
+        )
+    return (plot)
+}
+
+
+### 2.2. Contour void plot ___________________________________________
+# A plot completly blank with a contour
+#' @title Contour plot
+#' @export
+contour = function () {
+    plot = ggplot() + geom_blank(aes(1,1)) +
+        theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_blank(), 
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.line = element_blank(),
+            plot.background=element_rect(fill=NA, color="#EC4899"),
+            plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"))
+    return (plot)
+}
+
+
+add_plot = function (df_P, plot=NULL, name="", first=FALSE, last=FALSE,
+                     overwrite_by_name=FALSE) {
+    
+    if (overwrite_by_name == FALSE | !any(which(df_P$name == name))) {
+        if (nrow(df_P) == 0) {
+            df_P = tibble(name=name, first=first,
+                          last=last, plot=NULL)
+        } else {
+            df_P = bind_rows(df_P, tibble(name=name, first=first,
+                                          last=last, plot=NULL))
+        }
+        df_P$plot[[nrow(df_P)]] = plot
+
+    } else {
+        id = which(df_P$name == name)
+        df_P$first[id] = first
+        df_P$last[id] = last
+        df_P$plot[[id]] = plot
+    }
+    return (df_P)
+}
+
