@@ -1,3 +1,25 @@
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+#
+# *1   INRAE, France
+#
+# This file is part of dataSheep R package.
+#
+# dataSheep R package is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# dataSheep R package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dataSheep R package.
+# If not, see <https://www.gnu.org/licenses/>.
+
+
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
@@ -125,7 +147,7 @@ summary_panel = function (df_page, foot_note, foot_height,
     # If there is a foot note
     if (foot_note) {
         footName = 'sommaire'
-        foot = foot_panel(footName,
+        foot = panel_foot(footName,
                           1, foot_height, logo_path)
 
         P = list(gtitle, gsubtitle, gsum1, gpage1, gsum2, gpage2, foot)

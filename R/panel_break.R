@@ -1,41 +1,30 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/break.R
-#
-# Plot tool useful to study date break.
 
 
 ## 1. BREAK PLOTTING _________________________________________________
 ### 1.1. Histogram ___________________________________________________
 #' @title Histogram
 #' @export
-panel_break_histogram = function (df_break, df_meta, title='') {
+panel_break_histogram = function (df_break, meta, title='') {
 
     # Get all different stations code
     Code = rle(data$Code)$value
@@ -118,7 +107,7 @@ panel_break_histogram = function (df_break, df_meta, title='') {
 ### 1.2. Cumulative __________________________________________________
 #' @title Cumulative
 #' @export
-panel_break_cumulative = function (df_break, df_meta, title='', dyear=10) {
+panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
 
     # Get all different stations code
     Code = rle(data$Code)$value

@@ -1,45 +1,71 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/layout.R
-#
-# Regroups general parameters about plotting like the theme used ang
-# color management. It mainly deals with the calling to specific
-# plotting functions and the organisation of each plot for the
-# generation of the PDF.
 
 
+## 1. PERSONAL PLOT __________________________________________________
+### 1.1. Void plot ___________________________________________________
+# A plot completly blank
+#' @title Void plot
+#' @export
+void = function () {
+    plot = ggplot() + geom_blank(aes(1,1)) +
+        theme(
+            plot.background = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_blank(), 
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.line = element_blank()
+        )
+    return (plot)
+}
 
+### 1.2. Contour void plot ___________________________________________
+# A plot completly blank with a contour
+#' @title Contour plot
+#' @export
+contour = function () {
+    plot = ggplot() + geom_blank(aes(1,1)) +
+        theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_blank(), 
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.line = element_blank(),
+            plot.background=element_rect(fill=NA, color="#EC4899"),
+            plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"))
+    return (plot)
+}
 
-
-
-## 2. PERSONAL PLOT __________________________________________________
-### 2.1. Circle ______________________________________________________
+### 1.3. Circle ______________________________________________________
 # Allow to draw circle in ggplot2 with a radius and a center position
 #' @title Circle
 #' @export
@@ -51,7 +77,8 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
              fill=fill, ...)
 }
 
-### 2.2. Merge _______________________________________________________
+## 2. PLOT MANAGEMENT ________________________________________________
+### 2.1. Merge _______________________________________________________
 #' @title Merge
 #' @export
 merge_panel = function (add, to, widths=NULL, heights=NULL) {
@@ -59,6 +86,29 @@ merge_panel = function (add, to, widths=NULL, heights=NULL) {
     plot = grid.arrange(grobs=list(add, to),
                         heights=heights, widths=widths)
     return (plot)
+}
+
+### 2.2. Add plot ____________________________________________________
+add_plot = function (df_P, plot=NULL, name="", first=FALSE, last=FALSE,
+                     overwrite_by_name=FALSE) {
+    
+    if (overwrite_by_name == FALSE | !any(which(df_P$name == name))) {
+        if (nrow(df_P) == 0) {
+            df_P = tibble(name=name, first=first,
+                          last=last, plot=NULL)
+        } else {
+            df_P = bind_rows(df_P, tibble(name=name, first=first,
+                                          last=last, plot=NULL))
+        }
+        df_P$plot[[nrow(df_P)]] = plot
+
+    } else {
+        id = which(df_P$name == name)
+        df_P$first[id] = first
+        df_P$last[id] = last
+        df_P$plot[[id]] = plot
+    }
+    return (df_P)
 }
 
 
@@ -267,7 +317,8 @@ load_logo = function (resources_path, logo_dir, PRlogo_file, AEAGlogo_file,
     
     return (logo_path)
 }
-    
+
+### 4.3. Other _______________________________________________________    
 #' @title Split filename
 #' @export
 splitext = function(file) { # tools::file_ext
@@ -282,74 +333,3 @@ split_path = function (path) {
   if (dirname(path) %in% c(".", path)) return(basename(path))
   return(c(basename(path), split_path(dirname(path))))
 }
-
-
-## 2. USEFUL GENERICAL PLOT __________________________________________
-### 2.1. Void plot ___________________________________________________
-# A plot completly blank
-#' @title Void plot
-#' @export
-void = function () {
-    plot = ggplot() + geom_blank(aes(1,1)) +
-        theme(
-            plot.background = element_blank(), 
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(), 
-            panel.border = element_blank(),
-            panel.background = element_blank(),
-            axis.title.x = element_blank(),
-            axis.title.y = element_blank(),
-            axis.text.x = element_blank(), 
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank()
-        )
-    return (plot)
-}
-
-
-### 2.2. Contour void plot ___________________________________________
-# A plot completly blank with a contour
-#' @title Contour plot
-#' @export
-contour = function () {
-    plot = ggplot() + geom_blank(aes(1,1)) +
-        theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(), 
-            panel.border = element_blank(),
-            panel.background = element_blank(),
-            axis.title.x = element_blank(),
-            axis.title.y = element_blank(),
-            axis.text.x = element_blank(), 
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank(),
-            plot.background=element_rect(fill=NA, color="#EC4899"),
-            plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"))
-    return (plot)
-}
-
-
-add_plot = function (df_P, plot=NULL, name="", first=FALSE, last=FALSE,
-                     overwrite_by_name=FALSE) {
-    
-    if (overwrite_by_name == FALSE | !any(which(df_P$name == name))) {
-        if (nrow(df_P) == 0) {
-            df_P = tibble(name=name, first=first,
-                          last=last, plot=NULL)
-        } else {
-            df_P = bind_rows(df_P, tibble(name=name, first=first,
-                                          last=last, plot=NULL))
-        }
-        df_P$plot[[nrow(df_P)]] = plot
-
-    } else {
-        id = which(df_P$name == name)
-        df_P$first[id] = first
-        df_P$last[id] = last
-        df_P$plot[[id]] = plot
-    }
-    return (df_P)
-}
-

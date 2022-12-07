@@ -1,34 +1,23 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/table.R
-#
-# Allows the creation of a summarizing table of trend and break analyses
 
 
 ## 1. TABLE PANEL ___________________________________________________
@@ -37,7 +26,7 @@
 # difference of means between specific periods.
 #' @title Table panel
 #' @export
-table_panel = function (list_df2plot, df_meta, trend_period,
+page_table = function (list_df2plot, meta, trend_period,
                         mean_period, colorForce=FALSE, exQprob=0.01,
                         slice=NULL,
                         title=NULL, paper_size='A3',
@@ -362,8 +351,8 @@ table_panel = function (list_df2plot, df_meta, trend_period,
         # Gets the type
         type = Type[itype]
         # Extracts each possibilities of hydrological region
-        RH = rle(sort(df_meta$region_hydro))$values
-        twoL = names(df_meta$region_hydro)
+        RH = rle(sort(meta$region_hydro))$values
+        twoL = names(meta$region_hydro)
         # Number of different first letters
         nRH = length(RH)
 
@@ -374,7 +363,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
         for (iR in 1:nRH) {
 
             rh = RH[iR]
-            okL = rle(sort(twoL[df_meta$region_hydro == rh]))$values
+            okL = rle(sort(twoL[meta$region_hydro == rh]))$values
             nL = nchar(okL[1])
             # Get only station code with the same first letter 
             subCodeRh = Code[substr(Code, 1, nL) %in% okL]
@@ -615,15 +604,15 @@ table_panel = function (list_df2plot, df_meta, trend_period,
         # Gets the type
         type = Type[itype]
         # Extracts each possibilities of hydrological region
-        RH = rle(sort(df_meta$region_hydro))$values
-        twoL = names(df_meta$region_hydro)
+        RH = rle(sort(meta$region_hydro))$values
+        twoL = names(meta$region_hydro)
         # Number of different first letters
         nRH = length(RH)
         # For all the available first letter
         for (iR in 1:nRH) {
             # Gets the first letter
             rh = RH[iR]
-            okL = rle(sort(twoL[df_meta$region_hydro == rh]))$values
+            okL = rle(sort(twoL[meta$region_hydro == rh]))$values
             nL = nchar(okL[1])
             # Get only station code with the same first letter 
             subCodeRh = Code[substr(Code, 1, nL) %in% okL]
@@ -725,7 +714,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
 
                 # Extracts the name of the currently hydrological
                 # region plotted
-                title = df_meta[df_meta$Code == subCode[1],]$region_hydro
+                title = meta[meta$Code == subCode[1],]$region_hydro
 
                 subtitle = paste(type, ' ', iMat, '/', nMat,
                                  sep='')    
@@ -1292,7 +1281,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                     # Gets the code
                     code = subCode[k]
                     # Gets the name of the station
-                    name = df_meta[df_meta$Code == code,]$nom
+                    name = meta[meta$Code == code,]$nom
                     # Fixes a limit for the max number
                     # of characters available
                     ncharMax = 38
@@ -1353,7 +1342,7 @@ table_panel = function (list_df2plot, df_meta, trend_period,
                         n_page = df_page$n[nrow(df_page)] + iMat
                     }
                     
-                    foot = foot_panel(footName, n_page,
+                    foot = panel_foot(footName, n_page,
                                       foot_height, logo_path)
                     
                     # Stores the map, the title and the colorbar

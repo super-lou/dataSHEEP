@@ -1,37 +1,23 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/layout.R
-#
-# Regroups general parameters about plotting like the theme used ang
-# color management. It mainly deals with the calling to specific
-# plotting functions and the organisation of each plot for the
-# generation of the PDF.
 
 
 ## 1. PERSONALISATION ________________________________________________
@@ -94,59 +80,9 @@ Palette_ground = function () {
     return (palette)
 }
 
-#' @title Color event
-#' @export
-get_colorEvent = function () {
-    colorEvent = c("#423089", "#9ed6e3", "#9dc544", "#ed6e6c")
-    names(colorEvent) = c("Crue", "Crue Nivale", "Moyennes Eaux", "Étiage")
-    return(colorEvent)
-}
 
-#' @title Text color event
-#' @export
-get_colorTextEvent = function () {
-    colorTextEvent = c("#9687d5", "#d8eff4", "#cee2a2", "#f6b6b5")
-    names(colorTextEvent) = c("Crue", "Crue Nivale", "Moyennes Eaux", "Étiage")
-    return(colorTextEvent)
-}
-
-
-
-#' @title Switch color label
-#' @export
-switch_colorLabel = function (color) {
-    #switch 12% https://mdigi.tools/darken-color/#f6e8c3
-    if (color == "#F6E8C3") {
-        newColor = "#efd695"
-        
-    } else if (color == "#C7EAE5") {
-        newColor = "#a1dcd3"
-        
-    } else {
-        newColor = color
-    }
-    return (newColor)
-}
-
-#' @title Get reverse
-#' @export
-get_reverse = function (var) {
-    # gets the color corresponding to the mean trend
-    reverse = FALSE
-    if (grepl('^tFIN', var) | grepl('^t[_]', var) | grepl('^v', var)) {
-        reverse = TRUE
-    }
-    return (reverse)
-}
-
-
-
-
-
-
-
-## 1. COLOR MANAGEMENT
-### 1.1. Color on colorbar ___________________________________________
+## 2. COLOR MANAGEMENT _______________________________________________
+### 2.1. Compute colors ______________________________________________
 #' @title Compute color bin
 #' @export
 compute_colorBin = function (min, max, Palette, colorStep=256,
@@ -195,12 +131,13 @@ compute_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE
     color = PaletteColors[id]
     return(color)
 }
-
 # compute_color(-51, -50, 40, Palette, colorStep=10)
 
+### 2.2. Get colors __________________________________________________
 #' @title Get color
 #' @export
-get_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE, noneColor='black') {
+get_color = function (value, min, max, Palette, colorStep=256,
+                      reverse=FALSE, noneColor='black') {
     
     color = sapply(value, compute_color,
                    min=min,
@@ -213,8 +150,50 @@ get_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE, no
     return(color)
 }
 
+#' @title Color event
+#' @export
+get_colorEvent = function () {
+    colorEvent = c("#423089", "#9ed6e3", "#9dc544", "#ed6e6c")
+    names(colorEvent) = c("Crue", "Crue Nivale", "Moyennes Eaux", "Étiage")
+    return(colorEvent)
+}
 
-### 1.3. Palette tester ______________________________________________
+#' @title Text color event
+#' @export
+get_colorTextEvent = function () {
+    colorTextEvent = c("#9687d5", "#d8eff4", "#cee2a2", "#f6b6b5")
+    names(colorTextEvent) = c("Crue", "Crue Nivale", "Moyennes Eaux", "Étiage")
+    return(colorTextEvent)
+}
+
+#' @title Switch color label
+#' @export
+switch_colorLabel = function (color) {
+    #switch 12% https://mdigi.tools/darken-color/#f6e8c3
+    if (color == "#F6E8C3") {
+        newColor = "#efd695"
+        
+    } else if (color == "#C7EAE5") {
+        newColor = "#a1dcd3"
+        
+    } else {
+        newColor = color
+    }
+    return (newColor)
+}
+
+#' @title Get reverse
+#' @export
+get_reverse = function (var) {
+    # gets the color corresponding to the mean trend
+    reverse = FALSE
+    if (grepl('^tFIN', var) | grepl('^t[_]', var) | grepl('^v', var)) {
+        reverse = TRUE
+    }
+    return (reverse)
+}
+
+### 2.3. Palette tester ______________________________________________
 # Allows to display the current personal palette
 #' @title Palette tester
 #' @export

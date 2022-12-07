@@ -1,41 +1,30 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/map.R
-#
-# Deals with the creation of a map for presenting the trend analysis of hydrological variables
 
 
 ## 1. MAP PANEL ______________________________________________________
 # Generates a map plot of the tendancy of a hydrological variable
 #' @title Map panel
 #' @export
-map_panel = function (list_df2plot, df_meta, shapefile_list,
+page_map = function (list_df2plot, meta, shapefile_list,
                       idPer_trend=1, trend_period, mean_period,
                       colorForce=FALSE, exQprob=0.01, codeLight=NULL,
                       mapType='trend', margin=NULL, showSea=TRUE,  
@@ -109,7 +98,7 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
         nRegime = length(regimeColorSample)
         regimeColor = c()
         for (code in Code) {
-            regime = df_meta$regime_hydro[df_meta$Code == code]
+            regime = meta$regime_hydro[meta$Code == code]
             color = regimeColorSample[regime]
             regimeColor = c(regimeColor, color)
         }
@@ -513,9 +502,9 @@ map_panel = function (list_df2plot, df_meta, shapefile_list,
 
                 # Extracts the localisation of the current station
                 lontmp =
-                    df_meta$L93X_m_BH[df_meta$Code == code]           
+                    meta$L93X_m_BH[meta$Code == code]           
                 lattmp =
-                    df_meta$L93Y_m_BH[df_meta$Code == code]
+                    meta$L93Y_m_BH[meta$Code == code]
                 
                 # Stores all the parameters
                 lon = c(lon, lontmp)
@@ -1123,7 +1112,7 @@ peu altérés par les activités humaines."
                     n_page = i
                 }
 
-                foot = foot_panel(footName, n_page,
+                foot = panel_foot(footName, n_page,
                                   foot_height, logo_path)
 
                 # Stores the map, the title and the colorbar in a list

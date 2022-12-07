@@ -1,7 +1,28 @@
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+#
+# *1   INRAE, France
+#
+# This file is part of dataSheep R package.
+#
+# dataSheep R package is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# dataSheep R package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dataSheep R package.
+# If not, see <https://www.gnu.org/licenses/>.
+
 
 #' @title Info panel
 #' @export
-panel_info = function(list_df2plot, df_meta, trend_period=NULL,
+panel_info = function(list_df2plot, meta, trend_period=NULL,
                       mean_period=NULL, period=NULL,
                       shapefile_list=NULL, codeLight=NULL,
                       data_code=NULL, to_do='all',
@@ -10,7 +31,7 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
     # If there is a data serie for the given code
     if (!is.null(data_code)) {
         # Computes the hydrograph
-        hyd = hydrograph_panel(data_code, period=period,
+        hyd = panel_hydrograph(data_code, period=period,
                                margin=margin(t=0, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
@@ -21,8 +42,8 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
 
     if (!is.null(shapefile_list)) {
         # Computes the map associated to the station
-        map =  map_panel(list_df2plot,
-                         df_meta,
+        map =  page_map(list_df2plot,
+                         meta,
                          trend_period=trend_period,
                          mean_period=mean_period,
                          shapefile_list=shapefile_list,
@@ -40,11 +61,11 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
     }
 
     # Gets the metadata about the station
-    df_meta_code = df_meta[df_meta$Code == codeLight,]
+    meta_code = meta[meta$Code == codeLight,]
 
     if ('name' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        nom = df_meta_code$nom
+        nom = meta_code$nom
         # Corrects some errors about the formatting of title with dash
         nom = gsub("-", "-&nbsp;", nom)
         # Name of the datasheet
@@ -78,8 +99,8 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
     if ('loc' %in% to_do | 'all' %in% to_do) {
         text2 = paste(
             "<b>",
-            "Gestionnaire : ", df_meta_code$gestionnaire, "<br>",
-            "Bassin hydrographique : ", df_meta_code$region_hydro,
+            "Gestionnaire : ", meta_code$gestionnaire, "<br>",
+            "Bassin hydrographique : ", meta_code$region_hydro,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
@@ -96,11 +117,11 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste(
             "<b>",
-            "Superficie : ", df_meta_code$surface_km2_BH,
+            "Superficie : ", meta_code$surface_km2_BH,
             "  [km<sup>2</sup>] <br>",
-            "Altitude : ", df_meta_code$altitude_m_BH, "  [m]<br>",
-            "X = ", df_meta_code$L93X_m_BH, "  [m ; Lambert93]<br>",
-            "Y = ", df_meta_code$L93Y_m_BH, "  [m ; Lambert93]",
+            "Altitude : ", meta_code$altitude_m_BH, "  [m]<br>",
+            "X = ", meta_code$L93X_m_BH, "  [m ; Lambert93]<br>",
+            "Y = ", meta_code$L93Y_m_BH, "  [m ; Lambert93]",
             "</b>",
             sep='')
         gtext3 = richtext_grob(text3,
@@ -116,18 +137,18 @@ panel_info = function(list_df2plot, df_meta, trend_period=NULL,
     # Time info about station
     if ('temporal' %in% to_do | 'all' %in% to_do) {
         # Computes the time span of data, the start and the end
-        duration = as.numeric(format(as.Date(df_meta_code$fin),
+        duration = as.numeric(format(as.Date(meta_code$fin),
                                      "%Y")) -
-            as.numeric(format(as.Date(df_meta_code$debut), "%Y"))
-        debut = format(as.Date(df_meta_code$debut), "%d/%m/%Y")
-        fin = format(as.Date(df_meta_code$fin), "%d/%m/%Y")
+            as.numeric(format(as.Date(meta_code$debut), "%Y"))
+        debut = format(as.Date(meta_code$debut), "%d/%m/%Y")
+        fin = format(as.Date(meta_code$fin), "%d/%m/%Y")
 
         text4 = paste(
             "<b>",
             "Date de début : ", debut, "<br>",
             "Date de fin : ", fin, "<br>",
             "Nombre d'années : ", duration, "  [ans]", "<br>",
-            "Taux de lacunes : ", signif(df_meta_code$tLac100, 2),
+            "Taux de lacunes : ", signif(meta_code$tLac100, 2),
             "  [%]",
             "</b>",
             sep='')

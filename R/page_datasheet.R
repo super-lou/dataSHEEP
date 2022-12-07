@@ -1,34 +1,23 @@
-# \\\
-# Copyright 2021-2022 Louis Héraut*1,
-#                     Éric Sauquet*2,
-#                     Valentin Mansanarez
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
 #
 # *1   INRAE, France
-#      louis.heraut@inrae.fr
-# *2   INRAE, France
-#      eric.sauquet@inrae.fr
 #
-# This file is part of ash R toolbox.
+# This file is part of dataSheep R package.
 #
-# Ash R toolbox is free software: you can redistribute it and/or
+# dataSheep R package is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Ash R toolbox is distributed in the hope that it will be useful, but
+# dataSheep R package is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ash R toolbox.
+# along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
-# ///
-#
-#
-# R/plotting/datasheet.R
-#
-# Regroups all the graphical tools to generates the datasheets. More precisely, the 'datasheet_panel' function manages all the call for each station of the different graphical functions that generates info header, time serie visualisation and trend analysis graphs for every variable. It also deals with the arranging of all the plots in a single PDF page.
 
 
 ## 1. DATASHEET PANEL MANAGER ________________________________________
@@ -37,16 +26,16 @@
 # every plots.
 #' @title Datasheet panel
 #' @export
-datasheet = function (list_df2plot, df_meta, trend_period,
-                            mean_period, linetype_per, axis_xlim,
-                            colorForce, exXprob, info_header, time_header,
-                            foot_note, structure,
-                            info_height, time_height,
-                            var_ratio, foot_height,
-                            paper_size, shapefile_list, logo_path,
-                            zone_to_show, show_colorEvent,
-                            outdirTmp_pdf, outdirTmp_png,
-                            df_page=NULL, pdf_chunk="all") {
+datasheet = function (list_df2plot, meta, trend_period,
+                      mean_period, linetype_per, axis_xlim,
+                      colorForce, exXprob, info_header, time_header,
+                      foot_note, structure,
+                      info_height, time_height,
+                      var_ratio, foot_height,
+                      paper_size, shapefile_list, logo_path,
+                      zone_to_show, show_colorEvent,
+                      outdirTmp_pdf, outdirTmp_png,
+                      df_page=NULL, pdf_chunk="all") {
     
     if (!is.null(time_header)) {
         time_header = dplyr::rename(time_header,
@@ -119,8 +108,8 @@ datasheet = function (list_df2plot, df_meta, trend_period,
             }
             
             # Gets the info plot
-            Hinfo = info_panel(list_df2plot, 
-                               df_meta,
+            Hinfo = panel_info(list_df2plot, 
+                               meta,
                                trend_period=trend_period,
                                mean_period=mean_period,
                                period=period,
@@ -154,7 +143,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
             }
 
             # Gets the time serie plot
-            HX = time_panel(df_X_code, df_trend_code=NULL,
+            HX = panel_trend(df_X_code, df_trend_code=NULL,
                             trend_period=trend_period,
                             axis_xlim=axis_xlim_code, missRect=TRUE,
                             unit2day=365.25, var='Q',
@@ -169,7 +158,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
 
             if (any(c("Resume", "Étiage") %in% names(structure))) {
                 # Gets the time serie plot
-                HsqrtX = time_panel(df_sqrtX_code, df_trend_code=NULL,
+                HsqrtX = panel_trend(df_sqrtX_code, df_trend_code=NULL,
                                     trend_period=trend_period,
                                     axis_xlim=axis_xlim_code,
                                     missRect=TRUE,
@@ -185,7 +174,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
                                 first=TRUE)
 
                 # Gets the time serie plot
-                HsqrtXmid = time_panel(df_sqrtX_code, df_trend_code=NULL,
+                HsqrtXmid = panel_trend(df_sqrtX_code, df_trend_code=NULL,
                                        trend_period=trend_period,
                                        axis_xlim=axis_xlim_code,
                                        missRect=TRUE,
@@ -318,7 +307,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
 
             print(paste0("Time panel for ", var))
 
-            res = time_panel(data_code, df_trend_code,
+            res = panel_trend(data_code, df_trend_code,
                              var=var, unit=unit,
                              samplePeriod_code=samplePeriod_code,
                              linetype_per=linetype_per,
@@ -365,7 +354,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
                 space = 0.7
                 colorEvent = get_colorEvent()
                 colorTextEvent = get_colorTextEvent()
-                Hevent = event_panel(event, colorEvent, colorTextEvent)
+                Hevent = panel_event(event, colorEvent, colorTextEvent)
                 Heventinfo = merge_panel(add=Hevent, to=Hinfo,
                                          widths=c(space, width-space))
                 df_P = add_plot(df_P,
@@ -402,7 +391,7 @@ datasheet = function (list_df2plot, df_meta, trend_period,
                             n_page = df_page$n[nrow(df_page)] + page_code
                         }
                     }
-                    foot = foot_panel(footName, n_page,
+                    foot = panel_foot(footName, n_page,
                                       foot_height, logo_path)
                     df_P = add_plot(df_P,
                                     plot=foot,
