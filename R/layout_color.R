@@ -30,7 +30,8 @@ theme_ash = function () {
             # White background
             panel.background=element_rect(fill='grey97'),
             # Font
-            text=element_text(family='sans'),
+            # text=element_text(family='sans'),
+            text=element_text(family="Helvetica"),
             # Border of plot
             panel.border = element_rect(color="grey80",
                                         fill=NA,
@@ -80,13 +81,25 @@ Palette_ground = function () {
     return (palette)
 }
 
+#' @title Palette rainbow
+#' @export
+Palette_rainbow = function () {
+    palette = c('#d73027',
+                '#fc8d59',
+                '#fee090',
+                '#e0f3f8',
+                '#91bfdb',
+                '#4575b4')
+    return (palette)
+}
+
 
 ## 2. COLOR MANAGEMENT _______________________________________________
 ### 2.1. Compute colors ______________________________________________
 #' @title Compute color bin
 #' @export
 compute_colorBin = function (min, max, Palette, colorStep=256,
-                             reverse=FALSE) {
+                             include=FALSE, reverse=FALSE) {
 
     # Gets the number of discrete colors in the palette
     nSample = length(Palette)
@@ -100,34 +113,46 @@ compute_colorBin = function (min, max, Palette, colorStep=256,
     # Computes the absolute max
     maxAbs = max(abs(max), abs(min))
 
-    bin = seq(-maxAbs, maxAbs, length.out=colorStep-1)
-    upBin = c(bin, Inf)
-    lowBin = c(-Inf, bin)
+    if (include) {
+        nBin = colorStep + 1
+    } else {
+        nBin = colorStep - 1
+    } 
+    
+    bin = seq(-maxAbs, maxAbs, length.out=nBin)
+    if (!include) {
+        bin = c(-Inf, bin, Inf)
+        upBin = c(bin, Inf)
+        lowBin = c(-Inf, bin)
+        
+    } else {
+        upBin = bin[2:length(bin)]
+        lowBin = bin[1:(length(bin)-1)]
+    }
 
-    res = list(Palette=PaletteColors, bin=bin, upBin=upBin, lowBin=lowBin)
+    res = list(Palette=PaletteColors, bin=bin,
+               upBin=upBin, lowBin=lowBin)
     return (res)
 }
 
 #' @title Compute color
 #' @export
-compute_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE) {
+compute_color = function (value, min, max, Palette,
+                          colorStep=256, include=FALSE,
+                          reverse=FALSE) {
 
-    # If the value is a NA return NA color
     if (is.na(value)) {
         return (NA)
     }
     
     res = compute_colorBin(min=min, max=max, Palette=Palette,
-                           colorStep=colorStep, reverse=reverse)
+                           colorStep=colorStep, include=include,
+                           reverse=reverse)
     upBin = res$upBin
     lowBin = res$lowBin
     PaletteColors = res$Palette
 
-    if (value > 0) {
-        id = which(value <= upBin & value > lowBin)
-    } else {
-        id = which(value <= upBin & value > lowBin)
-    }
+    id = which(value <= upBin & value > lowBin)
     color = PaletteColors[id]
     return(color)
 }
@@ -137,13 +162,15 @@ compute_color = function (value, min, max, Palette, colorStep=256, reverse=FALSE
 #' @title Get color
 #' @export
 get_color = function (value, min, max, Palette, colorStep=256,
-                      reverse=FALSE, noneColor='black') {
+                      reverse=FALSE, include=FALSE,
+                      noneColor='black') {
     
     color = sapply(value, compute_color,
                    min=min,
                    max=max,
                    Palette=Palette,
                    colorStep=colorStep,
+                   include=include,
                    reverse=reverse)
     
     color[is.na(color)] = noneColor    

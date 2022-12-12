@@ -81,7 +81,7 @@ page_table = function (list_df2plot, meta, trend_period,
                 data = list_df2plot[[i]]$data
                 # Extracts the trend corresponding to the
                 # current variable
-                df_trend = list_df2plot[[i]]$trend
+                trend = list_df2plot[[i]]$trend
                 level = list_df2plot[[i]]$level
                 # Extract the variable of the plot
                 var = list_df2plot[[i]]$var
@@ -90,11 +90,11 @@ page_table = function (list_df2plot, meta, trend_period,
                 # Extracts the data corresponding to the code
                 data_code = data[data$Code == code,]
                 # Extracts the trend corresponding to the code
-                df_trend_code = df_trend[df_trend$Code == code,]
+                trend_code = trend[trend$Code == code,]
 
                 # Extract start and end of trend periods
-                Start = df_trend_code$start[j]
-                End = df_trend_code$end[j]
+                Start = trend_code$start[j]
+                End = trend_code$end[j]
 
                 StartY = format(Start, '%Y')
                 EndY = format(End, '%Y')
@@ -108,16 +108,16 @@ page_table = function (list_df2plot, meta, trend_period,
                     data_code[data_code$Date >= Start 
                                  & data_code$Date <= End,]
                 # Same for trend
-                df_trend_code_per = 
-                    df_trend_code[df_trend_code$start == Start 
-                                  & df_trend_code$end == End,]
+                trend_code_per = 
+                    trend_code[trend_code$start == Start 
+                                  & trend_code$end == End,]
 
                 # Computes the number of trend analysis selected
-                Ntrend = nrow(df_trend_code_per)
+                Ntrend = nrow(trend_code_per)
                 # If there is more than one trend on the same period
                 if (Ntrend > 1) {
                     # Takes only the first because they are similar
-                    df_trend_code_per = df_trend_code_per[1,]
+                    trend_code_per = trend_code_per[1,]
                 }
 
                 # Computes the mean of the data on the period
@@ -126,11 +126,11 @@ page_table = function (list_df2plot, meta, trend_period,
                 # If it is a flow variable
                 if (type == 'sévérité') {
                     # Normalises the trend value by the mean of the data
-                    trendX = df_trend_code_per$a / dataMean
+                    trendX = trend_code_per$a / dataMean
                 # If it is a date variable
                 } else if (type == 'saisonnalité') {
                     # Just stocks the trend value
-                    trendX = df_trend_code_per$a
+                    trendX = trend_code_per$a
                 }
 
                 # Gets the color associated to the averaged trend
@@ -141,7 +141,7 @@ page_table = function (list_df2plot, meta, trend_period,
                                       colorStep=10,
                                       reverse=FALSE)
 
-                pVal = df_trend_code_per$p
+                pVal = trend_code_per$p
                 
                 # If the p value is under the threshold
                 if (pVal <= level){

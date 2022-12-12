@@ -24,14 +24,14 @@
 # Generates a PDF that gather datasheets, map and summarize table about the trend analyses realised on selected stations
 #' @title Layout panel
 #' @export
-layout_panel = function (data, meta, structure,
+layout_panel = function (data, meta,
+                         PLOT,
+                         structure,
                          to_plot=c('datasheet_ASHES', 'table_ASHES', 'map_ASHES',
                                    'map_regime_ASHES', 'map_trend_ASHES', 'map_mean_ASHES'),
-                         tmpdir='', figdir='', docdir="doc", 
-                         variable='', df_trend=NULL,
-                         var='',
-                         event='', unit='', samplePeriod='',
-                         glose=NULL, level=0.1, trend_period=NULL,
+                         tmpdir='', figdir='', docdir="doc",
+                         level=0.1,
+                         trend_period=NULL,
                          mean_period=NULL, colorForce=FALSE,
                          exXprob=0.01,
                          linetype_per='solid',
@@ -74,25 +74,25 @@ layout_panel = function (data, meta, structure,
 
     if (any(grepl("[_]ASHES$", to_plot))) {
         # Number of type/variable
-        nbp = length(data)
+        nbp = length(dataEx)
 
-        # Convert data tibble to list of tibble if it is not the case
-        if (all(is.list(data))) {
-            data = list(data)
+        # Convert dataEx tibble to list of tibble if it is not the case
+        if (all(is.list(dataEx))) {
+            dataEx = list(dataEx)
         }
 
-        if (all(is.list(df_trend))) {
-            df_trend = list(df_trend)
+        if (all(is.list(trend))) {
+            trend = list(trend)
         }
 
-        # Creates a blank list to store all the data of each type of plot
+        # Creates a blank list to store all the dataEx of each type of plot
         TREND2plot = vector(mode='list', length=nbp)
 
         # For all the type of graph / number of studied variables
         for (i in 1:nbp) {
             # Creates a list that gather all the info for one type of graph
-            trend2plot = list(data=data[[i]], 
-                              trend=df_trend[[i]],
+            trend2plot = list(dataEx=dataEx[[i]], 
+                              trend=trend[[i]],
                               var=var[[i]],
                               event=event[[i]],
                               unit=unit[[i]],
@@ -199,32 +199,38 @@ layout_panel = function (data, meta, structure,
 
     # If datasheets needs to be plot
     if ('datasheet_ASHES' %in% to_plot) {
-        df_page = page_datasheet(TREND2plot,
-                                 meta,
-                                 trend_period=trend_period,
-                                 mean_period=mean_period,
-                                 linetype_per=linetype_per,
-                                 axis_xlim=axis_xlim,
-                                 colorForce=colorForce,
-                                 exXprob=exXprob,
-                                 info_header=info_header,
-                                 time_header=time_header,
-                                 foot_note=foot_note,
-                                 structure=structure,
-                                 info_height=info_height,
-                                 time_height=time_height,
-                                 var_ratio=var_ratio,
-                                 foot_height=foot_height,
-                                 paper_size=paper_size,
-                                 shapefile_list=shapefile_list,
-                                 logo_path=logo_path,
-                                 zone_to_show=zone_to_show,
-                                 show_colorEvent=show_colorEvent,
-                                 tmpdir=tmpdir,
-                                 outdirPDF=outdirPDF,
-                                 outdirPNG=outdirPNG, 
-                                 df_page=df_page,
-                                 pdf_chunk=pdf_chunk)
+        df_page = page_datasheet_ASHES(dataEx=dataEx,
+                                       meta=meta,
+                                       trend=trend,
+                                       var=var,
+                                       event=event,
+                                       unit=unit,
+                                       samplePeriod=samplePeriod,
+                                       glose=glose,
+                                       trend_period=trend_period,
+                                       mean_period=mean_period,
+                                       linetype_per=linetype_per,
+                                       axis_xlim=axis_xlim,
+                                       colorForce=colorForce,
+                                       exXprob=exXprob,
+                                       info_header=info_header,
+                                       time_header=time_header,
+                                       foot_note=foot_note,
+                                       structure=structure,
+                                       info_height=info_height,
+                                       time_height=time_height,
+                                       var_ratio=var_ratio,
+                                       foot_height=foot_height,
+                                       paper_size=paper_size,
+                                       shapefile_list=shapefile_list,
+                                       logo_path=logo_path,
+                                       zone_to_show=zone_to_show,
+                                       show_colorEvent=show_colorEvent,
+                                       tmpdir=tmpdir,
+                                       outdirPDF=outdirPDF,
+                                       outdirPNG=outdirPNG, 
+                                       df_page=df_page,
+                                       pdf_chunk=pdf_chunk)
     }
 
     if ('summary' %in% to_plot) {
@@ -249,7 +255,7 @@ layout_panel = function (data, meta, structure,
     }
 
     if (pdf_chunk == 'by_code') {
-        Code = rle(data[[1]]$Code)$value
+        Code = rle(dataEx[[1]]$Code)$value
         for (code in Code) {
             listfile_code_path = listfile_path[grepl(code, listfile_path)]
             pdf_combine(input=listfile_code_path,

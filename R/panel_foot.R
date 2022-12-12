@@ -42,26 +42,28 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
                               x=0, hjust=0,
                               width=unit(0.8*foot_height, "cm"))
             width = 0.2
-        }
-        if (logo == 'FR') { 
+        } else if (logo == 'FR') { 
             grob = rasterGrob(img,
                               x=0, hjust=0,
                               width=unit(1*foot_height, "cm"))
             width = 0.2
-        }
-        if (logo == 'INRAE') {
+        } else if (logo == 'INRAE') {
             grob = rasterGrob(img,
                               y=0.565,
                               vjust=0.5,
                               width=unit(1.08*foot_height, "cm"))
             width = 0.25
-        }
-        if (logo == 'AEAG') {
+        } else if (logo == 'AEAG') {
             grob = rasterGrob(img,
                               y=0.49,
                               vjust=0.5,
                               width=unit(0.7*foot_height, "cm"))
             width = 0.2
+        } else {
+            grob = rasterGrob(img,
+                              x=0, hjust=0.5,
+                              width=unit(1*foot_height, "cm"))
+            width = 0
         }
         P[[i+1]] = grob
         LM_row = c(LM_row, i+1)
@@ -95,7 +97,7 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
     # Creates the matrix layout
     LM = matrix(c(LM_row1,
                   LM_row2),
-                nrow=2, 
+                nrow=2,
                 byrow=TRUE)
     
     # Arranges all the graphical objetcs

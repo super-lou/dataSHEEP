@@ -403,34 +403,34 @@ page_map = function (list_df2plot, meta, shapefile_list,
                     data = list_df2plot[[i]]$data
                     # Extracts the trend corresponding to the
                     # current variable
-                    df_trend = list_df2plot[[i]]$trend
+                    trend = list_df2plot[[i]]$trend
                     # Gets the risk of the test
                     level = list_df2plot[[i]]$level
                     # Extracts the data corresponding to the code
                     data_code = data[data$Code == code,]
 
                     # Extracts the trend corresponding to the code
-                    df_trend_code = df_trend[df_trend$Code == code,]
+                    trend_code = trend[trend$Code == code,]
                     
                     # Extract start and end of trend periods
-                    Start = df_trend_code$start[idPer_trend]
-                    End = df_trend_code$end[idPer_trend]
+                    Start = trend_code$start[idPer_trend]
+                    End = trend_code$end[idPer_trend]
 
                     # Extracts the corresponding data for the period
                     data_code_per =
                         data_code[data_code$Date >= Start 
                                      & data_code$Date <= End,]
                     # Same for trend
-                    df_trend_code_per = 
-                        df_trend_code[df_trend_code$start == Start 
-                                      & df_trend_code$end == End,]
+                    trend_code_per = 
+                        trend_code[trend_code$start == Start 
+                                      & trend_code$end == End,]
 
                     # Computes the number of trend analysis selected
-                    Ntrend = nrow(df_trend_code_per)
+                    Ntrend = nrow(trend_code_per)
                     # If there is more than one trend on the same period
                     if (Ntrend > 1) {
                         # Takes only the first because they are similar
-                        df_trend_code_per = df_trend_code_per[1,]
+                        trend_code_per = trend_code_per[1,]
                     }
 
                     # If it is a flow variable
@@ -440,15 +440,15 @@ page_map = function (list_df2plot, meta, shapefile_list,
                                         na.rm=TRUE)
                         # Normalises the trend value by the mean
                         # of the data
-                        value = df_trend_code_per$a / dataMean
+                        value = trend_code_per$a / dataMean
                         # If it is a date variable
                     } else if (unit == 'jour' | unit == "jour de l'année") {
-                        value = df_trend_code_per$a
+                        value = trend_code_per$a
                     }
 
                     minX = minTrendX[idPer_trend, i]
                     maxX = maxTrendX[idPer_trend, i]
-                    pVal = df_trend_code_per$p
+                    pVal = trend_code_per$p
 
                 } else {
                     value = NA

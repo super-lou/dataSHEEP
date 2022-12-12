@@ -77,6 +77,7 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
              fill=fill, ...)
 }
 
+
 ## 2. PLOT MANAGEMENT ________________________________________________
 ### 2.1. Merge _______________________________________________________
 #' @title Merge
@@ -186,6 +187,26 @@ gpct = function (pct, L, min_lim=NULL, shift=FALSE) {
     return (xL)
 }
 
+round_label = function (labelRaw, direction="V", ncharLim=4) {
+    if (direction == "V") {
+        label2 = signif(labelRaw, 2)
+        label2[label2 >= 0] = paste0(" ", label2[label2 >= 0])
+        label1 = signif(labelRaw, 1)
+        label1[label1 >= 0] = paste0(" ", label1[label1 >= 0])
+        label = label2
+        label[nchar(label2) > ncharLim] =
+            label1[nchar(label2) > ncharLim]
+    } else if (direction == "H") {
+        label2 = signif(labelRaw, 2)
+        label1 = signif(labelRaw, 1)
+        nCharLabel2 = nchar(label2)
+        nCharLabel2[nCharLabel2 >= 0] =
+            nCharLabel2[nCharLabel2 >= 0] + 1
+        label = label2
+        label[nCharLabel2 > ncharLim] = label1[nCharLabel2 > ncharLim]
+    }
+    return (label)
+}
 
 ## 4. LOADING ________________________________________________________
 ### 4.1. Shapefile loading ___________________________________________
@@ -290,31 +311,15 @@ load_shapefile = function (resources_path, data,
 ### 4.2. Logo loading ________________________________________________
 #' @title Logo loading
 #' @export
-load_logo = function (resources_path, logo_dir, PRlogo_file, AEAGlogo_file,
-                      INRAElogo_file, FRlogo_file, logo_to_show) {
-
+load_logo = function (resources_path, logo_dir, logo_to_show) {
     logo_path = c()
-    if ('PR' %in% logo_to_show) {
-        path = file.path(resources_path, logo_dir, PRlogo_file)
-        logo_path = c(logo_path, path)
-        names(logo_path)[length(logo_path)] = 'PR'
+    nLogo = length(logo_to_show)
+    for (i in 1:nLogo) { 
+        logo_path = c(logo_path, file.path(resources_path,
+                                           logo_dir,
+                                           logo_to_show[i]))
+        names(logo_path)[length(logo_path)] = names(logo_to_show)[i]
     }
-    if ('FR' %in% logo_to_show) {
-        path = file.path(resources_path, logo_dir, FRlogo_file)
-        logo_path = c(logo_path, path)
-        names(logo_path)[length(logo_path)] = 'FR'
-    }
-    if ('INRAE' %in% logo_to_show) {
-        path = file.path(resources_path, logo_dir, INRAElogo_file)
-        logo_path = c(logo_path, path)
-        names(logo_path)[length(logo_path)] = 'INRAE'
-    }
-    if ('AEAG' %in% logo_to_show) {
-        path = file.path(resources_path, logo_dir, AEAGlogo_file)
-        logo_path = c(logo_path, path)
-        names(logo_path)[length(logo_path)] = 'AEAG'
-    }
-    
     return (logo_path)
 }
 

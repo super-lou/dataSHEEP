@@ -26,16 +26,16 @@
 # every plots.
 #' @title Datasheet panel
 #' @export
-datasheet = function (list_df2plot, meta, trend_period,
-                      mean_period, linetype_per, axis_xlim,
-                      colorForce, exXprob, info_header, time_header,
-                      foot_note, structure,
-                      info_height, time_height,
-                      var_ratio, foot_height,
-                      paper_size, shapefile_list, logo_path,
-                      zone_to_show, show_colorEvent,
-                      outdirTmp_pdf, outdirTmp_png,
-                      df_page=NULL, pdf_chunk="all") {
+datasheet_ASHES = function (list_df2plot, meta, trend_period,
+                            mean_period, linetype_per, axis_xlim,
+                            colorForce, exXprob, info_header, time_header,
+                            foot_note, structure,
+                            info_height, time_height,
+                            var_ratio, foot_height,
+                            paper_size, shapefile_list, logo_path,
+                            zone_to_show, show_colorEvent,
+                            outdirTmp_pdf, outdirTmp_png,
+                            df_page=NULL, pdf_chunk="all") {
     
     if (!is.null(time_header)) {
         time_header = dplyr::rename(time_header,
@@ -143,7 +143,7 @@ datasheet = function (list_df2plot, meta, trend_period,
             }
 
             # Gets the time serie plot
-            HX = panel_trend(df_X_code, df_trend_code=NULL,
+            HX = panel_trend(df_X_code, trend_code=NULL,
                             trend_period=trend_period,
                             axis_xlim=axis_xlim_code, missRect=TRUE,
                             unit2day=365.25, var='Q',
@@ -158,7 +158,7 @@ datasheet = function (list_df2plot, meta, trend_period,
 
             if (any(c("Resume", "Étiage") %in% names(structure))) {
                 # Gets the time serie plot
-                HsqrtX = panel_trend(df_sqrtX_code, df_trend_code=NULL,
+                HsqrtX = panel_trend(df_sqrtX_code, trend_code=NULL,
                                     trend_period=trend_period,
                                     axis_xlim=axis_xlim_code,
                                     missRect=TRUE,
@@ -174,7 +174,7 @@ datasheet = function (list_df2plot, meta, trend_period,
                                 first=TRUE)
 
                 # Gets the time serie plot
-                HsqrtXmid = panel_trend(df_sqrtX_code, df_trend_code=NULL,
+                HsqrtXmid = panel_trend(df_sqrtX_code, trend_code=NULL,
                                        trend_period=trend_period,
                                        axis_xlim=axis_xlim_code,
                                        missRect=TRUE,
@@ -202,7 +202,7 @@ datasheet = function (list_df2plot, meta, trend_period,
             data = list_df2plot[[i]]$data
             # Extracts the trend corresponding to the
             # current variable
-            df_trend = list_df2plot[[i]]$trend
+            trend = list_df2plot[[i]]$trend
             
             unit2day = list_df2plot[[i]]$unit2day
             # Extract the variable of the plot
@@ -223,7 +223,7 @@ datasheet = function (list_df2plot, meta, trend_period,
             # Extracts the data corresponding to the code
             data_code = data[data$Code == code,]
             # Extracts the trend corresponding to the code
-            df_trend_code = df_trend[df_trend$Code == code,]
+            trend_code = trend[trend$Code == code,]
 
             # Blank vector to store color
             color = c()
@@ -233,26 +233,26 @@ datasheet = function (list_df2plot, meta, trend_period,
                 for (j in 1:nPeriod_trend) {
 
                     # If the trend is significant
-                    if (df_trend_code$p[j] <= level){
+                    if (trend_code$p[j] <= level){
                         # Extract start and end of trend periods
-                        Start = df_trend_code$start[j]
-                        End = df_trend_code$end[j]
+                        Start = trend_code$start[j]
+                        End = trend_code$end[j]
 
                         # Extracts the corresponding data for the period
                         data_code_per =
                             data_code[data_code$Date >= Start 
                                          & data_code$Date <= End,]
                         # Same for trend
-                        df_trend_code_per = 
-                            df_trend_code[df_trend_code$start == Start 
-                                          & df_trend_code$end == End,]
+                        trend_code_per = 
+                            trend_code[trend_code$start == Start 
+                                          & trend_code$end == End,]
 
                         # Computes the number of trend analysis selected
-                        Ntrend = nrow(df_trend_code_per)
+                        Ntrend = nrow(trend_code_per)
                         # If there is more than one trend on the same period
                         if (Ntrend > 1) {
                             # Takes only the first because they are similar
-                            df_trend_code_per = df_trend_code_per[1,]
+                            trend_code_per = trend_code_per[1,]
                         }
 
                         # If it is a flow variable
@@ -262,10 +262,10 @@ datasheet = function (list_df2plot, meta, trend_period,
                                             na.rm=TRUE)
                             # Normalises the trend value by the mean
                             # of the data
-                            value = df_trend_code_per$a / dataMean
+                            value = trend_code_per$a / dataMean
                             # If it is a date variable
                         } else if (unit == "jour de l'année" | unit == 'jour' | unit == 'jour.an^{-1}') {
-                            value = df_trend_code_per$a
+                            value = trend_code_per$a
                         }
 
 
@@ -307,7 +307,7 @@ datasheet = function (list_df2plot, meta, trend_period,
 
             print(paste0("Time panel for ", var))
 
-            res = panel_trend(data_code, df_trend_code,
+            res = panel_trend(data_code, trend_code,
                              var=var, unit=unit,
                              samplePeriod_code=samplePeriod_code,
                              linetype_per=linetype_per,
