@@ -250,11 +250,12 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
         scale_y_continuous(expand=c(0, 0))
     
 
-    cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
-                        label=c("-1", "-2/3", "-1/3",
-                                "0", "1/3", "2/3", "1"),
-                        colorStep=6, include=TRUE,
-                        reverse=TRUE)
+    cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
+                      colorStep=6, include=TRUE,
+                      asFrac=TRUE,
+                      reverse=TRUE)
+
+    
 
     res = list(cm=cm, cb=cb)
     return (res)

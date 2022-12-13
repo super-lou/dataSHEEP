@@ -25,6 +25,12 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
     Model = levels(factor(dataEx2D$Model))
     nModel = length(Model)
 
+    info_height = 1
+    cm_height = 20
+    leg_height = 4
+    foot_height = 1.25
+    margin_height = 0.5
+
 
     for (i in 1:nModel) {
         model = Model[i]
@@ -44,7 +50,8 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
 
         df_P = add_plot(df_P,
                         plot=info,
-                        name="info")
+                        name="info",
+                        height=info_height)
         
         res = panel_correlation_matrix(dataEx2D_model)
         cm = res$cm
@@ -52,21 +59,29 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
 
         df_P = add_plot(df_P,
                         plot=cm,
-                        name="cm")
+                        name="cm",
+                        height=cm_height)
 
+        ssg = leg_shape_size_gradient(shape="rect",
+                                      Size=c(0.2, 0.3, 0.4, 0.5),
+                                      color="grey50",
+                                      labelArrow="plus corrélé")
+
+        leg = merge_panel(df_P, )
+        
         df_P = add_plot(df_P,
-                        plot=cb,
-                        name="cb")
+                        plot=leg,
+                        name="leg",
+                        height=leg_height)
 
         df_P = add_plot(df_P,
                         plot=void(),
                         name="void")
 
-        info_height = 1
-        cm_height = 20
-        cb_height = 0.6
-        foot_height = 1.25
-        margin_height = 0.5
+        df_P = add_plot(df_P,
+                        plot=void(),
+                        name="margin",
+                        height=margin_height)
         
         footName = paste0('matrice de corrélation : ', model)
         if (is.null(df_page)) {
@@ -78,18 +93,16 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
                 n_page = df_page$n[nrow(df_page)] + page
             }
         }
-
-        print("foot panel")
-        
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
         df_P = add_plot(df_P,
                         plot=foot,
                         name="foot",
-                        overwrite_by_name=TRUE)
+                        height=foot_height)
 
-        print("adding margin")
 
+
+        
         LM_id = c()
         LM_name = c()
         
@@ -101,7 +114,7 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         LM_id = c(LM_id, id_plot)
         LM_name = c(LM_name, df_P$name[id_plot])
 
-        id_plot = which(df_P$name == "cb")
+        id_plot = which(df_P$name == "leg")
         LM_id = c(LM_id, id_plot)
         LM_name = c(LM_name, df_P$name[id_plot])       
 
@@ -132,8 +145,6 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
                         rep("margin", times=LMrow))
         LMcol = ncol(LM_id)
 
-        print("paper cutting")
-
         paper_size='A4'
         if (paper_size == 'A4') {
             width = 21
@@ -143,7 +154,7 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
             height = paper_size[2]
         }
         
-        Norm_ratio = height / (height - 2*margin_height - cm_height - cb_height - foot_height - info_height)
+        Norm_ratio = height / (height - 2*margin_height - cm_height - leg_height - foot_height - info_height)
 
         void_height = height / Norm_ratio
         
@@ -152,7 +163,7 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
 
         heightLM[Hcut == "info"] = info_height
         heightLM[Hcut == "cm"] = cm_height
-        heightLM[Hcut == "cb"] = cb_height
+        heightLM[Hcut == "leg"] = leg_height
         heightLM[Hcut == "void"] = void_height
         heightLM[Hcut == "foot"] = foot_height
         heightLM[Hcut == "margin"] = margin_height
@@ -166,8 +177,6 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         LM_inline = P[as.vector(LM_id)]
         
         LM_name_inline = as.vector(LM_name)
-
-        print("arrange plot")
 
         plot = grid.arrange(arrangeGrob(grobs=LM_inline,
                                         nrow=LMrow,

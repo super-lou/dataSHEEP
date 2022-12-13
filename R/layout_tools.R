@@ -82,34 +82,130 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
 ### 2.1. Merge _______________________________________________________
 #' @title Merge
 #' @export
-merge_panel = function (add, to, widths=NULL, heights=NULL) {
-    # Plot the graph as the layout
-    plot = grid.arrange(grobs=list(add, to),
-                        heights=heights, widths=widths)
+merge_panel = function (STOCK, NAME=NULL, addMargin=FALSE,
+                        paper_size=c(10, 10)) {
+
+
+
+    if (is.null(NAME)) {
+        ID = 1:nrow(STOCK)
+        NAME = STOCK$name
+        
+    } else {
+        STOCKname = STOCK$name
+        nSTOCKname = length(STOCK$name)
+        ID = c()
+        
+        nrowNAME = nrow(NAME)
+        ncolNAME = ncol(NAME)
+        NAME = unlist(c(NAME))
+        nNAME = nrowNAME*ncolNAME
+        
+        for (i in 1:nNAME) {
+            IDplot = which(STOCKname == NAME[i])
+            ID = c(ID, IDplot)
+            # NAME = c(NAME, STOCK$name[IDplot])
+        }
+    }
+
+    PLOT = STOCK$plot[ID[!is.na(ID)]]
+    NAME = matrix(NAME, nrow=nrowNAME, ncol=ncolNAME)
+    ID[!is.na(ID)] = 1:length(ID[!is.na(ID)])
+    ID = matrix(ID, nrow=nrowNAME, ncol=ncolNAME)                
+
+    if (addMargin) {
+        ncolNAME = ncol(NAME)
+        ID = rbind(rep(NA, times=ncolNAME), ID,
+                   rep(NA, times=ncolNAME))
+        NAME = rbind(rep("margin", times=ncolNAME), NAME,
+                     rep("margin", times=ncolNAME))
+        
+        nrowNAME = nrow(NAME)
+        ID = cbind(rep(NA, times=nrowNAME), ID,
+                   rep(NA, times=nrowNAME))
+        NAME = cbind(rep("margin", times=nrowNAME), NAME,
+                     rep("margin", times=nrowNAME))
+    }
+
+    nrowNAME = nrow(NAME)
+    ncolNAME = ncol(NAME)
+
+
+    
+    paper_size='A4'
+    if (paper_size == 'A4') {
+        width = 21
+        height = 29.7
+    } else if (is.vector(paper_size) & length(paper_size) > 1) {
+        width = paper_size[1]
+        height = paper_size[2]
+    }
+    
+    Norm_ratio = height / (height - 2*margin_height - cm_height - leg_height - foot_height - info_height)
+
+    void_height = height / Norm_ratio
+    
+    Hcut = NAME[, 2]
+    heightLM = rep(0, times=nrowNAME)
+
+    heightLM[Hcut == "info"] = info_height
+    heightLM[Hcut == "cm"] = cm_height
+    heightLM[Hcut == "leg"] = leg_height
+    heightLM[Hcut == "void"] = void_height
+    heightLM[Hcut == "foot"] = foot_height
+    heightLM[Hcut == "margin"] = margin_height
+
+    col_width = (width - 2*margin_height) / (ncolNAME - 2)
+    
+    Wcut = NAME[(nrowNAME-1),]
+    widthLM = rep(col_width, times=ncolNAME)
+    widthLM[Wcut == "margin"] = margin_height
+
+    LM_inline = PLOT[as.vector(ID)]
+    
+    NAME_inline = as.vector(NAME)
+
+    plot = grid.arrange(arrangeGrob(grobs=LM_inline,
+                                    nrow=nrowNAME,
+                                    ncol=ncolNAME,
+                                    heights=heightLM,
+                                    widths=widthLM,
+                                    as.table=FALSE))
+
+    
+    
     return (plot)
 }
 
 ### 2.2. Add plot ____________________________________________________
-add_plot = function (df_P, plot=NULL, name="", first=FALSE, last=FALSE,
+add_plot = function (STOCK, plot=NULL, name="",
+                     height=NA, width=NA,
+                     first=FALSE, last=FALSE,
                      overwrite_by_name=FALSE) {
     
-    if (overwrite_by_name == FALSE | !any(which(df_P$name == name))) {
-        if (nrow(df_P) == 0) {
-            df_P = tibble(name=name, first=first,
-                          last=last, plot=NULL)
+    if (overwrite_by_name == FALSE | !any(which(STOCK$name == name))) {
+        if (nrow(STOCK) == 0) {
+            STOCK = tibble(name=name,
+                          height=height, width=width,
+                          first=first, last=last,
+                          plot=NULL)
         } else {
-            df_P = bind_rows(df_P, tibble(name=name, first=first,
-                                          last=last, plot=NULL))
+            STOCK = bind_rows(STOCK, tibble(name=name,
+                                          height=height, width=width,
+                                          first=first, last=last,
+                                          plot=NULL))
         }
-        df_P$plot[[nrow(df_P)]] = plot
+        STOCK$plot[[nrow(STOCK)]] = plot
 
     } else {
-        id = which(df_P$name == name)
-        df_P$first[id] = first
-        df_P$last[id] = last
-        df_P$plot[[id]] = plot
+        id = which(STOCK$name == name)
+        STOCK$height[id] = height
+        STOCK$width[id] = width
+        STOCK$first[id] = first
+        STOCK$last[id] = last
+        STOCK$plot[[id]] = plot
     }
-    return (df_P)
+    return (STOCK)
 }
 
 
@@ -167,7 +263,7 @@ gpct = function (pct, L, min_lim=NULL, shift=FALSE) {
     if (is.null(min_lim)) {
         # The minimum of the serie is computed
         minL = min(L, na.rm=TRUE)
-    # If a reference is specified
+        # If a reference is specified
     } else {
         # The reference is the minimum
         minL = min_lim
@@ -206,6 +302,24 @@ round_label = function (labelRaw, direction="V", ncharLim=4) {
         label[nCharLabel2 > ncharLim] = label1[nCharLabel2 > ncharLim]
     }
     return (label)
+}
+
+is.wholenumber = function (X, tol=.Machine$double.eps^0.5) {
+    res = abs(X - round(X)) < tol
+    return (res)
+}
+
+chr2op = function (x) {
+    res = eval(parse(text=x))
+    return (res)
+}
+
+float2frac = function (X, den) {
+    Frac = paste0(round(X * den), "/", den)
+    evalFrac = sapply(X, chr2op)
+    OK = is.wholenumber(evalFrac)
+    Frac[OK] = evalFrac[OK]
+    return (Frac)
 }
 
 ## 4. LOADING ________________________________________________________
@@ -335,6 +449,6 @@ splitext = function(file) { # tools::file_ext
 #' @title Split path
 #' @export
 split_path = function (path) {
-  if (dirname(path) %in% c(".", path)) return(basename(path))
-  return(c(basename(path), split_path(dirname(path))))
+    if (dirname(path) %in% c(".", path)) return(basename(path))
+    return(c(basename(path), split_path(dirname(path))))
 }
