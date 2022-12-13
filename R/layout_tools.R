@@ -82,104 +82,193 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
 ### 2.1. Merge _______________________________________________________
 #' @title Merge
 #' @export
-merge_panel = function (STOCK, NAME=NULL, addMargin=FALSE,
-                        paper_size=c(10, 10)) {
-
-
+merge_panel = function (STOCK, direction="V", NAME=NULL,
+                        margin_size=0, paper_size=c(10, 10),
+                        hjust=0, vjust=1) {
 
     if (is.null(NAME)) {
         ID = 1:nrow(STOCK)
         NAME = STOCK$name
+        if (direction == "V") {
+            nrowNAME = length(NAME)
+            ncolNAME = 1
+        } else if (direction == "H") {
+            nrowNAME = 1
+            ncolNAME = length(NAME)
+        } else {
+            stop ("error when selecting 'direction'")
+        }
         
     } else {
         STOCKname = STOCK$name
         nSTOCKname = length(STOCK$name)
         ID = c()
-        
         nrowNAME = nrow(NAME)
         ncolNAME = ncol(NAME)
-        NAME = unlist(c(NAME))
+        NAME = as.vector(NAME)
         nNAME = nrowNAME*ncolNAME
-        
-        for (i in 1:nNAME) {
-            IDplot = which(STOCKname == NAME[i])
-            ID = c(ID, IDplot)
-            # NAME = c(NAME, STOCK$name[IDplot])
-        }
+        ID = match(NAME, STOCK$name)
     }
 
     PLOT = STOCK$plot[ID[!is.na(ID)]]
     NAME = matrix(NAME, nrow=nrowNAME, ncol=ncolNAME)
-    ID[!is.na(ID)] = 1:length(ID[!is.na(ID)])
-    ID = matrix(ID, nrow=nrowNAME, ncol=ncolNAME)                
+    ID = matrix(ID, nrow=nrowNAME, ncol=ncolNAME)
 
-    if (addMargin) {
-        ncolNAME = ncol(NAME)
-        ID = rbind(rep(NA, times=ncolNAME), ID,
-                   rep(NA, times=ncolNAME))
-        NAME = rbind(rep("margin", times=ncolNAME), NAME,
-                     rep("margin", times=ncolNAME))
-        
-        nrowNAME = nrow(NAME)
-        ID = cbind(rep(NA, times=nrowNAME), ID,
-                   rep(NA, times=nrowNAME))
-        NAME = cbind(rep("margin", times=nrowNAME), NAME,
-                     rep("margin", times=nrowNAME))
-    }
+    ncolNAME = ncol(NAME)
+
+    rowFoot = which(NAME[, 1] == "foot")
+    
+    ID = rbind(rep(NA, times=ncolNAME),
+               ID[1:(rowFoot-1),, drop=FALSE],
+               rep(NA, times=ncolNAME),
+               ID[rowFoot:nrowNAME,, drop=FALSE])
+    NAME = rbind(rep("tjust", times=ncolNAME),
+                 NAME[1:(rowFoot-1),, drop=FALSE],
+                 rep("bjust", times=ncolNAME),
+                 NAME[rowFoot:nrowNAME,, drop=FALSE])
+    nrowNAME = nrow(NAME)
+    ID = cbind(rep(NA, times=nrowNAME), ID,
+               rep(NA, times=nrowNAME))
+    NAME = cbind(rep("ljust", times=nrowNAME), NAME,
+                 rep("rjust", times=nrowNAME))
+
+    ncolNAME = ncol(NAME)
+    ID = rbind(rep(NA, times=ncolNAME), ID,
+               rep(NA, times=ncolNAME))
+    NAME = rbind(rep("margin", times=ncolNAME), NAME,
+                 rep("margin", times=ncolNAME))
+    
+    nrowNAME = nrow(NAME)
+    ID = cbind(rep(NA, times=nrowNAME), ID,
+               rep(NA, times=nrowNAME))
+    NAME = cbind(rep("margin", times=nrowNAME), NAME,
+                 rep("margin", times=nrowNAME))
 
     nrowNAME = nrow(NAME)
     ncolNAME = ncol(NAME)
 
+    HEIGHT = STOCK$height[match(NAME, STOCK$name)]
+    HEIGHT = matrix(HEIGHT, nrow=nrowNAME, ncol=ncolNAME)
+    WIDTH = STOCK$width[match(NAME, STOCK$name)]
+    WIDTH = matrix(WIDTH, nrow=nrowNAME, ncol=ncolNAME)
 
+
+    print("RESUME")
+    print(ID)
+    print(NAME)
+    print(HEIGHT)
+    print(WIDTH)
     
-    paper_size='A4'
+
     if (paper_size == 'A4') {
-        width = 21
-        height = 29.7
+        paperWidth = 21
+        paperHeight = 29.7
     } else if (is.vector(paper_size) & length(paper_size) > 1) {
-        width = paper_size[1]
-        height = paper_size[2]
+        paperWidth = paper_size[1]
+        paperHeight = paper_size[2]
     }
+
+    sumHeight = apply(HEIGHT, 2, sum, na.rm=TRUE)
+    if (all(sumHeight == 0)) {
+        maxHeight = paperHeight #- 2*margin_size
+        HEIGHT[HEIGHT == 0] = maxHeight
+        idMaxHeight = 3
+    } else {
+        maxHeight = max(sumHeight, na.rm=TRUE)
+        idMaxHeight = which(sumHeight == maxHeight)[1]
+        maxHeight = maxHeight + 2*margin_size
+    }
+    ratioHeight = paperHeight / (paperHeight - maxHeight)
+    tjust_height = paperHeight * (1-vjust) / ratioHeight
+    bjust_height = paperHeight * vjust / ratioHeight
+
+    NAMEcut = NAME[, idMaxHeight]
+    heights = HEIGHT[, idMaxHeight]
+
+    res = rle(NAMEcut)
+    REPtimes = res$lengths
+    REPname = res$values
+    for (i in 1:length(REPtimes)) {
+        if (REPtimes[i] > 1) {
+            heights[NAMEcut == REPname[i]] =
+                heights[NAMEcut == REPname[i]][1] / REPtimes[i]
+        }
+    }    
+    heights[NAMEcut == "tjust"] = tjust_height
+    heights[NAMEcut == "bjust"] = bjust_height
+    heights[NAMEcut == "margin"] = margin_size
+
+    print("HEIGHT")
+    print(heights)
+    print(sum(heights))
+
+    sumWidth = apply(WIDTH, 1, sum, na.rm=TRUE)
+    if (all(sumWidth == 0)) {
+        maxWidth = paperWidth #- 2*margin_size
+        WIDTH[WIDTH == 0] = maxWidth
+        idMaxWidth = 3
+    } else {
+        maxWidth = max(sumWidth, na.rm=TRUE)
+        idMaxWidth = which(sumWidth == maxWidth)[1]
+        maxWidth = maxWidth + 2*margin_size
+    }
+    ratioWidth = paperWidth / (paperWidth - maxWidth)
+    ljust_width = paperWidth * hjust / ratioWidth
+    rjust_width = paperWidth * (1-hjust) / ratioWidth
+
+    NAMEcut = NAME[idMaxWidth,]
+    widths = WIDTH[idMaxWidth,]
+
+    print(maxWidth)
+    print(idMaxWidth)
+    print(NAMEcut)
+    print(widths)
     
-    Norm_ratio = height / (height - 2*margin_height - cm_height - leg_height - foot_height - info_height)
+    res = rle(NAMEcut)
+    REPtimes = res$lengths
+    REPname = res$values
+    for (i in 1:length(REPtimes)) {
+        if (REPtimes[i] > 1) {
+            widths[NAMEcut == REPname[i]] =
+                widths[NAMEcut == REPname[i]][1] / REPtimes[i]
+        }
+    }
+    widths[NAMEcut == "ljust"] = ljust_width
+    widths[NAMEcut == "rjust"] = rjust_width
+    widths[NAMEcut == "margin"] = margin_size
 
-    void_height = height / Norm_ratio
+    print("WIDTH")
+    print(widths)
+    print(sum(widths))
+
+    select = select_grobs(ID)
+    select = sort(select)
+    grobs = STOCK$plot[select]
     
-    Hcut = NAME[, 2]
-    heightLM = rep(0, times=nrowNAME)
+    print("STOCK")
+    print(STOCK)
+    print(select)
 
-    heightLM[Hcut == "info"] = info_height
-    heightLM[Hcut == "cm"] = cm_height
-    heightLM[Hcut == "leg"] = leg_height
-    heightLM[Hcut == "void"] = void_height
-    heightLM[Hcut == "foot"] = foot_height
-    heightLM[Hcut == "margin"] = margin_height
-
-    col_width = (width - 2*margin_height) / (ncolNAME - 2)
-    
-    Wcut = NAME[(nrowNAME-1),]
-    widthLM = rep(col_width, times=ncolNAME)
-    widthLM[Wcut == "margin"] = margin_height
-
-    LM_inline = PLOT[as.vector(ID)]
-    
-    NAME_inline = as.vector(NAME)
-
-    plot = grid.arrange(arrangeGrob(grobs=LM_inline,
+    plot = grid.arrange(arrangeGrob(grobs=grobs,
                                     nrow=nrowNAME,
                                     ncol=ncolNAME,
-                                    heights=heightLM,
-                                    widths=widthLM,
+                                    heights=heights,
+                                    widths=widths,
+                                    layout_matrix=ID,
                                     as.table=FALSE))
 
-    
-    
-    return (plot)
+    res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
+    return (res)
 }
+
+select_grobs = function (lay) {
+    id = unique(c(t(lay))) 
+    id[!is.na(id)]
+} 
 
 ### 2.2. Add plot ____________________________________________________
 add_plot = function (STOCK, plot=NULL, name="",
-                     height=NA, width=NA,
+                     height=0, width=0,
                      first=FALSE, last=FALSE,
                      overwrite_by_name=FALSE) {
     

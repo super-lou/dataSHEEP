@@ -27,62 +27,60 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
 
     info_height = 1
     cm_height = 20
-    leg_height = 4
+    leg_width = 4
+    void_width = 16
+    cb_height = 1
+    ssg_height = 1
     foot_height = 1.25
-    margin_height = 0.5
-
+    margin_size = 0.5
 
     for (i in 1:nModel) {
         model = Model[i]
         print(model)
 
-        df_P = tibble()
+        STOCK = tibble()
         var_plotted = c()
         
         dataEx2D_model = dataEx2D[dataEx2D$Model == model,]
 
         text = paste0("<b>", model, "</b>")
         info = richtext_grob(text,
-                              x=0, y=0,
-                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                              hjust=0, vjust=0,
-                              gp=gpar(col="#00A3A8", fontsize=16))
+                             x=0, y=0,
+                             margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                             hjust=0, vjust=0,
+                             gp=gpar(col="#00A3A8", fontsize=16))
 
-        df_P = add_plot(df_P,
-                        plot=info,
-                        name="info",
-                        height=info_height)
+        STOCK = add_plot(STOCK,
+                         plot=info,
+                         name="info",
+                         height=info_height)
         
         res = panel_correlation_matrix(dataEx2D_model)
         cm = res$cm
         cb = res$cb
 
-        df_P = add_plot(df_P,
-                        plot=cm,
-                        name="cm",
-                        height=cm_height)
+        STOCK = add_plot(STOCK,
+                         plot=cm,
+                         name="cm",
+                         height=cm_height)
+
+        STOCK = add_plot(STOCK,
+                         plot=cb,
+                         name="cb",
+                         height=cb_height,
+                         width=leg_width)
 
         ssg = leg_shape_size_gradient(shape="rect",
                                       Size=c(0.2, 0.3, 0.4, 0.5),
                                       color="grey50",
                                       labelArrow="plus corrélé")
 
-        leg = merge_panel(df_P, )
-        
-        df_P = add_plot(df_P,
-                        plot=leg,
-                        name="leg",
-                        height=leg_height)
+        STOCK = add_plot(STOCK,
+                         plot=ssg,
+                         name="ssg",
+                         height=ssg_height,
+                         width=leg_width)
 
-        df_P = add_plot(df_P,
-                        plot=void(),
-                        name="void")
-
-        df_P = add_plot(df_P,
-                        plot=void(),
-                        name="margin",
-                        height=margin_height)
-        
         footName = paste0('matrice de corrélation : ', model)
         if (is.null(df_page)) {
             n_page = i
@@ -95,95 +93,29 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        df_P = add_plot(df_P,
-                        plot=foot,
-                        name="foot",
-                        height=foot_height)
+        STOCK = add_plot(STOCK,
+                         plot=foot,
+                         name="foot",
+                         height=foot_height)
 
+        STOCK = add_plot(STOCK,
+                         plot=void(),
+                         name="void",
+                         # height=ssg_height,
+                         width=void_width)
 
+        NAME = matrix(c("info", "cm", "void", "void", "foot",
+                        "info", "cm", "cb", "ssg", "foot"), nrow=5)
 
-        
-        LM_id = c()
-        LM_name = c()
-        
-        id_plot = which(df_P$name == "info")
-        LM_id = c(LM_id, id_plot)
-        LM_name = c(LM_name, df_P$name[id_plot])
-        
-        id_plot = which(df_P$name == "cm")
-        LM_id = c(LM_id, id_plot)
-        LM_name = c(LM_name, df_P$name[id_plot])
+        res = merge_panel(STOCK, NAME=NAME,
+                          margin_size=margin_size,
+                          paper_size="A4",
+                          hjust=0, vjust=1)
 
-        id_plot = which(df_P$name == "leg")
-        LM_id = c(LM_id, id_plot)
-        LM_name = c(LM_name, df_P$name[id_plot])       
+        plot = res$plot
+        paper_size = res$paper_size
 
-        id_plot = which(df_P$name == "void")
-        LM_id = c(LM_id, id_plot)
-        LM_name = c(LM_name, df_P$name[id_plot])
-
-        id_plot = which(df_P$name == "foot")
-        LM_id = c(LM_id, id_plot)
-        LM_name = c(LM_name, df_P$name[id_plot])
-
-        P = df_P$plot[LM_id[!is.na(LM_id)]]
-
-        LM_name = matrix(LM_name)
-        LM_id[!is.na(LM_id)] = 1:length(LM_id[!is.na(LM_id)])
-        LM_id = matrix(LM_id)                
-
-        LMcol = ncol(LM_id)
-        LM_id = rbind(rep(NA, times=LMcol), LM_id,
-                      rep(NA, times=LMcol))
-        LM_name = rbind(rep("margin", times=LMcol), LM_name,
-                        rep("margin", times=LMcol))
-        
-        LMrow = nrow(LM_id)
-        LM_id = cbind(rep(NA, times=LMrow), LM_id,
-                      rep(NA, times=LMrow))
-        LM_name = cbind(rep("margin", times=LMrow), LM_name,
-                        rep("margin", times=LMrow))
-        LMcol = ncol(LM_id)
-
-        paper_size='A4'
-        if (paper_size == 'A4') {
-            width = 21
-            height = 29.7
-        } else if (is.vector(paper_size) & length(paper_size) > 1) {
-            width = paper_size[1]
-            height = paper_size[2]
-        }
-        
-        Norm_ratio = height / (height - 2*margin_height - cm_height - leg_height - foot_height - info_height)
-
-        void_height = height / Norm_ratio
-        
-        Hcut = LM_name[, 2]
-        heightLM = rep(0, times=LMrow)
-
-        heightLM[Hcut == "info"] = info_height
-        heightLM[Hcut == "cm"] = cm_height
-        heightLM[Hcut == "leg"] = leg_height
-        heightLM[Hcut == "void"] = void_height
-        heightLM[Hcut == "foot"] = foot_height
-        heightLM[Hcut == "margin"] = margin_height
-
-        col_width = (width - 2*margin_height) / (LMcol - 2)
-        
-        Wcut = LM_name[(LMrow-1),]
-        widthLM = rep(col_width, times=LMcol)
-        widthLM[Wcut == "margin"] = margin_height
-
-        LM_inline = P[as.vector(LM_id)]
-        
-        LM_name_inline = as.vector(LM_name)
-
-        plot = grid.arrange(arrangeGrob(grobs=LM_inline,
-                                        nrow=LMrow,
-                                        ncol=LMcol,
-                                        heights=heightLM,
-                                        widths=widthLM,
-                                        as.table=FALSE))
+        print(paper_size)
 
         filename = paste0("correlation_", model, ".pdf")
 
@@ -193,7 +125,9 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,
-                        width=width, height=height, units='cm', dpi=300,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
                         device=cairo_pdf)
     }
 }
