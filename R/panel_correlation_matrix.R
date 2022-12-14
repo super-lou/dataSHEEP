@@ -19,7 +19,8 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
+panel_correlation_matrix = function (dataEx2D_model, level=0.1,
+                                     ...) {
 
     vars2keep = names(dataEx2D_model)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
@@ -208,13 +209,13 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
     
     cm = cm +
         annotate("rect", xmin=0, xmax=nVar*ech, ymin=0, ymax=nVar*ech,
-                 linewidth=lw, color="grey96", fill=NA)
+                 linewidth=lw, color=IPCCgrey95, fill=NA)
     for (i in 1:(nVar-1)) {
         cm = cm +
             annotate("line", x=c(0, nVar)*ech, y=c(i, i)*ech,
-                     linewidth=lw, color="grey96") +
+                     linewidth=lw, color=IPCCgrey95) +
             annotate("line", x=c(i, i)*ech, y=c(0, nVar)*ech,
-                     linewidth=lw, color="grey96")
+                     linewidth=lw, color=IPCCgrey95)
     }
 
     cm = cm +
@@ -227,7 +228,7 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
                  y=(nVar-1):0*ech + 0.5*ech,
                  hjust=1, vjust=0.5,
                  label=TeX(VarTEX), size=size,
-                 color="grey40") +
+                 color=IPCCgrey40) +
         
         annotate("text",
                  x=0:(nVar-1)*ech + 0.5*ech,
@@ -235,7 +236,7 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
                  hjust=1, vjust=0.5,
                  angle=90,
                  label=TeX(VarTEX), size=size,
-                 color="grey40") +
+                 color=IPCCgrey40) +
     
         annotate("text",
                  x=0:(nVar-1)*ech + 0.5*ech,
@@ -243,7 +244,7 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
                  hjust=0, vjust=0.5,
                  angle=90,
                  label=TeX(VarTEX), size=size,
-                 color="grey40")
+                 color=IPCCgrey40)
 
     cm = cm +
         scale_x_continuous(expand=c(0, 0)) + 
@@ -253,7 +254,8 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1) {
     cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
                       colorStep=6, include=TRUE,
                       asFrac=TRUE,
-                      reverse=TRUE)
+                      reverse=TRUE,
+                      ...)
 
     
 

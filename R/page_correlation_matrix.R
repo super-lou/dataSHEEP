@@ -25,14 +25,24 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
     Model = levels(factor(dataEx2D$Model))
     nModel = length(Model)
 
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     info_height = 1
     cm_height = 20
-    leg_width = 4
-    void_width = 16
+    leg_width = 8
+    void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
     cb_height = 1
+    si_height = 1.2
     ssg_height = 1
     foot_height = 1.25
-    margin_size = 0.5
+
+    cb_margin = margin(t=0, r=0, b=0, l=3.5, "cm")
+    ssg_margin = margin(t=0.5, r=0, b=0, l=0.5, "cm")
+    si_margin = margin(t=0.7, r=0, b=0, l=-0.8, "cm")
+
+    NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
+                    "info", "cm", "void", "void", "void", "foot"),
+                  nrow=6)
+    
 
     for (i in 1:nModel) {
         model = Model[i]
@@ -43,27 +53,27 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         
         dataEx2D_model = dataEx2D[dataEx2D$Model == model,]
 
-        text = paste0("<b>", model, "</b>")
+        text = paste0(
+            "<b>Matrice de corrélation des critères d'évaluation</b><br>",
+            model)
         info = richtext_grob(text,
-                             x=0, y=0,
+                             x=0, y=1,
                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                             hjust=0, vjust=0,
+                             hjust=0, vjust=1,
                              gp=gpar(col="#00A3A8", fontsize=16))
-
         STOCK = add_plot(STOCK,
                          plot=info,
                          name="info",
                          height=info_height)
         
-        res = panel_correlation_matrix(dataEx2D_model)
+        res = panel_correlation_matrix(dataEx2D_model,
+                                       plot_margin=cb_margin)
         cm = res$cm
         cb = res$cb
-
         STOCK = add_plot(STOCK,
                          plot=cm,
                          name="cm",
                          height=cm_height)
-
         STOCK = add_plot(STOCK,
                          plot=cb,
                          name="cb",
@@ -72,13 +82,27 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
 
         ssg = leg_shape_size_gradient(shape="rect",
                                       Size=c(0.2, 0.3, 0.4, 0.5),
-                                      color="grey50",
-                                      labelArrow="plus corrélé")
-
+                                      color=IPCCgrey50,
+                                      labelArrow="Plus corrélé",
+                                      plot_margin=ssg_margin)
         STOCK = add_plot(STOCK,
                          plot=ssg,
                          name="ssg",
                          height=ssg_height,
+                         width=leg_width)
+
+        si = leg_shape_info(Shape=c("rect", "rect"),
+                            Size=c(1, 1),
+                            Color=c(IPCCgrey50, IPCCgrey50),
+                            Label=c(
+                                "Significatif à un risque de 10 %",
+                                "Non significatif à un risque de 10 %"),
+                            Cross=c(FALSE, TRUE),
+                            plot_margin=si_margin)
+        STOCK = add_plot(STOCK,
+                         plot=si,
+                         name="si",
+                         height=si_height,
                          width=leg_width)
 
         footName = paste0('matrice de corrélation : ', model)
@@ -101,14 +125,10 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
         STOCK = add_plot(STOCK,
                          plot=void(),
                          name="void",
-                         # height=ssg_height,
                          width=void_width)
 
-        NAME = matrix(c("info", "cm", "void", "void", "foot",
-                        "info", "cm", "cb", "ssg", "foot"), nrow=5)
-
         res = merge_panel(STOCK, NAME=NAME,
-                          margin_size=margin_size,
+                          page_margin=page_margin,
                           paper_size="A4",
                           hjust=0, vjust=1)
 

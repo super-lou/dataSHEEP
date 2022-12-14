@@ -94,6 +94,28 @@ Palette_rainbow = function () {
 }
 
 
+IPCCgrey97 = "#f9f8f7" # lighter plot background
+IPCCgrey95 = "#f4f2f1" # plot background
+IPCCgrey92 = "#e9eceb" # 
+IPCCgrey90 = "#e3e2e0" # minor tick
+IPCCgrey85 = "#dcdad9" # low important axis
+IPCCgrey75 = "#bebdbb" # major tick
+IPCCgrey60 = "#9c9c9b" # important axis
+IPCCgrey50 = "#81848b" # low important annotation
+IPCCgrey40 = "#656769" # low important label
+IPCCgrey25 = "#454547"
+IPCCgrey20 = "#060403" # important title, label or annotation
+IPCCgrey18 = "#2f2f32" # low important title
+IPCCgrey13 = "#231f20" # font
+IPCCgrey05 = "#100f0d" # realy important title
+IPCCcyan = "#449c93"
+IPCCligthcyan = "#90d6c6"
+IPCCwhitecyan = "#a8ded3"
+IPCCbrique = "#794822"
+IPCCgold = "#e6d495"
+IPCCblue = "#1e2f59"
+
+
 ## 2. COLOR MANAGEMENT _______________________________________________
 ### 2.1. Compute colors ______________________________________________
 #' @title Compute color bin

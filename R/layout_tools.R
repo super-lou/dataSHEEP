@@ -83,7 +83,8 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
 #' @title Merge
 #' @export
 merge_panel = function (STOCK, direction="V", NAME=NULL,
-                        margin_size=0, paper_size=c(10, 10),
+                        page_margin=c(t=0, r=0, b=0, l=0),
+                        paper_size=c(10, 10),
                         hjust=0, vjust=1) {
 
     if (is.null(NAME)) {
@@ -135,14 +136,14 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
     ncolNAME = ncol(NAME)
     ID = rbind(rep(NA, times=ncolNAME), ID,
                rep(NA, times=ncolNAME))
-    NAME = rbind(rep("margin", times=ncolNAME), NAME,
-                 rep("margin", times=ncolNAME))
+    NAME = rbind(rep("tmargin", times=ncolNAME), NAME,
+                 rep("bmargin", times=ncolNAME))
     
     nrowNAME = nrow(NAME)
     ID = cbind(rep(NA, times=nrowNAME), ID,
                rep(NA, times=nrowNAME))
-    NAME = cbind(rep("margin", times=nrowNAME), NAME,
-                 rep("margin", times=nrowNAME))
+    NAME = cbind(rep("lmargin", times=nrowNAME), NAME,
+                 rep("rmargin", times=nrowNAME))
 
     nrowNAME = nrow(NAME)
     ncolNAME = ncol(NAME)
@@ -170,13 +171,13 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
 
     sumHeight = apply(HEIGHT, 2, sum, na.rm=TRUE)
     if (all(sumHeight == 0)) {
-        maxHeight = paperHeight #- 2*margin_size
+        maxHeight = paperHeight
         HEIGHT[HEIGHT == 0] = maxHeight
         idMaxHeight = 3
     } else {
         maxHeight = max(sumHeight, na.rm=TRUE)
         idMaxHeight = which(sumHeight == maxHeight)[1]
-        maxHeight = maxHeight + 2*margin_size
+        maxHeight = maxHeight + page_margin["t"] + page_margin["b"]
     }
     ratioHeight = paperHeight / (paperHeight - maxHeight)
     tjust_height = paperHeight * (1-vjust) / ratioHeight
@@ -196,21 +197,22 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
     }    
     heights[NAMEcut == "tjust"] = tjust_height
     heights[NAMEcut == "bjust"] = bjust_height
-    heights[NAMEcut == "margin"] = margin_size
-
+    heights[NAMEcut == "tmargin"] = page_margin["t"]
+    heights[NAMEcut == "bmargin"] = page_margin["b"]
+    
     print("HEIGHT")
     print(heights)
     print(sum(heights))
 
     sumWidth = apply(WIDTH, 1, sum, na.rm=TRUE)
     if (all(sumWidth == 0)) {
-        maxWidth = paperWidth #- 2*margin_size
+        maxWidth = paperWidth
         WIDTH[WIDTH == 0] = maxWidth
         idMaxWidth = 3
     } else {
         maxWidth = max(sumWidth, na.rm=TRUE)
         idMaxWidth = which(sumWidth == maxWidth)[1]
-        maxWidth = maxWidth + 2*margin_size
+        maxWidth = maxWidth + page_margin["l"] + page_margin["r"]
     }
     ratioWidth = paperWidth / (paperWidth - maxWidth)
     ljust_width = paperWidth * hjust / ratioWidth
@@ -219,11 +221,6 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
     NAMEcut = NAME[idMaxWidth,]
     widths = WIDTH[idMaxWidth,]
 
-    print(maxWidth)
-    print(idMaxWidth)
-    print(NAMEcut)
-    print(widths)
-    
     res = rle(NAMEcut)
     REPtimes = res$lengths
     REPname = res$values
@@ -235,7 +232,8 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
     }
     widths[NAMEcut == "ljust"] = ljust_width
     widths[NAMEcut == "rjust"] = rjust_width
-    widths[NAMEcut == "margin"] = margin_size
+    widths[NAMEcut == "lmargin"] = page_margin["l"]
+    widths[NAMEcut == "rmargin"] = page_margin["r"]
 
     print("WIDTH")
     print(widths)

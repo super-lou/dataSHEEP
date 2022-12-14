@@ -39,12 +39,14 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
         
         if (logo == 'PR') {
             grob = rasterGrob(img,
-                              x=0, hjust=0,
+                              x=0,
+                              hjust=0,
                               width=unit(0.8*foot_height, "cm"))
             width = 0.2
         } else if (logo == 'FR') { 
             grob = rasterGrob(img,
-                              x=0, hjust=0,
+                              x=0,
+                              hjust=0,
                               width=unit(1*foot_height, "cm"))
             width = 0.2
         } else if (logo == 'INRAE') {
@@ -59,10 +61,12 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
                               vjust=0.5,
                               width=unit(0.7*foot_height, "cm"))
             width = 0.2
-        } else {
+        } else if (logo == 'Explore2') {
             grob = rasterGrob(img,
-                              x=0, hjust=0.5,
-                              width=unit(1*foot_height, "cm"))
+                              x=0,
+                              vjust=0.7,
+                              hjust=0.5,
+                              width=unit(1.15*foot_height, "cm"))
             width = 0
         }
         P[[i+1]] = grob
