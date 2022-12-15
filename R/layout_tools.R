@@ -539,3 +539,12 @@ split_path = function (path) {
     if (dirname(path) %in% c(".", path)) return(basename(path))
     return(c(basename(path), split_path(dirname(path))))
 }
+
+
+plotly_save = function (fig, path) {
+    htmlwidgets::saveWidget(fig,
+                            file=path,
+                            selfcontained=TRUE)
+    libdir = paste0(tools::file_path_sans_ext(basename(path)), "_files")
+    unlink(file.path(dirname(path), libdir), recursive=TRUE)
+}

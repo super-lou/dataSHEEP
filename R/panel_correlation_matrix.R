@@ -19,7 +19,9 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-panel_correlation_matrix = function (dataEx2D_model, level=0.1,
+panel_correlation_matrix = function (dataEx2D_model,
+                                     metaVAR,
+                                     level=0.1,
                                      ...) {
 
     vars2keep = names(dataEx2D_model)
@@ -34,6 +36,9 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1,
     nameRow = dataEx2D_model$Code
     dataEx2D_model = dplyr::select(dataEx2D_model, -c(Code, Model))
     nameCol = names(dataEx2D_model)
+
+    dataEx2D_model = dataEx2D_model[match(names(dataEx2D_model),
+                                          metaVAR$var)]
 
     Var = nameCol
     nVar = ncol(dataEx2D_model)
@@ -96,10 +101,15 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1,
         }
     }
 
-    lw = 0.4
+    lw_mat = 0.4
+    lw_topic = 0.6
     ech = 25
     dt = 0.25
     size = 3.2
+    size_topic = 2.5
+    dx_line_topic = 0.6
+    dx_text_topic = 0.25
+    dy_topic = 0.2
 
     Colors = get_color(CORRmat, -1, 1,
                        Palette=Palette_rainbow(),
@@ -209,13 +219,13 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1,
     
     cm = cm +
         annotate("rect", xmin=0, xmax=nVar*ech, ymin=0, ymax=nVar*ech,
-                 linewidth=lw, color=IPCCgrey95, fill=NA)
+                 linewidth=lw_mat, color=IPCCgrey95, fill=NA)
     for (i in 1:(nVar-1)) {
         cm = cm +
             annotate("line", x=c(0, nVar)*ech, y=c(i, i)*ech,
-                     linewidth=lw, color=IPCCgrey95) +
+                     linewidth=lw_mat, color=IPCCgrey95) +
             annotate("line", x=c(i, i)*ech, y=c(0, nVar)*ech,
-                     linewidth=lw, color=IPCCgrey95)
+                     linewidth=lw_mat, color=IPCCgrey95)
     }
 
     cm = cm +
@@ -246,6 +256,45 @@ panel_correlation_matrix = function (dataEx2D_model, level=0.1,
                  label=TeX(VarTEX), size=size,
                  color=IPCCgrey40)
 
+    complete = function (X) {
+        if (length(X) < 2) {
+            X = c(X, NA)
+        }
+        return (X)
+    }
+    Topic = strsplit(metaVAR$topic, "/")
+    Topic = lapply(Topic, complete)
+    mainTopic = rev(sapply(Topic, '[[', 1))
+    lenMainTopic = rle(mainTopic)$lengths
+    nMainTopic = length(lenMainTopic)
+    startMainTopic =
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_topic
+    endMainTopic = cumsum(lenMainTopic) - dy_topic
+    midMainTopic = (startMainTopic + endMainTopic)/2
+    mainTopic = mainTopic[!duplicated(mainTopic)]
+    mainTopic = mainTopic
+    
+    subTopic = rev(sapply(Topic, '[[', 2))
+    names(subTopic) = metaVAR$var
+    subTopic = subTopic[!is.na(subTopic)]
+
+    for (i in 1:nMainTopic) {
+        cm = cm +
+            annotate("line", x=(c(nVar, nVar) + dx_line_topic)*ech,
+                     y=c(startMainTopic[i], endMainTopic[i])*ech,
+                     linewidth=lw_topic, color=IPCCgrey85,
+                     lineend="round") +
+            
+            annotate("text",
+                     x=(nVar + dx_line_topic + dx_text_topic)*ech,
+                     y=midMainTopic[i]*ech,
+                     hjust=0.5, vjust=1,
+                     angle=90,
+                     label=mainTopic[i], size=size_topic,
+                     color=IPCCgrey85)
+    }
+
+    
     cm = cm +
         scale_x_continuous(expand=c(0, 0)) + 
         scale_y_continuous(expand=c(0, 0))

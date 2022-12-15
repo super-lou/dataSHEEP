@@ -20,7 +20,9 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir='') {
+page_correlation_matrix = function (dataEx2D, metaVAR,
+                                    logo_path="", df_page=NULL,
+                                    figdir='') {
 
     Model = levels(factor(dataEx2D$Model))
     nModel = length(Model)
@@ -67,6 +69,7 @@ page_correlation_matrix = function (dataEx2D, logo_path="", df_page=NULL, figdir
                          height=info_height)
         
         res = panel_correlation_matrix(dataEx2D_model,
+                                       metaVAR,
                                        plot_margin=cb_margin)
         cm = res$cm
         cb = res$cb
