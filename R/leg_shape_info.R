@@ -25,8 +25,8 @@ leg_shape_info = function (Shape=c("rect", "rect"),
                            Color=c(IPCCgrey50, IPCCgrey50),
                            Label=c("A", "B"),
                            Cross=c(FALSE, FALSE),
-                           plot_margin=margin(t=0, r=0,
-                                              b=0, l=0, "mm")) {        
+                           si_margin=margin(t=0, r=0,
+                                            b=0, l=0, "mm")) {        
     dy = 1.6
     dTl = 0.4
 
@@ -35,7 +35,7 @@ leg_shape_info = function (Shape=c("rect", "rect"),
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=plot_margin)
+              plot.margin=si_margin)
 
     for (i in 1:nShape) {
         shape = Shape[i]

@@ -24,9 +24,9 @@ leg_colorbar = function (min, max, Palette,
                          colorStep=256, include=FALSE,
                          label=NULL, asFrac=FALSE,
                          reverse=FALSE,
-                         plot_margin=margin(t=0, r=0,
-                                            b=0, l=0,
-                                            "mm")) {
+                         cb_margin=margin(t=0, r=0,
+                                          b=0, l=0,
+                                          "mm")) {
 
     colorBin = compute_colorBin(min, max,
                                 Palette=Palette,
@@ -64,7 +64,7 @@ leg_colorbar = function (min, max, Palette,
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=plot_margin)
+              plot.margin=cb_margin)
 
     plot = plot +
         annotate("rect",

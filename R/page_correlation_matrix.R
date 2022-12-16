@@ -21,7 +21,8 @@
 
 
 page_correlation_matrix = function (dataEx2D, metaVAR,
-                                    logo_path="", df_page=NULL,
+                                    icon_path="", logo_path="",
+                                    df_page=NULL,
                                     figdir='') {
 
     Model = levels(factor(dataEx2D$Model))
@@ -29,7 +30,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     info_height = 1
-    cm_height = 20
+    cm_height = 23
     leg_width = 8
     void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
     cb_height = 1
@@ -37,6 +38,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
     ssg_height = 1
     foot_height = 1.25
 
+    cm_margin = margin(t=2, r=0, b=2, l=0.5, "cm")
     cb_margin = margin(t=0, r=0, b=0, l=3.5, "cm")
     ssg_margin = margin(t=0.5, r=0, b=0, l=0.5, "cm")
     si_margin = margin(t=0.7, r=0, b=0, l=-0.8, "cm")
@@ -70,7 +72,9 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
         
         res = panel_correlation_matrix(dataEx2D_model,
                                        metaVAR,
-                                       plot_margin=cb_margin)
+                                       icon_path=icon_path,
+                                       cm_margin=cm_margin,
+                                       cb_margin=cb_margin)
         cm = res$cm
         cb = res$cb
         STOCK = add_plot(STOCK,
@@ -87,7 +91,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                                       Size=c(0.2, 0.3, 0.4, 0.5),
                                       color=IPCCgrey50,
                                       labelArrow="Plus corrélé",
-                                      plot_margin=ssg_margin)
+                                      ssg_margin=ssg_margin)
         STOCK = add_plot(STOCK,
                          plot=ssg,
                          name="ssg",
@@ -101,7 +105,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                                 "Significatif à un risque de 10 %",
                                 "Non significatif à un risque de 10 %"),
                             Cross=c(FALSE, TRUE),
-                            plot_margin=si_margin)
+                            si_margin=si_margin)
         STOCK = add_plot(STOCK,
                          plot=si,
                          name="si",

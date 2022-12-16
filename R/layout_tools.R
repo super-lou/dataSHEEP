@@ -524,7 +524,7 @@ load_logo = function (resources_path, logo_dir, logo_to_show) {
     return (logo_path)
 }
 
-### 4.3. Other _______________________________________________________    
+### 4.3. Other _______________________________________________________
 #' @title Split filename
 #' @export
 splitext = function(file) { # tools::file_ext
@@ -541,6 +541,31 @@ split_path = function (path) {
 }
 
 
+guess_newline = function (text, nLim=20, newlineId="\n") {
+    nbNewline = 0
+    nbChar = nchar(text)
+    while (nbChar > nLim | sum(grepl(" ", text)) == 0) {
+        nbNewline = nbNewline + 1
+        posSpace = which(strsplit(text, "")[[1]] == " ")
+        idNewline = which.min(abs(posSpace - nLim * nbNewline))
+        posNewline = posSpace[idNewline]
+        text = paste(substring(text,
+                               c(1, posNewline + 1),
+                               c(posNewline - 1,
+                                 nchar(text))),
+                     collapse=newlineId)
+        if (sum(grepl(" ", text)) == 0) {
+            break
+        }
+        Newline = substr(text,
+                         posNewline + 2,
+                         nchar(text))
+        nbChar = nchar(Newline)
+    }
+    return (text)
+}
+
+
 plotly_save = function (fig, path) {
     htmlwidgets::saveWidget(fig,
                             file=path,
@@ -548,3 +573,4 @@ plotly_save = function (fig, path) {
     libdir = paste0(tools::file_path_sans_ext(basename(path)), "_files")
     unlink(file.path(dirname(path), libdir), recursive=TRUE)
 }
+

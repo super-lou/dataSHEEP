@@ -599,13 +599,10 @@ page_map = function (list_df2plot, meta, shapefile_list,
                 # Creates a tibble to store all parameters of colorbar
                 plot_palette = tibble(Xpal=Xpal, Ypal=Ypal,
                                       color=color)
-
                 
                 nbLine = as.integer(nchar(glose)/40) + 1
 
-
                 nbNewline = 0
-
                 nbLim = 43
                 gloseName = glose
                 nbChar = nchar(gloseName)

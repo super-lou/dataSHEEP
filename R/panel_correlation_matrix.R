@@ -21,16 +21,62 @@
 
 panel_correlation_matrix = function (dataEx2D_model,
                                      metaVAR,
+                                     icon_path,
                                      level=0.1,
+                                     cm_margin=margin(t=0, r=0,
+                                                      b=0, l=0,
+                                                      "cm"),
                                      ...) {
 
+    lw_mat = 0.4
+    lw_topic = 0.6
+    ech = 25
+    dt = 0.25
+    size = 3.2
+    size_topic = 2.5
+    dx_line_topic = 9
+    dx_text_topic = 0.4
+    dy_topic = 0.2
+    ech_newline = 2
+    
+    complete = function (X) {
+        if (length(X) < 2) {
+            X = c(X, NA)
+        }
+        return (X)
+    }
+    Topic = strsplit(metaVAR$topic, "/")
+    Topic = lapply(Topic, complete)
+    mainTopicVAR = sapply(Topic, '[[', 1)
+    names(mainTopicVAR) = metaVAR$var
+    lenMainTopic = rle(mainTopicVAR)$lengths
+    nMainTopic = length(lenMainTopic)
+    startMainTopic =
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_topic
+    endMainTopic = cumsum(lenMainTopic) - dy_topic
+    midMainTopic = (startMainTopic + endMainTopic)/2
+    mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
+    
+    subTopicVAR = sapply(Topic, '[[', 2)
+    names(subTopicVAR) = metaVAR$var
+    subTopic = subTopicVAR[!duplicated(subTopicVAR)]
+
+
+    mainTopic_icon =
+        file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg"))
+    subTopic_icon =
+        file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
+    names(mainTopic_icon) = mainTopic
+    names(subTopic_icon) = subTopic
+
+    
     vars2keep = names(dataEx2D_model)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
 
     dataEx2D_model = dplyr::mutate(dataEx2D_model,
-                           dplyr::across(where(is.logical),
-                                         as.numeric),
-                           .keep="all")
+                                   dplyr::across(where(is.logical),
+                                                 as.numeric),
+                                   .keep="all")
     
     dataEx2D_model = dplyr::select(dataEx2D_model, vars2keep)
     nameRow = dataEx2D_model$Code
@@ -61,8 +107,8 @@ panel_correlation_matrix = function (dataEx2D_model,
     rownames(dataEx2D_model) = nameRow
 
     CORRmat = cor(dataEx2D_model,
-                     method="spearman",
-                     use="pairwise.complete.obs")
+                  method="spearman",
+                  use="pairwise.complete.obs")
     
     Pmat = corrplot::cor.mtest(dataEx2D_model,
                                conf.level=1-level,
@@ -100,16 +146,6 @@ panel_correlation_matrix = function (dataEx2D_model,
             colnames(Pmat)[id] = missVar
         }
     }
-
-    lw_mat = 0.4
-    lw_topic = 0.6
-    ech = 25
-    dt = 0.25
-    size = 3.2
-    size_topic = 2.5
-    dx_line_topic = 0.6
-    dx_text_topic = 0.25
-    dy_topic = 0.2
 
     Colors = get_color(CORRmat, -1, 1,
                        Palette=Palette_rainbow(),
@@ -210,7 +246,7 @@ panel_correlation_matrix = function (dataEx2D_model,
 
     cm = ggplot() + theme_void() + coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=margin(t=2, r=0, b=3, l=2, "cm"))
+              plot.margin=cm_margin)
 
     cm = cm +
         annotate("rect", xmin=XMIN, xmax=XMAX,
@@ -247,7 +283,7 @@ panel_correlation_matrix = function (dataEx2D_model,
                  angle=90,
                  label=TeX(VarTEX), size=size,
                  color=IPCCgrey40) +
-    
+        
         annotate("text",
                  x=0:(nVar-1)*ech + 0.5*ech,
                  y=rep((nVar+dt)*ech, nVar),
@@ -256,44 +292,37 @@ panel_correlation_matrix = function (dataEx2D_model,
                  label=TeX(VarTEX), size=size,
                  color=IPCCgrey40)
 
-    complete = function (X) {
-        if (length(X) < 2) {
-            X = c(X, NA)
-        }
-        return (X)
-    }
-    Topic = strsplit(metaVAR$topic, "/")
-    Topic = lapply(Topic, complete)
-    mainTopic = rev(sapply(Topic, '[[', 1))
-    lenMainTopic = rle(mainTopic)$lengths
-    nMainTopic = length(lenMainTopic)
-    startMainTopic =
-        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_topic
-    endMainTopic = cumsum(lenMainTopic) - dy_topic
-    midMainTopic = (startMainTopic + endMainTopic)/2
-    mainTopic = mainTopic[!duplicated(mainTopic)]
-    mainTopic = mainTopic
     
-    subTopic = rev(sapply(Topic, '[[', 2))
-    names(subTopic) = metaVAR$var
-    subTopic = subTopic[!is.na(subTopic)]
-
     for (i in 1:nMainTopic) {
         cm = cm +
-            annotate("line", x=(c(nVar, nVar) + dx_line_topic)*ech,
-                     y=c(startMainTopic[i], endMainTopic[i])*ech,
-                     linewidth=lw_topic, color=IPCCgrey85,
-                     lineend="round") +
-            
-            annotate("text",
-                     x=(nVar + dx_line_topic + dx_text_topic)*ech,
-                     y=midMainTopic[i]*ech,
-                     hjust=0.5, vjust=1,
-                     angle=90,
-                     label=mainTopic[i], size=size_topic,
-                     color=IPCCgrey85)
+            annotate("line",
+                     x=c(startMainTopic[i], endMainTopic[i])*ech,
+                     y=rep(nVar + dx_line_topic, 2)*ech,
+                     linewidth=lw_topic, color=IPCCgrey20,
+                     lineend="round")
+
+            # annotate("text",
+            #          x=midMainTopic[i]*ech,
+            #          y=(nVar + dx_line_topic + dx_text_topic)*ech,
+            #          hjust=0.5, vjust=0,
+            #          angle=0,
+            #          label=guess_newline(mainTopic[i],
+            #                              round(lenMainTopic[i]*
+            #                                    ech_newline)),
+            #          size=size_topic,
+            #          color=IPCCgrey20)
     }
 
+    library(ggimage)
+    plotDF = dplyr::tibble(x=midMainTopic*ech,
+                           y=(nVar + dx_line_topic +
+                              dx_text_topic)*ech,
+                           svg=mainTopic_icon)
+
+    cm = cm +
+        ggimage::geom_image(data=plotDF,
+                            aes(x=x, y=y, image=svg),
+                            size=0.05)
     
     cm = cm +
         scale_x_continuous(expand=c(0, 0)) + 

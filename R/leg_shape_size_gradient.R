@@ -24,8 +24,8 @@ leg_shape_size_gradient = function (shape="rect",
                                     Size=c(0.4, 0.6, 0.8, 1),
                                     color=IPCCgrey50,
                                     labelArrow=NULL,
-                                    plot_margin=margin(t=0, r=0,
-                                                       b=0, l=0, "mm")) {        
+                                    ssg_margin=margin(t=0, r=0,
+                                                      b=0, l=0, "mm")) {        
     dx = 0.4
     dAl = 0.2
     dAr = 0.6
@@ -44,7 +44,7 @@ leg_shape_size_gradient = function (shape="rect",
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=plot_margin)
+              plot.margin=ssg_margin)
 
     if (shape == "rect") {
         plot = plot +
