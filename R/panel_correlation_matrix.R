@@ -30,13 +30,20 @@ panel_correlation_matrix = function (dataEx2D_model,
 
     lw_mat = 0.4
     lw_topic = 0.6
-    ech = 25
+    
     dt = 0.25
     size = 3.2
-    size_topic = 2.5
-    dx_line_topic = 9
-    dx_text_topic = 0.4
-    dy_topic = 0.2
+    size_icon = 1
+    size_topic = 3
+    
+    dy_icon_topic = 2.2
+    dy_text_topic = 0.4
+    dy_line_mainTopic = 0.5
+    dy_line_subTopic = 1
+    dy_line_topic = 0.2
+
+    ech = 25
+    ech_char = 0.8
     ech_newline = 2
     
     complete = function (X) {
@@ -52,8 +59,8 @@ panel_correlation_matrix = function (dataEx2D_model,
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
-        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_topic
-    endMainTopic = cumsum(lenMainTopic) - dy_topic
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_line_topic
+    endMainTopic = cumsum(lenMainTopic) - dy_line_topic
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
     
@@ -61,14 +68,15 @@ panel_correlation_matrix = function (dataEx2D_model,
     names(subTopicVAR) = metaVAR$var
     subTopic = subTopicVAR[!duplicated(subTopicVAR)]
 
-
-    mainTopic_icon =
-        file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg"))
-    subTopic_icon =
-        file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
+    mainTopic_icon = lapply(
+        file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
+        svgparser::read_svg)
+    subTopic_icon = lapply(
+        file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg")),
+        svgparser::read_svg)
+    
     names(mainTopic_icon) = mainTopic
     names(subTopic_icon) = subTopic
-
     
     vars2keep = names(dataEx2D_model)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
@@ -81,11 +89,11 @@ panel_correlation_matrix = function (dataEx2D_model,
     dataEx2D_model = dplyr::select(dataEx2D_model, vars2keep)
     nameRow = dataEx2D_model$Code
     dataEx2D_model = dplyr::select(dataEx2D_model, -c(Code, Model))
-    nameCol = names(dataEx2D_model)
 
     dataEx2D_model = dataEx2D_model[match(names(dataEx2D_model),
                                           metaVAR$var)]
 
+    nameCol = names(dataEx2D_model)
     Var = nameCol
     nVar = ncol(dataEx2D_model)
 
@@ -231,13 +239,11 @@ panel_correlation_matrix = function (dataEx2D_model,
             var = gsub("median[{]", "\\\\textit{med}", var)
         } 
         
-        if (grepl("sqrt", var) & !grepl("sqrt[{]", var) & !grepl("sqrt$", var)) {
-            var = gsub("sqrt", "\\\\sqrt{", var)
-            var = paste0(var, "}")
-        } else if (grepl("sqrt", var) & ! grepl("sqrt[{]", var) & grepl("sqrt$", var)) {
-            var = gsub("sqrt", "\u221A", var)
-        } else if (grepl("sqrt", var) & grepl("sqrt[{]", var) & !grepl("sqrt$", var)) {
-            var = gsub("sqrt[{]", "\\\\sqrt{", var)
+        if (grepl("sqrt", var) & !grepl("sqrt[{]", var)) {
+            var = gsub("sqrt", "\\\\textit{sqrt}", var)
+        } else if (grepl("sqrt", var) & grepl("sqrt[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("sqrt[{]", "\\\\textit{sqrt}", var)
         } 
         
         VarTEX[i] = var
@@ -292,38 +298,80 @@ panel_correlation_matrix = function (dataEx2D_model,
                  label=TeX(VarTEX), size=size,
                  color=IPCCgrey40)
 
+
+    VarRAW = gsub("([_])|([{])|([}])", "", metaVAR$var)
+    VarRAW = gsub("median", "med", VarRAW)
+    VarRAW = gsub("HYP", "H", VarRAW)
+    VarRAW = gsub("alpha", "a", VarRAW)
+    VarRAW = gsub("epsilon", "e", VarRAW)
+    
+    lenVar = nchar(VarRAW)
+    maxLenVar = max(lenVar)
     
     for (i in 1:nMainTopic) {
         cm = cm +
+            annotation_custom(
+                mainTopic_icon[[i]],
+                xmin=(midMainTopic[i] - size_icon)*ech,
+                xmax=(midMainTopic[i] + size_icon)*ech,
+                ymin=(nVar + 
+                      dy_line_subTopic + maxLenVar*ech_char +
+                      dy_line_mainTopic +
+                      dy_icon_topic - size_icon)*ech,
+                ymax=(nVar +
+                      dy_line_subTopic + maxLenVar*ech_char +
+                      dy_line_mainTopic +
+                      dy_icon_topic + size_icon)*ech) +
+            
+            annotate("text",
+                     x=midMainTopic[i]*ech,
+                     y=(nVar +
+                        dy_line_subTopic + maxLenVar*ech_char +
+                        dy_line_mainTopic +
+                        dy_text_topic)*ech,
+                     hjust=0.5, vjust=0,
+                     angle=0,
+                     # label=guess_newline(mainTopic[i],
+                     #                     round(lenMainTopic[i]*
+                     #                           ech_newline)),
+                     label=mainTopic[i],
+                     fontface="bold",
+                     size=size_topic,
+                     color=IPCCgrey20) +
+            
+            annotate("line",
+                     x=c(midMainTopic[i], midMainTopic[i])*ech,
+                     y=c(nVar +
+                         dy_line_subTopic + maxLenVar*ech_char,
+                         nVar +
+                         dy_line_subTopic + maxLenVar*ech_char +
+                         dy_line_mainTopic)*ech,
+                     linewidth=lw_topic, color=IPCCgrey20,
+                     lineend="round") +
+
             annotate("line",
                      x=c(startMainTopic[i], endMainTopic[i])*ech,
-                     y=rep(nVar + dx_line_topic, 2)*ech,
+                     y=rep(nVar +
+                           dy_line_subTopic + maxLenVar*ech_char,
+                           2)*ech,
                      linewidth=lw_topic, color=IPCCgrey20,
                      lineend="round")
-
-            # annotate("text",
-            #          x=midMainTopic[i]*ech,
-            #          y=(nVar + dx_line_topic + dx_text_topic)*ech,
-            #          hjust=0.5, vjust=0,
-            #          angle=0,
-            #          label=guess_newline(mainTopic[i],
-            #                              round(lenMainTopic[i]*
-            #                                    ech_newline)),
-            #          size=size_topic,
-            #          color=IPCCgrey20)
     }
-
-    library(ggimage)
-    plotDF = dplyr::tibble(x=midMainTopic*ech,
-                           y=(nVar + dx_line_topic +
-                              dx_text_topic)*ech,
-                           svg=mainTopic_icon)
-
-    cm = cm +
-        ggimage::geom_image(data=plotDF,
-                            aes(x=x, y=y, image=svg),
-                            size=0.05)
     
+    for (i in 1:nVar) {
+        cm = cm +
+            annotate("line",
+                     x=rep((i-1) + 0.5, 2)*ech,
+                     y=c(nVar +
+                         lenVar[i]*ech_char,
+                         nVar +
+                         maxLenVar*ech_char +
+                         dy_line_subTopic)*ech,
+                     linewidth=lw_topic, color=IPCCgrey20,
+                     lineend="round")
+    }
+    
+
     cm = cm +
         scale_x_continuous(expand=c(0, 0)) + 
         scale_y_continuous(expand=c(0, 0))
