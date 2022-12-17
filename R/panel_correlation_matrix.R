@@ -40,10 +40,10 @@ panel_correlation_matrix = function (dataEx2D_model,
     dy_text_topic = 0.4
     dy_line_mainTopic = 0.5
     dy_line_subTopic = 1
-    dy_line_topic = 0.2
+    dy_line_topic = 0.5
 
     ech = 25
-    ech_char = 0.8
+    ech_char = 0.7
     ech_newline = 2
     
     complete = function (X) {
@@ -273,7 +273,7 @@ panel_correlation_matrix = function (dataEx2D_model,
     cm = cm +
         annotate("point", x=XP, y=YP,
                  shape=4, size=XPSIZE, color="white")
-
+    
     cm = cm +
         annotate("text",
                  x=rep(-dt*ech, nVar),
@@ -288,25 +288,34 @@ panel_correlation_matrix = function (dataEx2D_model,
                  hjust=1, vjust=0.5,
                  angle=90,
                  label=TeX(VarTEX), size=size,
-                 color=IPCCgrey40) +
-        
-        annotate("text",
-                 x=0:(nVar-1)*ech + 0.5*ech,
-                 y=rep((nVar+dt)*ech, nVar),
-                 hjust=0, vjust=0.5,
-                 angle=90,
-                 label=TeX(VarTEX), size=size,
                  color=IPCCgrey40)
 
-
-    VarRAW = gsub("([_])|([{])|([}])", "", metaVAR$var)
+    VarRAW = metaVAR$var
     VarRAW = gsub("median", "med", VarRAW)
     VarRAW = gsub("HYP", "H", VarRAW)
     VarRAW = gsub("alpha", "a", VarRAW)
     VarRAW = gsub("epsilon", "e", VarRAW)
-    
-    lenVar = nchar(VarRAW)
-    maxLenVar = max(lenVar)
+    tmp = gsub("^.*[_]", "", VarRAW)
+    tmp = gsub("([{])|([}])", "", tmp)
+    tmp[!grepl("[_]", VarRAW)] = ""
+    tmp = strrep(".", nchar(tmp))
+    VarRAW = gsub("[{].*[}]", "", VarRAW)
+    VarRAW = gsub("[_].*$", "", VarRAW)
+    VarRAW = paste0(VarRAW, tmp)
+    VarRAW = strsplit(VarRAW, "*")
+
+    convert2space = function (X) {
+        X = gsub("[[:digit:]]", "1", X)
+        X = gsub("[[:upper:]]", "2", X)
+        X = gsub("[[:lower:]]", "1", X)
+        X = gsub("([.])|([-])", "1", X)
+        return (X)    
+    }
+    Space = lapply(VarRAW, convert2space)
+    Space = lapply(Space, as.numeric)
+    Space = lapply(Space, sum)
+    Space = unlist(Space)
+    maxSpace = max(Space)
     
     for (i in 1:nMainTopic) {
         cm = cm +
@@ -314,19 +323,19 @@ panel_correlation_matrix = function (dataEx2D_model,
                 mainTopic_icon[[i]],
                 xmin=(midMainTopic[i] - size_icon)*ech,
                 xmax=(midMainTopic[i] + size_icon)*ech,
-                ymin=(nVar + 
-                      dy_line_subTopic + maxLenVar*ech_char +
+                ymin=(nVar + dt + 
+                      dy_line_subTopic + maxSpace*ech_char +
                       dy_line_mainTopic +
                       dy_icon_topic - size_icon)*ech,
-                ymax=(nVar +
-                      dy_line_subTopic + maxLenVar*ech_char +
+                ymax=(nVar + dt +
+                      dy_line_subTopic + maxSpace*ech_char +
                       dy_line_mainTopic +
                       dy_icon_topic + size_icon)*ech) +
             
             annotate("text",
                      x=midMainTopic[i]*ech,
-                     y=(nVar +
-                        dy_line_subTopic + maxLenVar*ech_char +
+                     y=(nVar + dt +
+                        dy_line_subTopic + maxSpace*ech_char +
                         dy_line_mainTopic +
                         dy_text_topic)*ech,
                      hjust=0.5, vjust=0,
@@ -341,18 +350,18 @@ panel_correlation_matrix = function (dataEx2D_model,
             
             annotate("line",
                      x=c(midMainTopic[i], midMainTopic[i])*ech,
-                     y=c(nVar +
-                         dy_line_subTopic + maxLenVar*ech_char,
-                         nVar +
-                         dy_line_subTopic + maxLenVar*ech_char +
+                     y=c(nVar + dt +
+                         dy_line_subTopic + maxSpace*ech_char,
+                         nVar + dt +
+                         dy_line_subTopic + maxSpace*ech_char +
                          dy_line_mainTopic)*ech,
                      linewidth=lw_topic, color=IPCCgrey20,
                      lineend="round") +
 
             annotate("line",
                      x=c(startMainTopic[i], endMainTopic[i])*ech,
-                     y=rep(nVar +
-                           dy_line_subTopic + maxLenVar*ech_char,
+                     y=rep(nVar + dt +
+                           dy_line_subTopic + maxSpace*ech_char,
                            2)*ech,
                      linewidth=lw_topic, color=IPCCgrey20,
                      lineend="round")
@@ -362,13 +371,30 @@ panel_correlation_matrix = function (dataEx2D_model,
         cm = cm +
             annotate("line",
                      x=rep((i-1) + 0.5, 2)*ech,
-                     y=c(nVar +
-                         lenVar[i]*ech_char,
-                         nVar +
-                         maxLenVar*ech_char +
+                     y=c(nVar + dt,
+                         nVar + dt +
+                         maxSpace*ech_char +
                          dy_line_subTopic)*ech,
                      linewidth=lw_topic, color=IPCCgrey20,
-                     lineend="round")
+                     lineend="round") +
+            
+            annotate("rect",
+                     xmin=((i-1) + 0.1)*ech,
+                     xmax=((i-1) + 0.9)*ech,
+                     ymin=nVar*ech,
+                     ymax=(nVar +
+                           Space[i]*ech_char)*ech,
+                     fill="white",
+                     color=NA) +
+        
+            annotate("text",
+                     x=((i-1) + 0.5)*ech,
+                     y=(nVar+dt)*ech,
+                     label=TeX(VarTEX[i]),
+                     hjust=0, vjust=0.5,
+                     angle=90,
+                     size=size,
+                     color=IPCCgrey40)
     }
     
 
