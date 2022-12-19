@@ -29,22 +29,31 @@ panel_correlation_matrix = function (dataEx2D_model,
                                      ...) {
 
     lw_mat = 0.4
-    lw_topic = 0.6
+    lw_mainTopic = 0.55
     
-    dt = 0.25
-    size = 3.2
-    size_icon = 1
-    size_topic = 3
+    d_W_mat = 0.25
+    dy_L1 = 0.25
+    lw_L1 = 0.25
     
-    dy_icon_topic = 2.2
-    dy_text_topic = 0.4
-    dy_line_mainTopic = 0.5
-    dy_line_subTopic = 1
-    dy_line_topic = 0.5
+    dy_I1 = 0.4
+    size_I1 = 0.45
+    
+    dy_T1 = 1
+    size_T1 = 3.2
+    ech_T1 = 0.5
+
+    dy_L2_min = 1
+    dx_L3 = 0.5
+    dy_L4 = 0.5
+
+    dy_T2 = 0.4
+    size_T2 = 2.7
+    
+    dy_I2 = 2
+    size_I2 = 1
 
     ech = 25
-    ech_char = 0.7
-    ech_newline = 2
+    
     
     complete = function (X) {
         if (length(X) < 2) {
@@ -59,14 +68,13 @@ panel_correlation_matrix = function (dataEx2D_model,
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
-        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dy_line_topic
-    endMainTopic = cumsum(lenMainTopic) - dy_line_topic
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dx_L3_min
+    endMainTopic = cumsum(lenMainTopic) - dx_L3_min
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
     
-    subTopicVAR = sapply(Topic, '[[', 2)
-    names(subTopicVAR) = metaVAR$var
-    subTopic = subTopicVAR[!duplicated(subTopicVAR)]
+    subTopic = sapply(Topic, '[[', 2)
+    names(subTopic) = metaVAR$var
 
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
@@ -276,125 +284,147 @@ panel_correlation_matrix = function (dataEx2D_model,
     
     cm = cm +
         annotate("text",
-                 x=rep(-dt*ech, nVar),
+                 x=rep(-d_W_mat*ech, nVar),
                  y=(nVar-1):0*ech + 0.5*ech,
                  hjust=1, vjust=0.5,
-                 label=TeX(VarTEX), size=size,
+                 label=TeX(VarTEX), size=size_T1,
                  color=IPCCgrey40) +
         
         annotate("text",
                  x=0:(nVar-1)*ech + 0.5*ech,
-                 y=rep(-dt*ech, nVar),
+                 y=rep(-d_W_mat*ech, nVar),
                  hjust=1, vjust=0.5,
                  angle=90,
-                 label=TeX(VarTEX), size=size,
+                 label=TeX(VarTEX), size=size_T1,
                  color=IPCCgrey40)
 
     VarRAW = metaVAR$var
     VarRAW = gsub("median", "med", VarRAW)
+    VarRAW = gsub("mean", "moy", VarRAW)
     VarRAW = gsub("HYP", "H", VarRAW)
-    VarRAW = gsub("alpha", "a", VarRAW)
-    VarRAW = gsub("epsilon", "e", VarRAW)
+    VarRAW = gsub("alpha", "A", VarRAW)
+    VarRAW = gsub("epsilon", "E", VarRAW)
+    OK_ = grepl("[_]", VarRAW)
     tmp = gsub("^.*[_]", "", VarRAW)
     tmp = gsub("([{])|([}])", "", tmp)
-    tmp[!grepl("[_]", VarRAW)] = ""
-    tmp = strrep(".", nchar(tmp))
-    VarRAW = gsub("[{].*[}]", "", VarRAW)
+    tmp[!OK_] = ""
+    tmp = gsub("[[:alnum:]]", "*", tmp)
+    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
+    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
     VarRAW = gsub("[_].*$", "", VarRAW)
     VarRAW = paste0(VarRAW, tmp)
     VarRAW = strsplit(VarRAW, "*")
 
     convert2space = function (X) {
-        X = gsub("[[:digit:]]", "1", X)
-        X = gsub("[[:upper:]]", "2", X)
-        X = gsub("[[:lower:]]", "1", X)
-        X = gsub("([.])|([-])", "1", X)
+        X = gsub("[[:digit:]]", "1.1", X)
+        X = gsub("[[:upper:]]", "1.6", X)
+        X = gsub("[[:lower:]]", "1.1", X)
+        X = gsub("([-])|([,])", "0.5", X)
+        X = gsub("([*])", "0.9", X)
         return (X)    
     }
+
     Space = lapply(VarRAW, convert2space)
     Space = lapply(Space, as.numeric)
     Space = lapply(Space, sum)
     Space = unlist(Space)
     maxSpace = max(Space)
     
-    for (i in 1:nMainTopic) {
-        cm = cm +
-            annotation_custom(
-                mainTopic_icon[[i]],
-                xmin=(midMainTopic[i] - size_icon)*ech,
-                xmax=(midMainTopic[i] + size_icon)*ech,
-                ymin=(nVar + dt + 
-                      dy_line_subTopic + maxSpace*ech_char +
-                      dy_line_mainTopic +
-                      dy_icon_topic - size_icon)*ech,
-                ymax=(nVar + dt +
-                      dy_line_subTopic + maxSpace*ech_char +
-                      dy_line_mainTopic +
-                      dy_icon_topic + size_icon)*ech) +
-            
-            annotate("text",
-                     x=midMainTopic[i]*ech,
-                     y=(nVar + dt +
-                        dy_line_subTopic + maxSpace*ech_char +
-                        dy_line_mainTopic +
-                        dy_text_topic)*ech,
-                     hjust=0.5, vjust=0,
-                     angle=0,
-                     # label=guess_newline(mainTopic[i],
-                     #                     round(lenMainTopic[i]*
-                     #                           ech_newline)),
-                     label=mainTopic[i],
-                     fontface="bold",
-                     size=size_topic,
-                     color=IPCCgrey20) +
-            
-            annotate("line",
-                     x=c(midMainTopic[i], midMainTopic[i])*ech,
-                     y=c(nVar + dt +
-                         dy_line_subTopic + maxSpace*ech_char,
-                         nVar + dt +
-                         dy_line_subTopic + maxSpace*ech_char +
-                         dy_line_mainTopic)*ech,
-                     linewidth=lw_topic, color=IPCCgrey20,
-                     lineend="round") +
-
-            annotate("line",
-                     x=c(startMainTopic[i], endMainTopic[i])*ech,
-                     y=rep(nVar + dt +
-                           dy_line_subTopic + maxSpace*ech_char,
-                           2)*ech,
-                     linewidth=lw_topic, color=IPCCgrey20,
-                     lineend="round")
-    }
-    
     for (i in 1:nVar) {
-        cm = cm +
+        cm = cm +                        
+            annotation_custom(
+                subTopic_icon[[i]],
+                xmin=((i-1) + 0.5 - size_I1)*ech,
+                xmax=((i-1) + 0.5 + size_I1)*ech,
+                ymin=(nVar + d_W_mat +
+                      dy_I1 - size_I1)*ech,
+                ymax=(nVar + d_W_mat +
+                      dy_I1 + size_I1)*ech) +
+        
             annotate("line",
                      x=rep((i-1) + 0.5, 2)*ech,
-                     y=c(nVar + dt,
-                         nVar + dt +
-                         maxSpace*ech_char +
-                         dy_line_subTopic)*ech,
-                     linewidth=lw_topic, color=IPCCgrey20,
+                     y=c(nVar + d_W_mat*2 +
+                         dy_T1,
+                         nVar + d_W_mat +
+                         dy_T1 + 
+                         maxSpace*ech_T1 +
+                         dy_L2_min)*ech,
+                     linewidth=lw_L1, color=IPCCgrey67,
                      lineend="round") +
             
             annotate("rect",
                      xmin=((i-1) + 0.1)*ech,
                      xmax=((i-1) + 0.9)*ech,
-                     ymin=nVar*ech,
-                     ymax=(nVar +
-                           Space[i]*ech_char)*ech,
+                     ymin=(nVar + d_W_mat +
+                           dy_T1)*ech,
+                     ymax=(nVar + d_W_mat +
+                           dy_T1 +
+                           Space[i]*ech_T1)*ech,
                      fill="white",
                      color=NA) +
         
             annotate("text",
                      x=((i-1) + 0.5)*ech,
-                     y=(nVar+dt)*ech,
+                     y=(nVar + d_W_mat +
+                        dy_T1)*ech,
                      label=TeX(VarTEX[i]),
                      hjust=0, vjust=0.5,
                      angle=90,
-                     size=size,
+                     size=size_T1,
                      color=IPCCgrey40)
+    }
+
+    for (i in 1:nMainTopic) {
+        cm = cm +
+            annotation_custom(
+                mainTopic_icon[[i]],
+                xmin=(midMainTopic[i] - size_I2)*ech,
+                xmax=(midMainTopic[i] + size_I2)*ech,
+                ymin=(nVar + d_W_mat +
+                      dy_T1 +
+                      dy_L2_min + maxSpace*ech_T1 +
+                      dy_L4 +
+                      dy_I2 - size_I2)*ech,
+                ymax=(nVar + d_W_mat +
+                      dy_T1 +
+                      dy_L2_min + maxSpace*ech_T1 +
+                      dy_L4 +
+                      dy_I2 + size_I2)*ech) +
+            
+            annotate("text",
+                     x=midMainTopic[i]*ech,
+                     y=(nVar + d_W_mat +
+                        dy_T1 +
+                        dy_L2_min + maxSpace*ech_T1 +
+                        dy_L4 +
+                        dy_T2)*ech,
+                     hjust=0.5, vjust=0,
+                     angle=0,
+                     label=mainTopic[i],
+                     fontface="bold",
+                     size=size_T2,
+                     color=IPCCgrey05) +
+            
+            annotate("line",
+                     x=c(midMainTopic[i], midMainTopic[i])*ech,
+                     y=c(nVar + d_W_mat +
+                         dy_T1 +
+                         dy_L2_min + maxSpace*ech_T1,
+                         nVar + d_W_mat +
+                         dy_T1 +
+                         dy_L2_min + maxSpace*ech_T1 +
+                         dy_L4)*ech,
+                     linewidth=lw_mainTopic, color=IPCCgrey48,
+                     lineend="round") +
+
+            annotate("line",
+                     x=c(startMainTopic[i], endMainTopic[i])*ech,
+                     y=rep(nVar + d_W_mat +
+                           dy_T1 +
+                           dy_L2_min + maxSpace*ech_T1,
+                           2)*ech,
+                     linewidth=lw_mainTopic, color=IPCCgrey48,
+                     lineend="round")
     }
     
 
