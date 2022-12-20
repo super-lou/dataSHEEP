@@ -29,23 +29,27 @@ panel_correlation_matrix = function (dataEx2D_model,
                                      ...) {
 
     lw_mat = 0.4
-    lw_mainTopic = 0.55
-    
     d_W_mat = 0.25
-    dy_L1 = 0.25
+    
+    dy_L1 = 0.4
     lw_L1 = 0.25
     
     dy_I1 = 0.4
     size_I1 = 0.45
     
-    dy_T1 = 1
+    dy_T1 = 0.6
     size_T1 = 3.2
     ech_T1 = 0.5
 
     dy_L2_min = 1
+    lw_L2 = 0.25
+    
     dx_L3 = 0.5
-    dy_L4 = 0.5
+    lw_L3 = 0.55
 
+    dy_L4 = 0.5
+    lw_L4 = 0.55
+    
     dy_T2 = 0.4
     size_T2 = 2.7
     
@@ -68,8 +72,8 @@ panel_correlation_matrix = function (dataEx2D_model,
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
-        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dx_L3_min
-    endMainTopic = cumsum(lenMainTopic) - dx_L3_min
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dx_L3
+    endMainTopic = cumsum(lenMainTopic) - dx_L3
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
     
@@ -329,50 +333,59 @@ panel_correlation_matrix = function (dataEx2D_model,
     Space = lapply(Space, sum)
     Space = unlist(Space)
     maxSpace = max(Space)
+
+    dy = nVar + d_W_mat
     
     for (i in 1:nVar) {
-        cm = cm +                        
+        cm = cm +
+            
+            annotate("line",
+                     x=rep((i-1) + 0.5, 2)*ech,
+                     y=c(dy,
+                         dy + dy_L1 + dy_I1/2)*ech,
+                     linewidth=lw_L1, color=IPCCgrey67) +
+    
             annotation_custom(
                 subTopic_icon[[i]],
                 xmin=((i-1) + 0.5 - size_I1)*ech,
                 xmax=((i-1) + 0.5 + size_I1)*ech,
-                ymin=(nVar + d_W_mat +
-                      dy_I1 - size_I1)*ech,
-                ymax=(nVar + d_W_mat +
-                      dy_I1 + size_I1)*ech) +
+                ymin=(dy +
+                      dy_L1 + dy_I1 - size_I1)*ech,
+                ymax=(dy +
+                      dy_L1 + dy_I1 + size_I1)*ech) +
         
             annotate("line",
                      x=rep((i-1) + 0.5, 2)*ech,
-                     y=c(nVar + d_W_mat*2 +
-                         dy_T1,
-                         nVar + d_W_mat +
-                         dy_T1 + 
-                         maxSpace*ech_T1 +
-                         dy_L2_min)*ech,
-                     linewidth=lw_L1, color=IPCCgrey67,
-                     lineend="round") +
+                     y=c(dy + d_W_mat +
+                         dy_L1 + dy_I1 + dy_T1,
+                         dy +
+                         dy_L1 + dy_I1 + dy_T1 + 
+                         maxSpace*ech_T1 + dy_L2_min)*ech,
+                     linewidth=lw_L1, color=IPCCgrey67) +
             
             annotate("rect",
                      xmin=((i-1) + 0.1)*ech,
                      xmax=((i-1) + 0.9)*ech,
-                     ymin=(nVar + d_W_mat +
-                           dy_T1)*ech,
-                     ymax=(nVar + d_W_mat +
-                           dy_T1 +
+                     ymin=(dy +
+                           dy_L1 + dy_I1 + dy_T1)*ech,
+                     ymax=(dy +
+                           dy_L1 + dy_I1 + dy_T1 +
                            Space[i]*ech_T1)*ech,
                      fill="white",
                      color=NA) +
         
             annotate("text",
                      x=((i-1) + 0.5)*ech,
-                     y=(nVar + d_W_mat +
-                        dy_T1)*ech,
+                     y=(dy +
+                        dy_L1 + dy_I1 + dy_T1)*ech,
                      label=TeX(VarTEX[i]),
-                     hjust=0, vjust=0.5,
+                     hjust=0, vjust=0.675,
                      angle=90,
                      size=size_T1,
                      color=IPCCgrey40)
     }
+
+    dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
 
     for (i in 1:nMainTopic) {
         cm = cm +
@@ -380,24 +393,15 @@ panel_correlation_matrix = function (dataEx2D_model,
                 mainTopic_icon[[i]],
                 xmin=(midMainTopic[i] - size_I2)*ech,
                 xmax=(midMainTopic[i] + size_I2)*ech,
-                ymin=(nVar + d_W_mat +
-                      dy_T1 +
-                      dy_L2_min + maxSpace*ech_T1 +
-                      dy_L4 +
-                      dy_I2 - size_I2)*ech,
-                ymax=(nVar + d_W_mat +
-                      dy_T1 +
-                      dy_L2_min + maxSpace*ech_T1 +
-                      dy_L4 +
-                      dy_I2 + size_I2)*ech) +
+                ymin=(dy + 
+                      dy_L4 + dy_I2 - size_I2)*ech,
+                ymax=(dy + 
+                      dy_L4 + dy_I2 + size_I2)*ech) +
             
             annotate("text",
                      x=midMainTopic[i]*ech,
-                     y=(nVar + d_W_mat +
-                        dy_T1 +
-                        dy_L2_min + maxSpace*ech_T1 +
-                        dy_L4 +
-                        dy_T2)*ech,
+                     y=(dy + 
+                        dy_L4 + dy_T2)*ech,
                      hjust=0.5, vjust=0,
                      angle=0,
                      label=mainTopic[i],
@@ -407,23 +411,15 @@ panel_correlation_matrix = function (dataEx2D_model,
             
             annotate("line",
                      x=c(midMainTopic[i], midMainTopic[i])*ech,
-                     y=c(nVar + d_W_mat +
-                         dy_T1 +
-                         dy_L2_min + maxSpace*ech_T1,
-                         nVar + d_W_mat +
-                         dy_T1 +
-                         dy_L2_min + maxSpace*ech_T1 +
-                         dy_L4)*ech,
-                     linewidth=lw_mainTopic, color=IPCCgrey48,
+                     y=c(dy,
+                         dy + dy_L4)*ech,
+                     linewidth=lw_L4, color=IPCCgrey48,
                      lineend="round") +
 
             annotate("line",
                      x=c(startMainTopic[i], endMainTopic[i])*ech,
-                     y=rep(nVar + d_W_mat +
-                           dy_T1 +
-                           dy_L2_min + maxSpace*ech_T1,
-                           2)*ech,
-                     linewidth=lw_mainTopic, color=IPCCgrey48,
+                     y=rep(dy, 2)*ech,
+                     linewidth=lw_L3, color=IPCCgrey48,
                      lineend="round")
     }
     
