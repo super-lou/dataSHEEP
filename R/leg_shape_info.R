@@ -20,22 +20,51 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-leg_shape_info = function (Shape=c("rect", "rect"),
-                           Size=c(1, 1),
-                           Color=c(IPCCgrey50, IPCCgrey50),
-                           Label=c("A", "B"),
-                           Cross=c(FALSE, FALSE),
-                           si_margin=margin(t=0, r=0,
-                                            b=0, l=0, "mm")) {        
-    dy = 1.6
-    dTl = 0.4
+leg_shape_info = function (Shape="rect",
+                           Size=1,
+                           Color=IPCCgrey50,
+                           Label="A",
+                           Cross=FALSE,
+                           dy_icon=1,
+                           dx_label=1,
+                           height=10,
+                           width=10,
+                           WIP=FALSE,
+                           margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) {
 
     nShape = length(Shape)
+    nMax = max(c(length(Shape), length(Size),
+                 length(Color), length(Label), length(Cross)))
+    
+    if (length(Shape) != nMax) {
+        Shape = rep(Shape[1], nMax)
+    }
+    if (length(Size) != nMax) {
+        Size = rep(Size[1], nMax)
+    }
+    if (length(Color) != nMax) {
+        Color = rep(Color[1], nMax)
+    }
+    if (length(Label) != nMax) {
+        Label = rep(Label[1], nMax)
+    }
+    if (length(Cross) != nMax) {
+        Cross = rep(Cross[1], nMax)
+    }
+
+    limit = min(c(height, width))
+    options(repr.plot.width=width, repr.plot.height=height)
     
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=si_margin)
+              plot.margin=margin)
+
+    if (WIP) {
+        plot = plot + 
+            theme(panel.background=element_rect(fill='grey97'))
+    }
 
     for (i in 1:nShape) {
         shape = Shape[i]
@@ -47,24 +76,33 @@ leg_shape_info = function (Shape=c("rect", "rect"),
         if (shape == "rect") {
             plot = plot +
                 annotate("rect",
-                         xmin=-size/2,
-                         xmax=size/2,
-                         ymin=-dy*i-size/2,
-                         ymax=-dy*i+size/2,
+                         xmin=0,
+                         xmax=(size)*limit/10,
+                         ymin=(-dy_icon*i)*limit/10,
+                         ymax=(-dy_icon*i-size)*limit/10,
                          fill=color)
         }
         
+        if (file.exists(shape)) {
+            plot = plot +
+                annotation_custom(svgparser::read_svg(shape),
+                                  xmin=0,
+                                  xmax=(size)*limit/10,
+                                  ymin=(-dy_icon*i)*limit/10,
+                                  ymax=(-dy_icon*i-size)*limit/10)
+        }
+
         if (cross) {
             plot = plot +
-                annotate("point", x=0, y=-dy*i,
+                annotate("point", x=0, y=(-dy_icon*i)*limit/10,
                          shape=4, size=size, color="white")
         }
 
         if (!is.null(label)) {
             plot = plot +
                 annotate('text',
-                         x=size/2+dTl,
-                         y=-dy*i,
+                         x=(size+dx_label)*limit/10,
+                         y=(-dy_icon*i-size/2)*limit/10,
                          label=label,
                          angle=0,
                          hjust=0, vjust=0.5,
@@ -73,8 +111,11 @@ leg_shape_info = function (Shape=c("rect", "rect"),
     }
 
     plot = plot +
-        scale_x_continuous(expand=c(0, 0)) + 
-        scale_y_continuous(expand=c(0, 0))
+        scale_x_continuous(limits=c(0, width),
+                           expand=c(0, 0)) + 
+        scale_y_continuous(limits=c(-height, 0),
+                           expand=c(0, 0))
+    
 
     return (plot)
 }

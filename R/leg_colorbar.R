@@ -24,10 +24,13 @@ leg_colorbar = function (min, max, Palette,
                          colorStep=256, include=FALSE,
                          label=NULL, asFrac=FALSE,
                          reverse=FALSE,
-                         cb_margin=margin(t=0, r=0,
-                                          b=0, l=0,
-                                          "mm")) {
-
+                         height=10,
+                         width=10,
+                         WIP=FALSE,
+                         margin=margin(t=0, r=0,
+                                       b=0, l=0,
+                                       "mm")) {
+    
     colorBin = compute_colorBin(min, max,
                                 Palette=Palette,
                                 colorStep=colorStep,
@@ -60,11 +63,18 @@ leg_colorbar = function (min, max, Palette,
     bin = bin + seq(-dL/2, nBin*dL, dL)
     upBin = upBin + seq(0, (nBin-1)*dL, dL)
     lowBin = lowBin + seq(0, (nBin-1)*dL, dL)
+
+    options(repr.plot.width=width, repr.plot.height=height)
     
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=cb_margin)
+              plot.margin=margin)
+
+    if (WIP) {
+        plot = plot + 
+            theme(panel.background=element_rect(fill='grey97'))
+    }
 
     plot = plot +
         annotate("rect",
@@ -89,8 +99,10 @@ leg_colorbar = function (min, max, Palette,
                  fontface="bold", color=IPCCgrey50)
 
     plot = plot +
-        scale_x_continuous(expand=c(0, 0)) + 
-        scale_y_continuous(expand=c(0, 0))
+        scale_x_continuous(limits=c(0, width),
+                           expand=c(0, 0)) + 
+        scale_y_continuous(limits=c(0, height),
+                           expand=c(0, 0))
     
 
     return (plot)

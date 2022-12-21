@@ -29,23 +29,30 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
     nModel = length(Model)
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
-    info_height = 1
-    cm_height = 23
+
     leg_width = 8
-    void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
-    cb_height = 1
-    si_height = 1.2
-    ssg_height = 1
+    tl_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
+
+    info_height = 1
+    cm_height = 20
+    cm_width = 21 - page_margin["l"] - page_margin["r"]
+    
+    cb_height = 2
+    si_height = 2
+    ssg_height = 2
+    tl_height = cb_height + si_height + ssg_height
+    
     foot_height = 1.25
 
-    cm_margin = margin(t=2, r=0, b=2, l=0.5, "cm")
-    cb_margin = margin(t=0, r=0, b=0, l=3.5, "cm")
-    ssg_margin = margin(t=0.5, r=0, b=0, l=0.5, "cm")
-    si_margin = margin(t=0.7, r=0, b=0, l=-0.8, "cm")
+    cm_margin = margin(t=1.2, r=0, b=2, l=0.5, "cm")
+    tl_margin = margin(t=0, r=0, b=0, l=0, "cm")
+    cb_margin = margin(t=0, r=0, b=0, l=0, "cm")
+    ssg_margin = margin(t=0, r=0, b=0, l=0, "cm")
+    si_margin = margin(t=0, r=0, b=0, l=0, "cm")
 
     NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
-                    "info", "cm", "void", "void", "void", "foot"),
-                  nrow=6)
+                    "info", "cm", "tl", "tl", "tl", "foot"),
+                  ncol=2)
     
 
     for (i in 1:nModel) {
@@ -73,14 +80,34 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
         res = panel_correlation_matrix(dataEx2D_model,
                                        metaVAR,
                                        icon_path=icon_path,
-                                       cm_margin=cm_margin,
-                                       cb_margin=cb_margin)
+                                       margin=cm_margin)
         cm = res$cm
-        cb = res$cb
+        subTopic_path = res$info
         STOCK = add_plot(STOCK,
                          plot=cm,
                          name="cm",
                          height=cm_height)
+
+        tl = leg_shape_info(Shape=subTopic_path,
+                            Size=1.2,
+                            Label=names(subTopic_path),
+                            dy_icon=1,
+                            dx_label=0.2,
+                            height=tl_height,
+                            width=tl_width,
+                            margin=tl_margin)
+        STOCK = add_plot(STOCK,
+                         plot=tl,
+                         name="tl",
+                         width=tl_width)
+
+        cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
+                          colorStep=6, include=TRUE,
+                          asFrac=TRUE,
+                          reverse=TRUE,
+                          height=cb_height,
+                          width=leg_width,
+                          margin=cb_margin)
         STOCK = add_plot(STOCK,
                          plot=cb,
                          name="cb",
@@ -88,24 +115,35 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          width=leg_width)
 
         ssg = leg_shape_size_gradient(shape="rect",
-                                      Size=c(0.2, 0.3, 0.4, 0.5),
+                                      Size=c(1, 1.5, 2, 2.5),
                                       color=IPCCgrey50,
                                       labelArrow="Plus corrélé",
-                                      ssg_margin=ssg_margin)
+                                      dy_arrow=1,
+                                      size_arrow=0.25,
+                                      dz_arrow=2,
+                                      dx_text=0.2,
+                                      dy_text=2,
+                                      height=ssg_height,
+                                      width=leg_width,
+                                      margin=ssg_margin)
         STOCK = add_plot(STOCK,
                          plot=ssg,
                          name="ssg",
                          height=ssg_height,
                          width=leg_width)
 
-        si = leg_shape_info(Shape=c("rect", "rect"),
-                            Size=c(1, 1),
-                            Color=c(IPCCgrey50, IPCCgrey50),
+        si = leg_shape_info(Shape="rect",
+                            Size=1,
+                            Color=IPCCgrey50,
                             Label=c(
                                 "Significatif à un risque de 10 %",
                                 "Non significatif à un risque de 10 %"),
                             Cross=c(FALSE, TRUE),
-                            si_margin=si_margin)
+                            dy_icon=1,
+                            dx_label=0.2,
+                            height=si_height,
+                            width=leg_width,
+                            margin=si_margin)
         STOCK = add_plot(STOCK,
                          plot=si,
                          name="si",
@@ -129,10 +167,10 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          name="foot",
                          height=foot_height)
 
-        STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         width=void_width)
+        # STOCK = add_plot(STOCK,
+        #                  plot=void(),
+        #                  name="void",
+        #                  width=void_width)
 
         res = merge_panel(STOCK, NAME=NAME,
                           page_margin=page_margin,

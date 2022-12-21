@@ -23,10 +23,9 @@ panel_correlation_matrix = function (dataEx2D_model,
                                      metaVAR,
                                      icon_path,
                                      level=0.1,
-                                     cm_margin=margin(t=0, r=0,
-                                                      b=0, l=0,
-                                                      "cm"),
-                                     ...) {
+                                     margin=margin(t=0, r=0,
+                                                   b=0, l=0,
+                                                   "cm")) {
 
     lw_mat = 0.4
     d_W_mat = 0.25
@@ -36,6 +35,7 @@ panel_correlation_matrix = function (dataEx2D_model,
     
     dy_I1 = 0.4
     size_I1 = 0.45
+    dr_I1 = 6
     
     dy_T1 = 0.6
     size_T1 = 3.2
@@ -45,15 +45,15 @@ panel_correlation_matrix = function (dataEx2D_model,
     lw_L2 = 0.25
     
     dx_L3 = 0.5
-    lw_L3 = 0.55
+    lw_L3 = 0.45
 
     dy_L4 = 0.5
-    lw_L4 = 0.55
+    lw_L4 = 0.45
     
-    dy_T2 = 0.4
+    dy_T2 = 0.3
     size_T2 = 2.7
     
-    dy_I2 = 2
+    dy_I2 = 2.2
     size_I2 = 1
 
     ech = 25
@@ -83,9 +83,9 @@ panel_correlation_matrix = function (dataEx2D_model,
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
-    subTopic_icon = lapply(
-        file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg")),
-        svgparser::read_svg)
+
+    subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
+    subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
     
     names(mainTopic_icon) = mainTopic
     names(subTopic_icon) = subTopic
@@ -262,9 +262,9 @@ panel_correlation_matrix = function (dataEx2D_model,
     }
     VarTEX = paste0("\\textbf{", VarTEX, "}")
 
-    cm = ggplot() + theme_void() + coord_fixed(clip="off") + 
+    cm = ggplot() + theme_void() + coord_fixed(clip="off") +
         theme(text=element_text(family="Helvetica"),
-              plot.margin=cm_margin)
+              plot.margin=margin)
 
     cm = cm +
         annotate("rect", xmin=XMIN, xmax=XMAX,
@@ -344,6 +344,11 @@ panel_correlation_matrix = function (dataEx2D_model,
                      y=c(dy,
                          dy + dy_L1 + dy_I1/2)*ech,
                      linewidth=lw_L1, color=IPCCgrey67) +
+            
+            gg_circle(r=size_I1*(ech-dr_I1),
+                      xc=((i-1) + 0.5)*ech,
+                      yc=(dy + dy_L1 + dy_I1)*ech,
+                      color=NA, linewidth=0, fill="white") +
     
             annotation_custom(
                 subTopic_icon[[i]],
@@ -423,20 +428,14 @@ panel_correlation_matrix = function (dataEx2D_model,
                      lineend="round")
     }
     
-
     cm = cm +
         scale_x_continuous(expand=c(0, 0)) + 
         scale_y_continuous(expand=c(0, 0))
     
+    subTopic_path = subTopic_path[!duplicated(subTopic_path)]
+    subTopic_label = subTopic[!duplicated(subTopic)]
+    names(subTopic_path) = subTopic_label
 
-    cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
-                      colorStep=6, include=TRUE,
-                      asFrac=TRUE,
-                      reverse=TRUE,
-                      ...)
-
-    
-
-    res = list(cm=cm, cb=cb)
+    res = list(cm=cm, info=subTopic_path)
     return (res)
 }

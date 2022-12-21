@@ -24,60 +24,73 @@ leg_shape_size_gradient = function (shape="rect",
                                     Size=c(0.4, 0.6, 0.8, 1),
                                     color=IPCCgrey50,
                                     labelArrow=NULL,
-                                    ssg_margin=margin(t=0, r=0,
-                                                      b=0, l=0, "mm")) {        
+                                    dy_arrow=1,
+                                    size_arrow=0.25,
+                                    dz_arrow=2,
+                                    dx_text=0.2,
+                                    dy_text=1,
+                                    height=10,
+                                    width=10,
+                                    WIP=FALSE,
+                                    margin=margin(t=0, r=0,
+                                                  b=0, l=0, "mm")) {        
     dx = 0.4
-    dAl = 0.2
-    dAr = 0.6
-    dAup = 0.25
-    dAp = 1
-    Asize= 0.35
-    dTl = 0.2
-    dTup = 0.2
-    
+    dl_arrow = 0.2
+    dr_arrow = 0.6
 
     nSize = length(Size)
     dX = seq(0, dx*(nSize-1), dx)
     dS = cumsum(Size) - Size/2
     X = dX + dS
+
+    limit = min(c(height, width))
+    options(repr.plot.width=width, repr.plot.height=height)
     
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=ssg_margin)
+              plot.margin=margin)
 
-    if (shape == "rect") {
-        plot = plot +
-            annotate("rect",
-                     xmin=X-Size/2,
-                     xmax=X+Size/2,
-                     ymin=rep(0, nSize),
-                     ymax=Size,
-                     fill=color)
+    if (WIP) {
+        plot = plot + 
+            theme(panel.background=element_rect(fill='grey97'))
     }
 
     if (!is.null(labelArrow)) {
         plot = plot +
             
             annotate("segment",
-                     x=min(X, na.rm=TRUE)-dAl,
-                     xend=max(X, na.rm=TRUE)+dAr,
-                     y=-dAup,
-                     yend=-dAup,
-                     color=IPCCgrey50, size=Asize,
-                     arrow=arrow(length=unit(dAp, "mm"))) +
+                     x=(min(X, na.rm=TRUE)-dl_arrow)*limit/10,
+                     xend=(max(X, na.rm=TRUE)+dr_arrow)*limit/10,
+                     y=(dy_text)*limit/10,
+                     yend=(dy_text)*limit/10,
+                     color=IPCCgrey50, size=size_arrow,
+                     arrow=arrow(length=unit(dz_arrow, "mm"))) +
             
             annotate('text',
-                     x=mean(X, na.rm=TRUE)+dTl, y=-dAup-dTup,
+                     x=(mean(X, na.rm=TRUE)+dx_text)*limit/10,
+                     y=0,
                      label=labelArrow,
                      angle=0,
-                     hjust=0.5, vjust=1,
+                     hjust=0.5, vjust=0,
                      size=3, color=IPCCgrey50)
+    }
+    
+    if (shape == "rect") {
+        plot = plot +
+            annotate("rect",
+                     xmin=(X)*limit/10,
+                     xmax=(X+Size)*limit/10,
+                     ymin=(rep(dy_text+dy_arrow, nSize))*limit/10,
+                     ymax=(dy_text+dy_arrow+Size)*limit/10,
+                     fill=color)
     }
 
     plot = plot +
-        scale_x_continuous(expand=c(0, 0)) + 
-        scale_y_continuous(expand=c(0, 0))
+        scale_x_continuous(limits=c(0, width),
+                           expand=c(0, 0)) + 
+        scale_y_continuous(limits=c(0, height),
+                           expand=c(0, 0))
     
 
     return (plot)

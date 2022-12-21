@@ -524,7 +524,21 @@ load_logo = function (resources_path, logo_dir, logo_to_show) {
     return (logo_path)
 }
 
-### 4.3. Other _______________________________________________________
+### 4.3. Font loading ________________________________________________
+load_font = function (path=NULL, force_import=FALSE) {
+
+    extrafont::font_import(paths=path)
+    
+    # if (is.null(extrafont::fonts()) | force_import) {
+        # remotes::install_version("Rttf2pt1", version = "1.3.8")
+        # extrafont::font_import(paths=path)
+    # }
+    # extrafont::loadfonts(device="all", quiet=TRUE)
+    # theme = theme(text=element_text(family="frutiger-57-condensed"))
+}
+
+
+## 5. OTHER __________________________________________________________
 #' @title Split filename
 #' @export
 splitext = function(file) { # tools::file_ext
