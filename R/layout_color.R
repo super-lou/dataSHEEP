@@ -64,6 +64,22 @@ theme_ash = function () {
     return (theme)
 }
 
+theme_WIP = function () {
+    theme(panel.background=element_rect(fill='grey97'),
+          axis.ticks.x=element_line(color='grey75', size=0.3),
+          axis.ticks.y=element_line(color='grey75', size=0.3),
+          # Ticks label
+          axis.text.x=element_text(color='grey75'),
+          axis.text.y=element_text(color='grey75'),
+          # Ticks length
+          axis.ticks.length=unit(1.5, 'mm'),
+          # Ticks minor
+          ggh4x.axis.ticks.length.minor=rel(0.5),
+          # Axis line
+          axis.line.x=element_line(color='grey75', size=0.3),
+          axis.line.y=element_line(color='grey75', size=0.3))
+}
+    
 ### 1.2. Color palette _______________________________________________
 #' @title Palette ground
 #' @export
@@ -154,8 +170,11 @@ compute_colorBin = function (min, max, Palette, colorStep=256,
         lowBin = bin[1:(length(bin)-1)]
     }
 
+    midBin = zoo::rollmean(bin, 2)
+
     res = list(Palette=PaletteColors, bin=bin,
-               upBin=upBin, lowBin=lowBin)
+               upBin=upBin, midBin=midBin,
+               lowBin=lowBin)
     return (res)
 }
 

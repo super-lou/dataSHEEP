@@ -29,29 +29,33 @@ leg_shape_info = function (Shape="rect",
                            dx_label=1,
                            height=10,
                            width=10,
-                           WIP=FALSE,
-                           margin=margin(t=0, r=0,
-                                         b=0, l=0, "mm")) {
+                           shift=c(x=0, y=0),
+                           WIP=FALSE) {
 
-    nShape = length(Shape)
-    nMax = max(c(length(Shape), length(Size),
+    N = max(c(length(Shape), length(Size),
                  length(Color), length(Label), length(Cross)))
     
-    if (length(Shape) != nMax) {
-        Shape = rep(Shape[1], nMax)
+    if (length(Shape) != N) {
+        Shape = rep(Shape[1], N)
     }
-    if (length(Size) != nMax) {
-        Size = rep(Size[1], nMax)
+    if (length(Size) != N) {
+        Size = rep(Size[1], N)
     }
-    if (length(Color) != nMax) {
-        Color = rep(Color[1], nMax)
+    if (length(Color) != N) {
+        Color = rep(Color[1], N)
     }
-    if (length(Label) != nMax) {
-        Label = rep(Label[1], nMax)
+    if (length(Label) != N) {
+        Label = rep(Label[1], N)
     }
-    if (length(Cross) != nMax) {
-        Cross = rep(Cross[1], nMax)
+    if (length(Cross) != N) {
+        Cross = rep(Cross[1], N)
     }
+
+    Shape = rev(Shape)
+    Size = rev(Size)
+    Color = rev(Color)
+    Label = rev(Label)
+    Cross = rev(Cross)
 
     limit = min(c(height, width))
     options(repr.plot.width=width, repr.plot.height=height)
@@ -59,14 +63,13 @@ leg_shape_info = function (Shape="rect",
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=margin)
+              plot.margin=margin(0, 0, 0, 0))
 
     if (WIP) {
-        plot = plot + 
-            theme(panel.background=element_rect(fill='grey97'))
+        plot = plot + theme_WIP()
     }
 
-    for (i in 1:nShape) {
+    for (i in 1:N) {
         shape = Shape[i]
         size = Size[i]
         color = Color[i]
@@ -76,33 +79,36 @@ leg_shape_info = function (Shape="rect",
         if (shape == "rect") {
             plot = plot +
                 annotate("rect",
-                         xmin=0,
-                         xmax=(size)*limit/10,
-                         ymin=(-dy_icon*i)*limit/10,
-                         ymax=(-dy_icon*i-size)*limit/10,
+                         xmin=shift[1]+0,
+                         xmax=(shift[1]+size),
+                         ymin=(shift[2]+dy_icon*(i-1)),
+                         ymax=(shift[2]+dy_icon*(i-1)+size),
                          fill=color)
         }
         
         if (file.exists(shape)) {
             plot = plot +
-                annotation_custom(svgparser::read_svg(shape),
-                                  xmin=0,
-                                  xmax=(size)*limit/10,
-                                  ymin=(-dy_icon*i)*limit/10,
-                                  ymax=(-dy_icon*i-size)*limit/10)
+                annotation_custom(
+                    svgparser::read_svg(shape),
+                    xmin=shift[1]+0,
+                    xmax=(shift[1]+size),
+                    ymin=(shift[2]+dy_icon*(i-1)),
+                    ymax=(shift[2]+dy_icon*(i-1)+size))
         }
 
         if (cross) {
             plot = plot +
-                annotate("point", x=0, y=(-dy_icon*i)*limit/10,
-                         shape=4, size=size, color="white")
+                annotate("point",
+                         x=shift[1]+size/2,
+                         y=(shift[2]+dy_icon*(i-1)+size/2),
+                         shape=4, size=size*2, color="white")
         }
 
         if (!is.null(label)) {
             plot = plot +
                 annotate('text',
-                         x=(size+dx_label)*limit/10,
-                         y=(-dy_icon*i-size/2)*limit/10,
+                         x=(shift[1]+size+dx_label),
+                         y=(shift[2]+dy_icon*(i-1)+size/2),
                          label=label,
                          angle=0,
                          hjust=0, vjust=0.5,
@@ -113,7 +119,7 @@ leg_shape_info = function (Shape="rect",
     plot = plot +
         scale_x_continuous(limits=c(0, width),
                            expand=c(0, 0)) + 
-        scale_y_continuous(limits=c(-height, 0),
+        scale_y_continuous(limits=c(0, height),
                            expand=c(0, 0))
     
 
