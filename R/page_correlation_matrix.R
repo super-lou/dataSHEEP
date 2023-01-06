@@ -21,12 +21,17 @@
 
 
 page_correlation_matrix = function (dataEx2D, metaVAR,
+                                    ModelGroup=NULL,
                                     icon_path="", logo_path="",
                                     df_page=NULL,
                                     figdir='') {
 
-    Model = levels(factor(dataEx2D$Model))
-    nModel = length(Model)
+    if (is.null(ModelGroup)) {
+        Model = levels(factor(dataEx2D$Model))
+        ModelGroup = append(as.list(Model), list(Model))
+        names(ModelGroup) = c(Model, "Multi-model")
+    }
+    nModelGroup = length(ModelGroup)
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
@@ -56,18 +61,31 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
 
     WIP = FALSE
 
-    for (i in 1:nModel) {
-        model = Model[i]
-        print(model)
+    for (i in 1:nModelGroup) {
+        model = ModelGroup[[i]]
+        model_names = names(ModelGroup)[i]
+        
+        if (is.null(model_names)) {
+            model_names = ""
+        }
+        if (nchar(model_names) == 0) {
+            model2Disp = paste0(model, collapse=" ")
+            model4Save = paste0(model, collapse="_")
+        } else {
+            model2Disp = model_names
+            model4Save = gsub(" ", "_", model_names)
+        }
+        
+        print(model2Disp)
 
         STOCK = tibble()
         var_plotted = c()
         
-        dataEx2D_model = dataEx2D[dataEx2D$Model == model,]
+        dataEx2D_model = dataEx2D[dataEx2D$Model %in% model,]
 
         text = paste0(
             "<b>Matrice de corrélation des critères d'évaluation</b><br>",
-            model)
+            model2Disp)
         info = richtext_grob(text,
                              x=0, y=1,
                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
@@ -161,7 +179,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          height=si_height,
                          width=leg_width)
 
-        footName = paste0('matrice de corrélation : ', model)
+        footName = paste0('matrice de corrélation : ', model2Disp)
         if (is.null(df_page)) {
             n_page = i
         } else {
@@ -193,7 +211,7 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
 
         print(paper_size)
 
-        filename = paste0("correlation_", model, ".pdf")
+        filename = paste0("correlation_", model4Save, ".pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
