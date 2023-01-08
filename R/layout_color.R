@@ -161,9 +161,9 @@ compute_colorBin = function (min, max, Palette, colorStep=256,
     
     bin = seq(-maxAbs, maxAbs, length.out=nBin)
     if (!include) {
-        bin = c(-Inf, bin, Inf)
         upBin = c(bin, Inf)
         lowBin = c(-Inf, bin)
+        bin = c(-Inf, bin, Inf)
         
     } else {
         upBin = bin[2:length(bin)]
@@ -257,7 +257,7 @@ switch_colorLabel = function (color) {
 get_reverse = function (var) {
     # gets the color corresponding to the mean trend
     reverse = FALSE
-    if (grepl('^tFIN', var) | grepl('^t[_]', var) | grepl('^v', var)) {
+    if (grepl('^tFIN', var) | grepl('^dt[_]', var) | grepl('^t[_]', var) | grepl('^v', var)) {
         reverse = TRUE
     }
     return (reverse)
