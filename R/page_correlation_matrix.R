@@ -20,14 +20,14 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-page_correlation_matrix = function (dataEx2D, metaVAR,
+page_correlation_matrix = function (dataEX, metaEX,
                                     ModelGroup=NULL,
                                     icon_path="", logo_path="",
                                     df_page=NULL,
                                     figdir='') {
 
     if (is.null(ModelGroup)) {
-        Model = levels(factor(dataEx2D$Model))
+        Model = levels(factor(dataEX$Model))
         ModelGroup = append(as.list(Model), list(Model))
         names(ModelGroup) = c(Model, "Multi-model")
     }
@@ -36,8 +36,9 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     leg_width = 11
-    tl_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
-
+    # tl_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
+    void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
+    
     info_height = 1
     cm_height = 22
     cm_width = 21 - page_margin["l"] - page_margin["r"]
@@ -55,37 +56,40 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
+    # NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
+    #                 "info", "cm", "tl", "tl", "tl", "foot"),
+    #               ncol=2)
     NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
-                    "info", "cm", "tl", "tl", "tl", "foot"),
+                    "info", "cm", "void", "void", "void", "foot"),
                   ncol=2)
-
     WIP = FALSE
 
     for (i in 1:nModelGroup) {
-        model = ModelGroup[[i]]
-        model_names = names(ModelGroup)[i]
+        Model = ModelGroup[[i]]
+        Model_names = names(ModelGroup)[i]
+        nModel = length(Model)
         
-        if (is.null(model_names)) {
-            model_names = ""
+        if (is.null(Model_names)) {
+            Model_names = ""
         }
-        if (nchar(model_names) == 0) {
-            model2Disp = paste0(model, collapse=" ")
-            model4Save = paste0(model, collapse="_")
+        if (nchar(Model_names) == 0) {
+            Model2Disp = paste0(Model, collapse=" ")
+            Model4Save = paste0(Model, collapse="_")
         } else {
-            model2Disp = model_names
-            model4Save = gsub(" ", "_", model_names)
+            Model2Disp = Model_names
+            Model4Save = gsub(" ", "_", Model_names)
         }
         
-        print(model2Disp)
+        print(Model2Disp)
 
         STOCK = tibble()
         var_plotted = c()
         
-        dataEx2D_model = dataEx2D[dataEx2D$Model %in% model,]
+        dataEX_model = dataEX[dataEX$Model %in% Model,]
 
         text = paste0(
             "<b>Matrice de corrélation des critères d'évaluation</b><br>",
-            model2Disp)
+            Model2Disp)
         info = richtext_grob(text,
                              x=0, y=1,
                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
@@ -96,8 +100,8 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          name="info",
                          height=info_height)
         
-        res = panel_correlation_matrix(dataEx2D_model,
-                                       metaVAR,
+        res = panel_correlation_matrix(dataEX_model,
+                                       metaEX,
                                        icon_path=icon_path,
                                        margin=cm_margin)
         cm = res$cm
@@ -107,20 +111,24 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          name="cm",
                          height=cm_height)
 
-        tl = leg_shape_info(Shape=subTopic_path,
-                            Size=0.5,
-                            Label=names(subTopic_path),
-                            dy_icon=0.55,
-                            dx_label=0.25,
-                            height=tl_height,
-                            width=tl_width,
-                            shift=tl_shift,
-                            WIP=WIP)
+        # tl = leg_shape_info(Shape=subTopic_path,
+        #                     Size=0.5,
+        #                     Label=names(subTopic_path),
+        #                     dy_icon=0.55,
+        #                     dx_label=0.25,
+        #                     height=tl_height,
+        #                     width=tl_width,
+        #                     shift=tl_shift,
+        #                     WIP=WIP)
+        # STOCK = add_plot(STOCK,
+        #                  plot=tl,
+        #                  name="tl",
+        #                  width=tl_width)
         STOCK = add_plot(STOCK,
-                         plot=tl,
-                         name="tl",
-                         width=tl_width)
-
+                         plot=void(),
+                         name="void",
+                         width=void_width)
+        
         cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
                           colorStep=6, include=TRUE,
                           asFrac=TRUE,
@@ -160,26 +168,31 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          height=ssg_height,
                          width=leg_width)
 
-        si = leg_shape_info(Shape="rect",
-                            Size=0.2,
-                            Color=IPCCgrey50,
-                            Label=c(
-                                "Significatif à un risque de 10 %",
-                                "Non significatif à un risque de 10 %"),
-                            Cross=c(FALSE, TRUE),
-                            dy_icon=0.35,
-                            dx_label=0.2,
-                            height=si_height,
-                            width=leg_width,
-                            shift=si_shift,
-                            WIP=WIP)
+        if (nModel == 1) {
+            si = leg_shape_info(Shape="rect",
+                                Size=0.2,
+                                Color=IPCCgrey50,
+                                Label=c(
+                                    "Significatif à un risque de 10 %",
+                                    "Non significatif à un risque de 10 %"),
+                                Cross=c(FALSE, TRUE),
+                                dy_icon=0.35,
+                                dx_label=0.2,
+                                height=si_height,
+                                width=leg_width,
+                                shift=si_shift,
+                                WIP=WIP)
+        } else {
+            si = void()
+        }
+        
         STOCK = add_plot(STOCK,
                          plot=si,
                          name="si",
                          height=si_height,
                          width=leg_width)
 
-        footName = paste0('matrice de corrélation : ', model2Disp)
+        footName = paste0('matrice de corrélation : ', Model2Disp)
         if (is.null(df_page)) {
             n_page = i
         } else {
@@ -196,11 +209,6 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
                          name="foot",
                          height=foot_height)
 
-        # STOCK = add_plot(STOCK,
-        #                  plot=void(),
-        #                  name="void",
-        #                  width=void_width)
-
         res = merge_panel(STOCK, NAME=NAME,
                           page_margin=page_margin,
                           paper_size="A4",
@@ -211,11 +219,12 @@ page_correlation_matrix = function (dataEx2D, metaVAR,
 
         print(paper_size)
 
-        filename = paste0("correlation_", model4Save, ".pdf")
+        filename = paste0("correlation_", Model4Save, ".pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
+        
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,

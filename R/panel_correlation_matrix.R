@@ -19,8 +19,8 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-panel_correlation_matrix = function (dataEx2D_model,
-                                     metaVAR,
+panel_correlation_matrix = function (dataEX,
+                                     metaEX,
                                      icon_path,
                                      level=0.1,
                                      margin=margin(t=0, r=0,
@@ -35,7 +35,8 @@ panel_correlation_matrix = function (dataEx2D_model,
     
     dy_I1 = 0.4
     size_I1 = 0.45
-    dr_I1 = 6
+    # dr_I1 = 6
+    dr_I1 = 0.23
     
     dy_T1 = 0.6
     size_T1 = 3.2
@@ -51,9 +52,11 @@ panel_correlation_matrix = function (dataEx2D_model,
     lw_L4 = 0.45
     
     dy_T2 = 0.3
+    dy_T2line = 0.8
     size_T2 = 2.7
+    ech_T2 = 1.5
     
-    dy_I2 = 2.2
+    dy_I2 = 2
     size_I2 = 1
 
     ech = 25
@@ -65,10 +68,15 @@ panel_correlation_matrix = function (dataEx2D_model,
         }
         return (X)
     }
-    Topic = strsplit(metaVAR$topic, "/")
+
+    logicalCol = names(dataEX)[sapply(dataEX, class) == "logical"]
+    dataEX = dataEX[!(names(dataEX) %in% logicalCol)]
+    metaEX = metaEX[!(metaEX$var %in% logicalCol),]
+    
+    Topic = strsplit(metaEX$topic, "/")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 1)
-    names(mainTopicVAR) = metaVAR$var
+    names(mainTopicVAR) = metaEX$var
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -76,9 +84,9 @@ panel_correlation_matrix = function (dataEx2D_model,
     endMainTopic = cumsum(lenMainTopic) - dx_L3
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
-    
+
     subTopic = sapply(Topic, '[[', 2)
-    names(subTopic) = metaVAR$var
+    names(subTopic) = metaEX$var
 
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
@@ -89,91 +97,115 @@ panel_correlation_matrix = function (dataEx2D_model,
     
     names(mainTopic_icon) = mainTopic
     names(subTopic_icon) = subTopic
-    
-    vars2keep = names(dataEx2D_model)
+
+    vars2keep = names(dataEX)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
 
-    dataEx2D_model = dplyr::mutate(dataEx2D_model,
-                                   dplyr::across(where(is.logical),
-                                                 as.numeric),
-                                   .keep="all")
+    dataEX = dplyr::mutate(dataEX,
+                           dplyr::across(where(is.logical),
+                                         as.numeric),
+                           .keep="all")
     
-    dataEx2D_model = dplyr::select(dataEx2D_model, vars2keep)
-    nameRow = dataEx2D_model$Code
-    dataEx2D_model = dplyr::select(dataEx2D_model, -c(Code, Model))
+    dataEX = dplyr::select(dataEX, vars2keep)
 
-    dataEx2D_model = dataEx2D_model[match(names(dataEx2D_model),
-                                          metaVAR$var)]
+    Model = levels(factor(dataEX$Model))
+    nModel = length(Model)
 
-    nameCol = names(dataEx2D_model)
-    Var = nameCol
-    nVar = ncol(dataEx2D_model)
+    CORRmat = c()
+    Pmat = c()
+    for (i in 1:nModel) {
+        dataEX_model = dataEX[dataEX$Model == Model[i],]
+        nameRow = dataEX_model$Code
+        
+        dataEX_model = dplyr::select(dataEX_model, -c(Code, Model))
 
-    nCol = ncol(dataEx2D_model)
-    col2rm = c()
-    for (i in 1:nCol) {
-        if (sum(!is.na(dataEx2D_model[[i]])) < 3) {
-            col2rm = c(col2rm, names(dataEx2D_model)[i])
+        matchVar = match(names(dataEX_model), metaEX$var)
+        matchVar = matchVar[!is.na(matchVar)]
+        dataEX_model = dataEX_model[matchVar]
+
+        nameCol = names(dataEX_model)
+        Var = nameCol
+        nVar = ncol(dataEX_model)
+
+        nCol = ncol(dataEX_model)
+        col2rm = c()
+        for (i in 1:nCol) {
+            if (sum(!is.na(dataEX_model[[i]])) < 3) {
+                col2rm = c(col2rm, names(dataEX_model)[i])
+            }
         }
-    }
-    if (!is.null(col2rm)) {
-        dataEx2D_model = dplyr::select(dataEx2D_model, -col2rm)
-        nameCol = names(dataEx2D_model)
-    }
-    
-    dataEx2D_model = as.matrix(dataEx2D_model)
+        if (!is.null(col2rm)) {
+            dataEX_model = dplyr::select(dataEX_model, -col2rm)
+            nameCol = names(dataEX_model)
+        }
+        
+        dataEX_model = as.matrix(dataEX_model)
+        colnames(dataEX_model) = nameCol
+        rownames(dataEX_model) = nameRow
 
-    colnames(dataEx2D_model) = nameCol
-    rownames(dataEx2D_model) = nameRow
+        CORRmat = c(CORRmat,
+                    c(cor(dataEX_model,
+                          method="spearman",
+                          use="pairwise.complete.obs")))
+        Pmat = c(Pmat,
+                 c(corrplot::cor.mtest(
+                                 dataEX_model,
+                                 conf.level=1-level,
+                                 method="spearman",
+                                 use="pairwise.complete.obs")$p))
+    }
 
-    CORRmat = cor(dataEx2D_model,
-                  method="spearman",
-                  use="pairwise.complete.obs")
-    
-    Pmat = corrplot::cor.mtest(dataEx2D_model,
-                               conf.level=1-level,
-                               method="spearman",
-                               use="pairwise.complete.obs")$p
+    CORRmat = array(CORRmat, c(nVar, nVar, nModel))
+    Pmat = array(Pmat, c(nVar, nVar, nModel))
+
+    CORRmat_model = apply(CORRmat, 1:2, median, na.rm=TRUE)
+    if (nModel > 1) {
+        Pmat_model = matrix(rep(0, nVar*nVar), ncol=nVar)
+    } else {
+        Pmat_model = matrix(Pmat, ncol=nVar)
+    }
 
     if (!is.null(col2rm)) {
         nCol2add = length(col2rm)
-        nVarCORR = length(colnames(CORRmat))
+        nVarCORR = length(colnames(CORRmat_model))
         
         for (i in 1:nCol2add) {
             missVar = col2rm[i]
             id = which(Var == missVar)
-            CORRmat = rbind(CORRmat[1:(id-1),],
-                            rep(NA, nVarCORR),
-                            CORRmat[id:nrow(CORRmat),])
-            rownames(CORRmat)[id] = missVar
-            Pmat = rbind(Pmat[1:(id-1),],
-                         rep(NA, nVarCORR),
-                         Pmat[id:nrow(Pmat),])
-            rownames(Pmat)[id] = missVar
+            CORRmat_model = rbind(CORRmat_model[1:(id-1),],
+                                  rep(NA, nVarCORR),
+                                  CORRmat_model[id:nrow(CORRmat_model),])
+            rownames(CORRmat_model)[id] = missVar
+            Pmat_model = rbind(Pmat_model[1:(id-1),],
+                               rep(NA, nVarCORR),
+                               Pmat_model[id:nrow(Pmat_model),])
+            rownames(Pmat_model)[id] = missVar
             
         }
         
         for (i in 1:nCol2add) {
             missVar = col2rm[i]
             id = which(Var == missVar)
-            CORRmat = cbind(CORRmat[, 1:(id-1)],
-                            rep(NA, nVarCORR+nCol2add),
-                            CORRmat[, id:ncol(CORRmat)])
-            colnames(CORRmat)[id] = missVar
-            Pmat = cbind(Pmat[, 1:(id-1)],
-                         rep(NA, nVarCORR+nCol2add),
-                         Pmat[, id:ncol(Pmat)])
-            colnames(Pmat)[id] = missVar
+            CORRmat_model = cbind(CORRmat_model[, 1:(id-1)],
+                                  rep(NA, nVarCORR+nCol2add),
+                                  CORRmat_model[, id:ncol(CORRmat_model)])
+            colnames(CORRmat_model)[id] = missVar
+            Pmat_model = cbind(Pmat_model[, 1:(id-1)],
+                               rep(NA, nVarCORR+nCol2add),
+                               Pmat_model[, id:ncol(Pmat_model)])
+            colnames(Pmat_model)[id] = missVar
         }
     }
 
-    Colors = get_color(CORRmat, -1, 1,
+    Colors = get_color(CORRmat_model, -1, 1,
                        Palette=Palette_rainbow(),
                        colorStep=6, include=TRUE,
                        reverse=TRUE)
     
-    COLORmat = matrix(Colors, nrow=nrow(CORRmat), ncol=ncol(CORRmat))
-    SIZEmat = (abs(CORRmat))^(1/6)*ech
+    COLORmat = matrix(Colors,
+                      nrow=nrow(CORRmat_model),
+                      ncol=ncol(CORRmat_model))
+    SIZEmat = (abs(CORRmat_model))^(1/6)*ech
     Xmat = matrix(rep(0:(nVar-1)*ech, nVar), nrow=nVar, byrow=TRUE) + 0.5*ech
     Ymat = matrix(rep((nVar-1):0*ech, nVar), nrow=nVar) + 0.5*ech
     XMINmat = Xmat - SIZEmat/2
@@ -187,7 +219,7 @@ panel_correlation_matrix = function (dataEx2D_model,
     YMIN = unlist(as.list(YMINmat))
     YMAX = unlist(as.list(YMAXmat))
 
-    nOKPmat = Pmat > level
+    nOKPmat = Pmat_model > level
     nOKPmat[!nOKPmat] = NA
     XPSIZEmat = SIZEmat*nOKPmat/ech
     XPmat = Xmat*nOKPmat
@@ -302,7 +334,7 @@ panel_correlation_matrix = function (dataEx2D_model,
                  label=TeX(VarTEX), size=size_T1,
                  color=IPCCgrey40)
 
-    VarRAW = metaVAR$var
+    VarRAW = metaEX$var
     VarRAW = gsub("median", "med", VarRAW)
     VarRAW = gsub("mean", "moy", VarRAW)
     VarRAW = gsub("HYP", "H", VarRAW)
@@ -345,20 +377,26 @@ panel_correlation_matrix = function (dataEx2D_model,
                          dy + dy_L1 + dy_I1/2)*ech,
                      linewidth=lw_L1, color=IPCCgrey67) +
             
-            gg_circle(r=size_I1*(ech-dr_I1),
+            gg_circle(r=dr_I1*ech,
                       xc=((i-1) + 0.5)*ech,
                       yc=(dy + dy_L1 + dy_I1)*ech,
-                      color=NA, linewidth=0, fill="white") +
-    
-            annotation_custom(
-                subTopic_icon[[i]],
-                xmin=((i-1) + 0.5 - size_I1)*ech,
-                xmax=((i-1) + 0.5 + size_I1)*ech,
-                ymin=(dy +
-                      dy_L1 + dy_I1 - size_I1)*ech,
-                ymax=(dy +
-                      dy_L1 + dy_I1 + size_I1)*ech) +
-        
+                      color=IPCCgrey67, linewidth=lw_L1,
+                      fill="white") +
+            
+            # gg_circle(r=size_I1*(ech-dr_I1),
+            #           xc=((i-1) + 0.5)*ech,
+            #           yc=(dy + dy_L1 + dy_I1)*ech,
+            #           color=NA, linewidth=0, fill="white") +
+            
+            # annotation_custom(
+            #     subTopic_icon[[i]],
+            #     xmin=((i-1) + 0.5 - size_I1)*ech,
+            #     xmax=((i-1) + 0.5 + size_I1)*ech,
+            #     ymin=(dy +
+            #           dy_L1 + dy_I1 - size_I1)*ech,
+            #     ymax=(dy +
+            #           dy_L1 + dy_I1 + size_I1)*ech) +
+            
             annotate("line",
                      x=rep((i-1) + 0.5, 2)*ech,
                      y=c(dy + d_W_mat +
@@ -378,7 +416,7 @@ panel_correlation_matrix = function (dataEx2D_model,
                            Space[i]*ech_T1)*ech,
                      fill="white",
                      color=NA) +
-        
+            
             annotate("text",
                      x=((i-1) + 0.5)*ech,
                      y=(dy +
@@ -392,7 +430,22 @@ panel_correlation_matrix = function (dataEx2D_model,
 
     dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
 
+
+    nLine = c()
     for (i in 1:nMainTopic) {
+        nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
+        label = guess_newline(mainTopic[i], nLim=nLim)
+        nLine = c(nLine, length(label))
+    }
+    dy_I2 = dy_I2 + dy_T2line*max(nLine)
+
+    for (i in 1:nMainTopic) {
+        
+        nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
+        label = guess_newline(mainTopic[i], nLim=nLim)
+        label =  rev(unlist(strsplit(label, "\n")))
+        nLine = length(label)
+        
         cm = cm +
             annotation_custom(
                 mainTopic_icon[[i]],
@@ -401,19 +454,24 @@ panel_correlation_matrix = function (dataEx2D_model,
                 ymin=(dy + 
                       dy_L4 + dy_I2 - size_I2)*ech,
                 ymax=(dy + 
-                      dy_L4 + dy_I2 + size_I2)*ech) +
-            
-            annotate("text",
-                     x=midMainTopic[i]*ech,
-                     y=(dy + 
-                        dy_L4 + dy_T2)*ech,
-                     hjust=0.5, vjust=0,
-                     angle=0,
-                     label=mainTopic[i],
-                     fontface="bold",
-                     size=size_T2,
-                     color=IPCCgrey05) +
-            
+                      dy_L4 + dy_I2 + size_I2)*ech)
+
+        for (j in 1:nLine) {
+            cm = cm +
+                annotate("text",
+                         x=midMainTopic[i]*ech,
+                         y=(dy + 
+                            dy_L4 + dy_T2 +
+                            (j-1)*dy_T2line)*ech,
+                         hjust=0.5, vjust=0,
+                         angle=0,
+                         label=label[j],
+                         fontface="bold",
+                         size=size_T2,
+                         color=IPCCgrey05)
+        }
+
+        cm = cm +
             annotate("line",
                      x=c(midMainTopic[i], midMainTopic[i])*ech,
                      y=c(dy,
@@ -421,11 +479,11 @@ panel_correlation_matrix = function (dataEx2D_model,
                      linewidth=lw_L4, color=IPCCgrey48,
                      lineend="round") +
 
-            annotate("line",
-                     x=c(startMainTopic[i], endMainTopic[i])*ech,
-                     y=rep(dy, 2)*ech,
-                     linewidth=lw_L3, color=IPCCgrey48,
-                     lineend="round")
+    annotate("line",
+             x=c(startMainTopic[i], endMainTopic[i])*ech,
+             y=rep(dy, 2)*ech,
+             linewidth=lw_L3, color=IPCCgrey48,
+             lineend="round")
     }
     
     cm = cm +
