@@ -71,6 +71,32 @@ panel_chronicle = function (data_code, isSqrt=FALSE, missRect=FALSE,
                                                   size=0.3))
     }
 
+    ### Missing data ###
+    # If the option is TRUE
+    if (missRect) {
+        # Remove NA data
+        NAdate = data_code_obs$Date[is.na(data_code_obs$Q)]
+        # Get the difference between each point of date data without NA
+        dNAdate = diff(NAdate)
+        # If difference of day is not 1 then
+        # it is TRUE for the beginning of each missing data period 
+        NAdate_Down = NAdate[append(Inf, dNAdate) != 1]
+        # If difference of day is not 1 then
+        # it is TRUE for the ending of each missing data period 
+        NAdate_Up = NAdate[append(dNAdate, Inf) != 1]
+
+        # Plot the missing data period
+        p = p +
+            annotate("rect",
+                     xmin=as.Date(NAdate_Down), 
+                     ymin=0, 
+                     xmax=as.Date(NAdate_Up), 
+                     ymax=Inf,
+                     linetype=0,
+                     fill=INRAElightcyan,
+                     alpha=0.4)
+    }
+
     p = p +
         ggplot2::annotate("line",
                           x=limits,
@@ -80,7 +106,27 @@ panel_chronicle = function (data_code, isSqrt=FALSE, missRect=FALSE,
                           lineend="round")
     
     ### Data ###
-    if ("Model" %in% names(data_code)) {        
+    p = p +
+        ggplot2::annotate("line",
+                          x=data_code_obs$Date,
+                          y=data_code_obs$Q,
+                          color="white",
+                          linewidth=0.4,
+                          lineend="round")
+    
+    if ("Model" %in% names(data_code)) {
+        for (i in 1:nModel) {
+            model = Model[i]
+            data_model_code = data_code[data_code$Model == model,] 
+            # Plot the data as line
+            p = p +
+                ggplot2::annotate("line",
+                                  x=data_model_code$Date,
+                                  y=data_model_code$Q_sim,
+                                  color="white",
+                                  linewidth=0.6,
+                                  lineend="round")
+        }
         for (i in 1:nModel) {
             model = Model[i]
             data_model_code = data_code[data_code$Model == model,] 
@@ -100,33 +146,9 @@ panel_chronicle = function (data_code, isSqrt=FALSE, missRect=FALSE,
         ggplot2::annotate("line",
                           x=data_code_obs$Date,
                           y=data_code_obs$Q,
-                          color=IPCCgrey48,
+                          color=IPCCgrey25,
                           linewidth=0.2,
                           lineend="round")
-    
-
-    ### Missing data ###
-    # If the option is TRUE
-    if (missRect) {
-        # Remove NA data
-        NAdate = data_code_obs$Date[is.na(data_code$Q)]
-        # Get the difference between each point of date data without NA
-        dNAdate = diff(NAdate)
-        # If difference of day is not 1 then
-        # it is TRUE for the beginning of each missing data period 
-        NAdate_Down = NAdate[append(Inf, dNAdate) != 1]
-        # If difference of day is not 1 then
-        # it is TRUE for the ending of each missing data period 
-        NAdate_Up = NAdate[append(dNAdate, Inf) != 1]
-
-        # Plot the missing data period
-        p = p +
-            geom_rect(aes(xmin=as.Date(NAdate_Down), 
-                          ymin=-Inf, 
-                          xmax=as.Date(NAdate_Up), 
-                          ymax=Inf),
-                      linetype=0, fill=INRAElightcyan, alpha=0.4)
-    }
     
     # Y axis title
     var = "Q"

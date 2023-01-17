@@ -55,7 +55,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
         # Adds a title to the y axis
         ggtitle(regime_hydro) +
         # Y axis title
-        ylab(bquote(bold('QM')~~'['*m^{3}*'.'*s^{-1}*']'))
+        ylab(bquote(bold('QM')~'['*m^{3}*'.'*s^{-1}*']'))
     
     # If there is no margins specified
     if (is.null(margin)) {
