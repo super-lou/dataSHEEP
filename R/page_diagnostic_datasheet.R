@@ -35,13 +35,16 @@ page_diagnostic_datasheet = function (data,
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     leg_width = 11
-    void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
+    
 
 
     
     info_height = 3
     chronicle_height = 3
+    medQJ_height = 5
 
+    medQJ_width = 10
+    void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
     
     
     cm_height = 22
@@ -60,8 +63,8 @@ page_diagnostic_datasheet = function (data,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    NAME = matrix(c("info", "chronicle", "foot",
-                    "info", "chronicle", "foot"),
+    NAME = matrix(c("info", "chronicle", "void", "foot",
+                    "info", "chronicle", "medQJ", "foot"),
                   ncol=2)
     WIP = FALSE
 
@@ -76,6 +79,15 @@ page_diagnostic_datasheet = function (data,
     for (i in 1:nCode) {
         code = Code[i]
         data_code = data[data$Code == code,]
+
+        dataEXserie_code = list()
+        for (j in 1:length(dataEXserie)) {
+            dataEXserie_code = append(
+                dataEXserie_code,
+                list(dataEXserie[[j]][dataEXserie[[j]]$Code == code,]))
+        }
+        names(dataEXserie_code) = names(dataEXserie)
+
         STOCK = tibble()
         
         info = panel_info(data_obs,
@@ -89,74 +101,43 @@ page_diagnostic_datasheet = function (data,
                          name="info",
                          height=info_height)
         
-        chronicle = panel_chronicle(data_code,
+        chronicle = panel_spaghetti(data_code,
                                     isSqrt=TRUE,
                                     missRect=TRUE,
                                     grid=TRUE,
-                                    first=TRUE,
-                                    last=FALSE)
+                                    first=FALSE,
+                                    last=TRUE)
         STOCK = add_plot(STOCK,
                          plot=chronicle,
                          name="chronicle",
                          height=chronicle_height)
-        
-        # res = panel_correlation_matrix(dataEX_model,
-        #                                metaEX,
-        #                                icon_path=icon_path,
-        #                                margin=cm_margin)
-        # cm = res$cm
-        # subTopic_path = res$info
-        # STOCK = add_plot(STOCK,
-        #                  plot=cm,
-        #                  name="cm",
-        #                  height=cm_height)
 
-        # STOCK = add_plot(STOCK,
-        #                  plot=void(),
-        #                  name="void",
-        #                  width=void_width)
-        
-        # cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
-        #                   colorStep=6, include=TRUE,
-        #                   asFrac=TRUE,
-        #                   reverse=TRUE,
-        #                   size_color=0.3,
-        #                   dx_color=0.4,
-        #                   dy_color=0.45,
-        #                   height=cb_height,
-        #                   width=leg_width,
-        #                   shift=cb_shift,
-        #                   WIP=WIP)
-        # STOCK = add_plot(STOCK,
-        #                  plot=cb,
-        #                  name="cb",
-        #                  height=cb_height,
-        #                  width=leg_width)
+        print("aaaa")
 
-        # ssg = leg_shape_size_gradient(shape="rect",
-        #                               Size=c(0.1, 0.15, 0.2, 0.25),
-        #                               color=IPCCgrey50,
-        #                               labelArrow="Plus corrélé",
-        #                               dx_shape=0.2,
-        #                               dy_shape=0.1,
-        #                               dy_arrow=0.3,
-        #                               size_arrow=0.25,
-        #                               dz_arrow=1,
-        #                               dl_arrow=0,
-        #                               dr_arrow=0,
-        #                               dx_text=0.3, 
-        #                               height=ssg_height,
-        #                               width=leg_width,
-        #                               shift=ssg_shift,
-        #                               WIP=WIP)
-        # STOCK = add_plot(STOCK,
-        #                  plot=ssg,
-        #                  name="ssg",
-        #                  height=ssg_height,
-        #                  width=leg_width)
+        dataMOD = dataEXserie_code[["median{QJ}"]]
+        dataMOD = dplyr::rename(dataMOD,
+                                Date=Yearday,
+                                Q_obs="median{QJ}_obs",
+                                Q_sim="median{QJ}_sim")
 
+        medQJ = panel_spaghetti(dataMOD,
+                                isSqrt=TRUE,
+                                missRect=FALSE,
+                                grid=FALSE,
+                                first=FALSE,
+                                last=TRUE)
 
-        
+        print("bbbb")
+        STOCK = add_plot(STOCK,
+                         plot=medQJ,
+                         name="medQJ",
+                         height=medQJ_height,
+                         width=medQJ_width)
+
+        STOCK = add_plot(STOCK,
+                         plot=void(),
+                         name="void",
+                         width=void_width)
 
         footName = paste0('fiche station : ', code)
         if (is.null(df_page)) {
@@ -175,10 +156,14 @@ page_diagnostic_datasheet = function (data,
                          name="foot",
                          height=foot_height)
 
+        print("cccc")
+        
         res = merge_panel(STOCK, NAME=NAME,
                           page_margin=page_margin,
                           paper_size="A4",
                           hjust=0, vjust=1)
+
+        print("dddd")
 
         plot = res$plot
         paper_size = res$paper_size
