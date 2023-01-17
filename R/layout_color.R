@@ -20,33 +20,62 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
+IPCCgrey97 = "#f9f8f7" # lighter plot background
+IPCCgrey95 = "#f4f2f1" # plot background
+IPCCgrey92 = "#e9eceb" # 
+IPCCgrey90 = "#e3e2e0" # minor tick
+IPCCgrey85 = "#dcdad9" # low important axis
+IPCCgrey75 = "#bebdbb" # major tick
+IPCCgrey67 = "#adabaa" # minor line
+IPCCgrey60 = "#9c9c9b" # important axis
+IPCCgrey50 = "#81848b" # low important annotation
+IPCCgrey48 = "#847b73" # major line
+IPCCgrey40 = "#656769" # low important label
+IPCCgrey25 = "#454547"
+IPCCgrey20 = "#060403" # important title, label or annotation
+IPCCgrey18 = "#2f2f32" # low important title
+IPCCgrey13 = "#231f20" # font
+IPCCgrey05 = "#100f0d" # realy important title
+IPCCcyan = "#449c93"
+IPCCligthcyan = "#90d6c6"
+IPCCwhitecyan = "#a8ded3"
+IPCCbrique = "#794822"
+IPCCgold = "#e6d495"
+IPCCblue = "#1e2f59"
+
+INRAEcyan = "#00a3a6"
+INRAElightcyan = "#66c1bf"
+INRAEmediumcyan = "#008c8e"
+INRAEdarkcyan = "#275662"
+
+
 ## 1. PERSONALISATION ________________________________________________
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_ash = function () {
+theme_IPCC = function () {
     theme =
         theme(
             # White background
-            panel.background=element_rect(fill='grey97'),
+            panel.background=element_rect(fill=IPCCgrey97),
             # Font
             # text=element_text(family='sans'),
             text=element_text(family="Helvetica"),
             # Border of plot
-            panel.border = element_rect(color="grey80",
-                                        fill=NA,
-                                        size=0.7),
+            panel.border=element_rect(color=IPCCgrey85,
+                                      fill=NA,
+                                      size=0.7),
             # Grid
             panel.grid.major.x=element_blank(),
             panel.grid.major.y=element_blank(),
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker
-            axis.ticks.x=element_line(color='grey75', size=0.3),
-            axis.ticks.y=element_line(color='grey75', size=0.3),
+            axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
+            axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
             # Ticks label
-            axis.text.x=element_text(color='grey40'),
-            axis.text.y=element_text(color='grey40'),
+            axis.text.x=element_text(color=IPCCgrey40),
+            axis.text.y=element_text(color=IPCCgrey40),
             # Ticks length
             axis.ticks.length=unit(1.5, 'mm'),
             # Ticks minor
@@ -56,7 +85,7 @@ theme_ash = function () {
             # Axis title
             axis.title.x=element_blank(),
             axis.title.y=element_text(size=9, vjust=1.2, 
-                                      hjust=0.5, color='grey20'),
+                                      hjust=0.5, color=IPCCgrey25),
             # Axis line
             axis.line.x=element_blank(),
             axis.line.y=element_blank()
@@ -65,19 +94,19 @@ theme_ash = function () {
 }
 
 theme_WIP = function () {
-    theme(panel.background=element_rect(fill='grey97'),
-          axis.ticks.x=element_line(color='grey75', size=0.3),
-          axis.ticks.y=element_line(color='grey75', size=0.3),
+    theme(panel.background=element_rect(fill=IPCCgrey97),
+          axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
+          axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
           # Ticks label
-          axis.text.x=element_text(color='grey75'),
-          axis.text.y=element_text(color='grey75'),
+          axis.text.x=element_text(color=IPCCgrey75),
+          axis.text.y=element_text(color=IPCCgrey75),
           # Ticks length
           axis.ticks.length=unit(1.5, 'mm'),
           # Ticks minor
           ggh4x.axis.ticks.length.minor=rel(0.5),
           # Axis line
-          axis.line.x=element_line(color='grey75', size=0.3),
-          axis.line.y=element_line(color='grey75', size=0.3))
+          axis.line.x=element_line(color=IPCCgrey75, size=0.3),
+          axis.line.y=element_line(color=IPCCgrey75, size=0.3))
 }
     
 ### 1.2. Color palette _______________________________________________
@@ -108,30 +137,6 @@ Palette_rainbow = function () {
                 '#4575b4')
     return (palette)
 }
-
-
-IPCCgrey97 = "#f9f8f7" # lighter plot background
-IPCCgrey95 = "#f4f2f1" # plot background
-IPCCgrey92 = "#e9eceb" # 
-IPCCgrey90 = "#e3e2e0" # minor tick
-IPCCgrey85 = "#dcdad9" # low important axis
-IPCCgrey75 = "#bebdbb" # major tick
-IPCCgrey67 = "#adabaa" # minor line
-IPCCgrey60 = "#9c9c9b" # important axis
-IPCCgrey50 = "#81848b" # low important annotation
-IPCCgrey48 = "#847b73" # major line
-IPCCgrey40 = "#656769" # low important label
-IPCCgrey25 = "#454547"
-IPCCgrey20 = "#060403" # important title, label or annotation
-IPCCgrey18 = "#2f2f32" # low important title
-IPCCgrey13 = "#231f20" # font
-IPCCgrey05 = "#100f0d" # realy important title
-IPCCcyan = "#449c93"
-IPCCligthcyan = "#90d6c6"
-IPCCwhitecyan = "#a8ded3"
-IPCCbrique = "#794822"
-IPCCgold = "#e6d495"
-IPCCblue = "#1e2f59"
 
 
 ## 2. COLOR MANAGEMENT _______________________________________________

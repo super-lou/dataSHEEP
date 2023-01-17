@@ -22,16 +22,18 @@
 
 #' @title Info panel
 #' @export
-panel_info = function(list_df2plot, meta, trend_period=NULL,
-                      mean_period=NULL, period=NULL,
-                      shapefile_list=NULL, codeLight=NULL,
-                      data_code=NULL, to_do='all',
+panel_info = function(data, meta,
+                      Shapefiles=NULL,
+                      codeLight=NULL,
+                      to_do='all',
                       zone_to_show='France') {
+
+    data_code = data[data$Code == codeLight,]
 
     # If there is a data serie for the given code
     if (!is.null(data_code)) {
         # Computes the hydrograph
-        hyd = panel_hydrograph(data_code, period=period,
+        hyd = panel_hydrograph(data_code,
                                margin=margin(t=0, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
@@ -40,20 +42,12 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
         hyd = void()
     }
 
-    if (!is.null(shapefile_list)) {
+    if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
-        map =  page_map(list_df2plot,
-                         meta,
-                         trend_period=trend_period,
-                         mean_period=mean_period,
-                         shapefile_list=shapefile_list,
-                         codeLight=codeLight,
-                         mapType='mini',
-                         margin=margin(t=0, r=-12, b=0, l=0,
-                                       unit="mm"),
-                         showSea=FALSE,
-                         zone_to_show=zone_to_show,
-                         verbose=FALSE)
+        map =  panel_mini_map(data,
+                              meta,
+                              Shapefiles=Shapefiles,
+                              codeLight=codeLight)
     # Otherwise
     } else {
         # Puts it blank
@@ -78,7 +72,7 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
                                margin=unit(c(t=0, r=5, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col="#00A3A8", fontsize=14))
+                               gp=gpar(col=INRAEcyan, fontsize=14))
     } else if ('code' %in% to_do) {
         # Name of the datasheet
         text1 = paste(
@@ -90,7 +84,7 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
                                margin=unit(c(t=0, r=5, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col="#00A3A8", fontsize=14))
+                               gp=gpar(col=INRAEcyan, fontsize=14))
     } else {
         gtext1 = void()
     }
@@ -108,7 +102,7 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col="grey20", fontsize=8))
+                               gp=gpar(col=IPCCgrey20, fontsize=8))
     } else {
         gtext2 = void()
     }
@@ -129,7 +123,7 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col="grey20", fontsize=9))
+                               gp=gpar(col=IPCCgrey20, fontsize=9))
     } else {
         gtext3 = void()
     }
@@ -157,7 +151,7 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col="grey20", fontsize=9))
+                               gp=gpar(col=IPCCgrey20, fontsize=9))
     } else {
         gtext4 = void()
     }
@@ -165,7 +159,6 @@ panel_info = function(list_df2plot, meta, trend_period=NULL,
 
     # Makes a list of all plots
     P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
-    # P = list(void(), void(), void(), void(), void(), void(), void())
     
     # Creates the matrix layout
     LM = matrix(c(1, 1, 1, 6,
