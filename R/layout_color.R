@@ -19,12 +19,14 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-#f6f7f7
-IPCCgrey97 = "#f9f8f7" # lighter plot background
+
+# IPCCgrey97 = "#f9f8f7" # lighter plot background
+IPCCgrey97 = "#f6f7f7" # lighter plot background
 IPCCgrey95 = "#f4f2f1" # plot background
 IPCCgrey92 = "#e9eceb" # 
 IPCCgrey90 = "#e3e2e0" # minor tick
-IPCCgrey85 = "#dcdad9" # low important axis
+IPCCgrey85 = "#dcdad9" # grid on grey background low important axis 
+IPCCgrey80 = "#cfd1d0" # grid on white background
 IPCCgrey75 = "#bebdbb" # major tick
 IPCCgrey67 = "#adabaa" # minor line
 IPCCgrey60 = "#9c9c9b" # important axis
@@ -53,11 +55,17 @@ INRAEdarkcyan = "#275662"
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isTitle=FALSE) {
+theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0) {
+
+    if (isBack) {
+        panel.background=element_rect(fill=IPCCgrey97)
+    } else {
+        panel.background=element_blank()
+    }
     
     if (isTitle) {
         plot.title=element_text(size=9,
-                                vjust=0, hjust=-0.12,
+                                vjust=0, hjust=dTitle,
                                 color=IPCCgrey25)
         axis.title.y=element_blank()
     } else {
@@ -71,7 +79,7 @@ theme_IPCC = function (isTitle=FALSE) {
     theme =
         theme(
             # White background
-            panel.background=element_rect(fill=IPCCgrey97),
+            panel.background=panel.background,
             # Font
             # text=element_text(family='sans'),
             text=element_text(family="Helvetica"),

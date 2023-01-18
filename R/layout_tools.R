@@ -497,7 +497,7 @@ load_shapefile = function (resources_path, data,
         }
         river = st_simplify(river,
                             preserveTopology=TRUE,
-                            dTolerance=toleranceRel/10)
+                            dTolerance=toleranceRel/2)
         river = st_transform(river, 2154) 
     } else {
         river = NULL

@@ -22,14 +22,26 @@
 
 #' @title panel spaghetti
 #' @export
-panel_spaghetti = function (data_code, Colors,
+panel_spaghetti = function (data_code, Colors=NULL,
                             var="débit journalier",
                             unit="m^{3}.s^{-1}",
+                            alpha=0.7,
                             isSqrt=FALSE, missRect=FALSE,
-                            isTitle=TRUE,
+                            isBack=TRUE,
+                            isTitle=TRUE, dTitle=0,
+                            sizeYticks=9,
+                            date_labels="%Y",
+                            breaks="10 years",
+                            minor_breaks="2 years",
+                            d_breaks=0,
+                            break_round=-1,
+                            isBackObsAbove=TRUE,
                             axis_xlim=NULL, grid=TRUE,
+                            margin_add=margin(t=0, r=0, b=0, l=0, "mm"),
                             first=FALSE, last=FALSE) {
 
+    isDate = inherits(data_code$Date, 'Date')
+    
     if ("Model" %in% names(data_code)) {
         Model = levels(factor(data_code$Model))
         nModel = length(Model)
@@ -63,8 +75,9 @@ panel_spaghetti = function (data_code, Colors,
 
     
     # Open new plot
-    p = ggplot() + theme_IPCC(isTitle) +
-        theme(panel.border=element_blank())
+    p = ggplot() + theme_IPCC(isBack, isTitle, dTitle=dTitle) +
+        theme(panel.border=element_blank(),
+              axis.text.y=element_text(size=sizeYticks))
 
     ### Grid ###
     if (!grid) {
@@ -86,8 +99,13 @@ panel_spaghetti = function (data_code, Colors,
         # it is TRUE for the ending of each missing data period 
         NAdate_Up = NAdate[append(dNAdate, Inf) != 1]
 
-        xmin = as.Date(NAdate_Down)
-        xmax = as.Date(NAdate_Up)
+        if (isDate) {
+            xmin = as.Date(NAdate_Down)
+            xmax = as.Date(NAdate_Up)
+        } else {
+            xmin = NAdate_Down
+            xmax = NAdate_Up
+        }
         
         # Plot the missing data period
         p = p +
@@ -111,6 +129,16 @@ panel_spaghetti = function (data_code, Colors,
                           lineend="round")
     
     ### Data ###
+    if (!isBackObsAbove) {
+        p = p +
+            ggplot2::annotate("line",
+                              x=data_code_obs$Date,
+                              y=data_code_obs$Q,
+                              color="white",
+                              linewidth=0.4,
+                              lineend="round")
+    }
+    
     if ("Model" %in% names(data_code)) {
         for (i in 1:nModel) {
             model = Model[i]
@@ -121,8 +149,12 @@ panel_spaghetti = function (data_code, Colors,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color="white",
-                                  linewidth=0.7,
+                                  linewidth=0.8,
                                   lineend="round")
+        }
+        if (is.null(Colors)) {
+            Colors = rep(IPCCgrey67, nModel)
+            names(Colors) = Model
         }
         for (i in 1:nModel) {
             model = Model[i]
@@ -133,19 +165,21 @@ panel_spaghetti = function (data_code, Colors,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color=Colors[names(Colors) == model],
-                                  linewidth=0.5,
-                                  alpha=0.5,
+                                  linewidth=0.6,
+                                  alpha=alpha,
                                   lineend="round")
         }
     }
 
-    p = p +
-        ggplot2::annotate("line",
-                          x=data_code_obs$Date,
-                          y=data_code_obs$Q,
-                          color="white",
-                          linewidth=0.4,
-                          lineend="round")
+    if (isBackObsAbove) {
+        p = p +
+            ggplot2::annotate("line",
+                              x=data_code_obs$Date,
+                              y=data_code_obs$Q,
+                              color="white",
+                              linewidth=0.4,
+                              lineend="round")
+    }
     p = p +
         ggplot2::annotate("line",
                           x=data_code_obs$Date,
@@ -174,30 +208,70 @@ panel_spaghetti = function (data_code, Colors,
         position = 'bottom'
     }
 
-    breaks_Date = function(X) {
-        year = lubridate::year(X)[1]
-        seq.Date(from=as.Date(paste0(year, "-01-01")),
-                 to=as.Date(paste0(year+1, "-01-01")),
-                 by="3 months")
+    get_breaks = function(X) {
+        if (isDate) {
+            Xmin = round(lubridate::year(min(X)), break_round)
+            Xmax = round(lubridate::year(max(X)), break_round)
+            if (Xmax-Xmin <= 1) {
+                Xmin = lubridate::year(X)[1]
+                Xmax = lubridate::year(X)[1] + 1
+            }
+            year = lubridate::year(X)[1]
+            seq.Date(from=as.Date(paste0(Xmin, "-01-01")) + d_breaks,
+                     to=as.Date(paste0(Xmax, "-01-01")) + d_breaks,
+                     by=breaks)
+        } else {
+            Xmin = round(min(X), break_round)
+            Xmax = round(max(X), break_round)
+            seq(from=Xmin + d_breaks,
+                to=Xmax + d_breaks,
+                by=breaks)
+        }
     }
 
-    minor_breaks_Date = function(X) {
-        year = lubridate::year(X)[1]
-        seq.Date(from=as.Date(paste0(year, "-01-01")),
-                 to=as.Date(paste0(year+1, "-01-01")),
-                 by="1 months")
+    get_minor_breaks = function(X) {
+        if (isDate) {
+            Xmin = round(lubridate::year(min(X)), break_round)
+            Xmax = round(lubridate::year(max(X)), break_round)
+            if (Xmax-Xmin <= 1) {
+                Xmin = lubridate::year(X)[1]
+                Xmax = lubridate::year(X)[1] + 1
+            }
+            year = lubridate::year(X)[1]
+            seq.Date(from=as.Date(paste0(Xmin, "-01-01")),
+                     to=as.Date(paste0(Xmax, "-01-01")),
+                     by=minor_breaks)
+        } else {
+            Xmin = round(min(X), break_round)
+            Xmax = round(max(X), break_round)
+            seq(from=Xmin + d_breaks,
+                to=Xmax + d_breaks,
+                by=minor_breaks)
+        }
     }
         
     # Parameters of the x axis contain the limit of the date dataEx
-    p = p +
-        scale_x_date(
-            breaks=breaks_Date,
-            minor_breaks=minor_breaks_Date,
-            guide='axis_minor',
-            date_labels="%B",
-            limits=limits,
-            position=position, 
-            expand=c(0, 0))
+    if (isDate) {
+        p = p +
+            scale_x_date(
+                breaks=get_breaks,
+                minor_breaks=get_minor_breaks,
+                guide='axis_minor',
+                date_labels=date_labels,
+                limits=limits,
+                position=position, 
+                expand=c(0, 0))
+    } else {
+        p = p +
+            scale_x_continuous(
+                breaks=get_breaks,
+                minor_breaks=get_minor_breaks,
+                guide='axis_minor',
+                limits=limits,
+                position=position, 
+                expand=c(0, 0))
+    }
+    
 
     # Parameters of the y axis
     if (get_power(minQ) >= 4) {
@@ -229,27 +303,33 @@ panel_spaghetti = function (data_code, Colors,
     # Margins
     tt = 2.5
     t = 2
+    r = 
     tb = 3
     b = 2
+    l = 
     
     if (last == "all") {
         pLastTRUE = p
         pLastFALSE = p
         if (first) {
             pLastFALSE = pLastFALSE +
-                theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=tt, r=0, b=tb, l=0, unit="mm")+
+                          margin_add)
             pLastTRUE = pLastTRUE +
-                theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=tt, r=0, b=0, l=0, unit="mm")+
+                          margin_add)
         } else {
             pLastFALSE = pLastFALSE + 
-                theme(plot.margin=margin(t=t, r=0, b=b, l=0,
-                                         unit="mm"),
+                theme(plot.margin=
+                          margin(t=t, r=0, b=b, l=0, unit="mm")+
+                          margin_add,
                       axis.text.x=element_blank())
             pLastTRUE = pLastTRUE +
-                theme(plot.margin=margin(t=t, r=0, b=0, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=t, r=0, b=0, l=0, unit="mm")+
+                          margin_add)
         }
 
         res = list(lastTRUE=pLastTRUE, lastFALSE=pLastFALSE)
@@ -258,20 +338,24 @@ panel_spaghetti = function (data_code, Colors,
     } else {
         if (first & !last) {
             p = p +
-                theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=tt, r=0, b=tb, l=0, unit="mm")+
+                          margin_add)
         } else if (!first & last) {
             p = p + 
-                theme(plot.margin=margin(t=t, r=0, b=0, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=t, r=0, b=0, l=0, unit="mm")+
+                          margin_add)
         } else if (first & last) {
             p = p + 
-                theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
-                                         unit="mm"))
+                theme(plot.margin=
+                          margin(t=tt, r=0, b=0, l=0, unit="mm")+
+                          margin_add)
         } else if (!first & !last){
             p = p + 
-                theme(plot.margin=margin(t=t, r=0, b=b, l=0,
-                                         unit="mm"),
+                theme(plot.margin=
+                          margin(t=t, r=0, b=b, l=0, unit="mm")+
+                          margin_add,
                       axis.text.x=element_blank())
         }
         return(p)

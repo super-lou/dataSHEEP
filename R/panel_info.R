@@ -98,11 +98,11 @@ panel_info = function(data, meta,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
-                               x=0, y=1.25,
+                               x=0, y=1.4,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=IPCCgrey20, fontsize=8))
+                               gp=gpar(col=INRAEcyan, fontsize=8))
     } else {
         gtext2 = void()
     }
@@ -110,20 +110,20 @@ panel_info = function(data, meta,
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste(
-            "<b>",
+            # "<b>",
             "Superficie : ", meta_code$surface_km2_BH,
-            "  [km<sup>2</sup>] <br>",
-            "Altitude : ", meta_code$altitude_m_BH, "  [m]<br>",
-            "X = ", meta_code$L93X_m_BH, "  [m ; Lambert93]<br>",
-            "Y = ", meta_code$L93Y_m_BH, "  [m ; Lambert93]",
-            "</b>",
+            "  (km<sup>2</sup>) <br>",
+            "Altitude : ", meta_code$altitude_m_BH, "  (m)<br>",
+            "X = ", meta_code$L93X_m_BH, "  (m, Lambert93)<br>",
+            "Y = ", meta_code$L93Y_m_BH, "  (m, Lambert93)",
+            # "</b>",
             sep='')
         gtext3 = richtext_grob(text3,
-                               x=0, y=1,
+                               x=0, y=0.96,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=IPCCgrey20, fontsize=9))
+                               gp=gpar(col=IPCCgrey13, fontsize=9))
     } else {
         gtext3 = void()
     }
@@ -140,20 +140,20 @@ panel_info = function(data, meta,
         fin = format(as.Date(meta_code$fin), "%d/%m/%Y")
 
         text4 = paste(
-            "<b>",
+            # "<b>",
             "Date de début : ", debut, "<br>",
             "Date de fin : ", fin, "<br>",
-            "Nombre d'années : ", duration, "  [ans]", "<br>",
+            "Nombre d'années : ", duration, "  (ans)", "<br>",
             "Taux de lacunes : ", signif(meta_code$tLac100, 2),
-            "  [%]",
-            "</b>",
+            "  (%)",
+            # "</b>",
             sep='')
         gtext4 = richtext_grob(text4,
-                               x=0, y=1,
+                               x=0, y=0.96,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=IPCCgrey20, fontsize=9))
+                               gp=gpar(col=IPCCgrey13, fontsize=9))
     } else {
         gtext4 = void()
     }

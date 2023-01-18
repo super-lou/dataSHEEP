@@ -34,11 +34,6 @@ panel_mini_map = function (data, meta, Shapefiles,
     codeBasin = Shapefiles$codeBasin
     river = Shapefiles$river
 
-    sizefr = 0.35
-    sizebs = 0.3
-    sizecbs = 0.4
-    sizerv = 0.2
-
     # Stores the coordonate system 
     cf = coord_fixed()
     # Makes it the default one to remove useless warning
@@ -62,24 +57,44 @@ panel_mini_map = function (data, meta, Shapefiles,
         # Plot the river
         map = map +
             geom_sf(data=river,
-                    color=IPCCgrey85,
+                    color="white",
+                    alpha=1,
                     fill=NA,
-                    size=sizerv)
+                    linewidth=0.4,
+                    na.rm=TRUE)
+        map = map +
+            geom_sf(data=river,
+                    color=INRAElightcyan,
+                    alpha=1,
+                    fill=NA,
+                    linewidth=0.2,
+                    na.rm=TRUE)
     }
-    
+
+    # Plot the white back of boundaries
     map = map +
-        # Plot the hydrological basin
+        
+        geom_sf(data=france,
+                color="white",
+                fill=NA,
+                linewidth=0.55)
+    map = map +
+        geom_sf(data=basin,
+                color="white",
+                fill=NA,
+                linewidth=0.45)
+    
+    # Plot boundaries
+    map = map +
         geom_sf(data=basin,
                 color=IPCCgrey67,
                 fill=NA,
-                size=sizebs)
-    
+                linewidth=0.3)
     map = map +
-        # Plot the countour of France
         geom_sf(data=france,
                 color=IPCCgrey40,
                 fill=NA,
-                size=sizefr)
+                linewidth=0.35)
     
     # Leaves space around the France
     xlim = c(90000, 1250000)

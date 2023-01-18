@@ -42,9 +42,11 @@ page_diagnostic_datasheet = function (data,
     info_height = 3
     chronicle_height = 3
     medQJ_height = 7
-
+    FDC_height = 7
+    
     medQJ_width = 10
-    void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
+    FDC_width = 10
+    # void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
 
 
     
@@ -65,8 +67,8 @@ page_diagnostic_datasheet = function (data,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    NAME = matrix(c("info", "chronicle", "void", "foot",
-                    "info", "chronicle", "medQJ", "foot"),
+    NAME = matrix(c("info", "chronicle", "medQJ", "foot",
+                    "info", "chronicle", "FDC", "foot"),
                   ncol=2)
     WIP = FALSE
 
@@ -103,14 +105,24 @@ page_diagnostic_datasheet = function (data,
                          name="info",
                          height=info_height)
         
-        chronicle = panel_chronicle(data_code,
-                                    var="Débit",
+        chronicle = panel_spaghetti(data_code,
+                                    var="(a) Débit journalier",
                                     unit="m^{3}.s^{-1}",
+                                    alpha=0.4,
                                     isSqrt=TRUE,
                                     missRect=TRUE,
+                                    isBack=FALSE,
+                                    isTitle=TRUE,
+                                    dTitle=-0.04,
+                                    sizeYticks=6,
+                                    date_labels="%Y",
+                                    breaks="10 years",
+                                    minor_breaks="2 years",
+                                    isBackObsAbove=FALSE,
                                     grid=TRUE,
-                                    first=TRUE,
-                                    last=FALSE)
+                                    margin_add=margin(t=1, r=0, b=0, l=0, "mm"),
+                                    first=FALSE,
+                                    last=TRUE)
         STOCK = add_plot(STOCK,
                          plot=chronicle,
                          name="chronicle",
@@ -124,25 +136,62 @@ page_diagnostic_datasheet = function (data,
                                 Q_sim="median{QJ}_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
-                                var="Débit médian inter-annuel",
+                                var="(b) Débit journalier médian inter-annuel",
                                 unit="m^{3}.s^{-1}",
+                                alpha=0.7,
                                 isSqrt=TRUE,
                                 missRect=FALSE,
+                                isBack=FALSE,
                                 isTitle=TRUE,
+                                dTitle=-0.17,
+                                date_labels="%B",
+                                breaks="3 months",
+                                minor_breaks="1 months",
+                                d_breaks=months(2),
+                                isBackObsAbove=TRUE,
                                 grid=TRUE,
+                                margin_add=margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
-
         STOCK = add_plot(STOCK,
                          plot=medQJ,
                          name="medQJ",
                          height=medQJ_height,
                          width=medQJ_width)
 
+        dataMOD = dataEXserie_code[["FDC"]]
+        dataMOD = dplyr::rename(dataMOD,
+                                Date="FDC_obs_p",
+                                Q_obs="FDC_obs_Q",
+                                Q_sim="FDC_sim_Q")
+        FDC = panel_spaghetti(dataMOD,
+                              Colors,
+                              var="(c) Courbe des débits classés",
+                              unit="m^{3}.s^{-1}",
+                              alpha=0.7,
+                              isSqrt=TRUE,
+                              missRect=FALSE,
+                              isTitle=TRUE,
+                              isBack=FALSE,
+                              dTitle=-0.17,
+                              breaks=0.2,
+                              minor_breaks=0.1,
+                              break_round=1,
+                              isBackObsAbove=TRUE,
+                              grid=TRUE,
+                              margin_add=margin(t=0, r=0, b=0, l=3.5, "mm"),
+                              first=FALSE,
+                              last=TRUE)
         STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         width=void_width)
+                         plot=FDC,
+                         name="FDC",
+                         height=FDC_height,
+                         width=FDC_width)
+
+        # STOCK = add_plot(STOCK,
+        #                  plot=void(),
+        #                  name="void",
+        #                  width=void_width)
 
         footName = paste0('fiche station : ', code)
         if (is.null(df_page)) {
