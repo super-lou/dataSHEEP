@@ -1,0 +1,376 @@
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+#
+# *1   INRAE, France
+#
+# This file is part of dataSheep R package.
+#
+# dataSheep R package is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# dataSheep R package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dataSheep R package.
+# If not, see <https://www.gnu.org/licenses/>.
+
+panel_indicator_distribution = function (dataEXind,
+                                         metaEXind,
+                                         icon_path,
+                                         margin_add=margin(t=0, r=0, b=0, l=0, "mm")) {
+
+    dy_Ind = 4
+
+
+    lw_mat = 0.4
+    d_W_mat = 0.25
+    
+    dy_L1 = 0.2
+    lw_L1 = 0.25
+    
+    dy_I1 = 0.2
+    size_I1 = 0.45
+    dr_I1 = 0.15
+    
+    dy_T1 = 0.3
+    size_T1 = 3.2
+    ech_T1 = 0.23
+
+    dy_L2_min = 0.5
+    lw_L2 = 0.25
+    
+    dx_L3 = 0.5
+    lw_L3 = 0.45
+
+    dy_L4 = 0.5
+    lw_L4 = 0.45
+    
+    dy_T2 = 0.27
+    dy_T2line = 0.4
+    size_T2 = 2.7
+    ech_T2 = 7
+    
+    dy_I2 = 1.3
+    size_I2 = 0.7
+
+    
+    ech = 1
+    ech_x = 2 
+    
+    complete = function (X) {
+        if (length(X) < 2) {
+            X = c(X, NA)
+        }
+        return (X)
+    }
+
+    logicalCol = names(dataEXind)[sapply(dataEXind, class) == "logical"]
+    dataEXind = dataEXind[!(names(dataEXind) %in% logicalCol)]
+    metaEXind = metaEXind[!(metaEXind$var %in% logicalCol),]
+    
+    Topic = strsplit(metaEXind$topic, "/")
+    Topic = lapply(Topic, complete)
+    mainTopicVAR = sapply(Topic, '[[', 1)
+    names(mainTopicVAR) = metaEXind$var
+    lenMainTopic = rle(mainTopicVAR)$lengths
+    nMainTopic = length(lenMainTopic)
+    startMainTopic =
+        cumsum(c(1, lenMainTopic[1:(nMainTopic-1)])) - 1 + dx_L3
+    endMainTopic = cumsum(lenMainTopic) - dx_L3
+    midMainTopic = (startMainTopic + endMainTopic)/2
+    mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
+
+    # subTopic = sapply(Topic, '[[', 2)
+    # names(subTopic) = metaEXind$var
+
+    mainTopic_icon = lapply(
+        file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
+        svgparser::read_svg)
+
+    # subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
+    # subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
+    
+    names(mainTopic_icon) = mainTopic
+    # names(subTopic_icon) = subTopic
+
+    vars2keep = names(dataEXind)
+    print(vars2keep)
+    vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
+
+    dataEXind = dplyr::mutate(dataEXind,
+                              dplyr::across(where(is.logical),
+                                            as.numeric),
+                              .keep="all")
+
+    dataEXind = dplyr::select(dataEXind, vars2keep)
+
+    Model = levels(factor(dataEXind$Model))
+    nModel = length(Model)
+
+    dataEXind_tmp = dataEXind
+    dataEXind_tmp = dplyr::select(dataEXind_tmp, -c(Code, Model))
+
+    matchVar = match(names(dataEXind_tmp), metaEXind$var)
+    matchVar = matchVar[!is.na(matchVar)]
+    dataEXind_tmp = dataEXind_tmp[matchVar]
+
+    nameCol = names(dataEXind_tmp)
+    Var = nameCol
+    nVar = length(Var)
+
+    VarTEX = gsub("etiage", "étiage", Var)
+    for (i in 1:nVar) {
+        var = VarTEX[i]
+        
+        if (grepl("[_]", var) & !grepl("[_][{]", var)) {
+            var = gsub("[_]", "$_{$", var)
+            var = paste0(var, "}")
+        } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
+            var = gsub("[_][{]", "$_{$", var)
+        }
+
+        if (grepl("alpha", var)) {
+            var = gsub("alpha", "\\\\bf{\u03b1}", var)
+        }
+
+        if (grepl("epsilon", var)) {
+            var = gsub("epsilon", "\\\\bf{\u03b5}", var)
+        }
+
+        if (grepl("HYP", var)) {
+            var = gsub("HYP", "\\\\textit{H}", var)
+        }
+
+        if (grepl("inv", var) & !grepl("inv[{]", var)) {
+            var = gsub("inv", "\\\\textit{inv}", var)
+        } else if (grepl("inv", var) & grepl("inv[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("inv[{]", "\\\\textit{inv}", var)
+        } 
+
+        if (grepl("log", var) & !grepl("log[{]", var)) {
+            var = gsub("log", "\\\\textit{log}", var)
+        } else if (grepl("log", var) & grepl("log[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("log[{]", "\\\\textit{log}", var)
+        } 
+
+        if (grepl("mean", var) & !grepl("mean[{]", var)) {
+            var = gsub("mean", "\\\\textit{moy}", var)
+        } else if (grepl("mean", var) & grepl("mean[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("mean[{]", "\\\\textit{moy}", var)
+        } 
+
+        if (grepl("median", var) & !grepl("median[{]", var)) {
+            var = gsub("median", "\\\\textit{med}", var)
+        } else if (grepl("median", var) & grepl("median[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("median[{]", "\\\\textit{med}", var)
+        } 
+        
+        if (grepl("sqrt", var) & !grepl("sqrt[{]", var)) {
+            var = gsub("sqrt", "\\\\textit{sqrt}", var)
+        } else if (grepl("sqrt", var) & grepl("sqrt[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("sqrt[{]", "\\\\textit{sqrt}", var)
+        } 
+        
+        VarTEX[i] = var
+    }
+    VarTEX = paste0("\\textbf{", VarTEX, "}")
+
+    Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
+        theme(plot.margin=margin_add)
+
+    VarRAW = metaEXind$var
+    VarRAW = gsub("median", "med", VarRAW)
+    VarRAW = gsub("mean", "moy", VarRAW)
+    VarRAW = gsub("HYP", "H", VarRAW)
+    VarRAW = gsub("alpha", "A", VarRAW)
+    VarRAW = gsub("epsilon", "E", VarRAW)
+    OK_ = grepl("[_]", VarRAW)
+    tmp = gsub("^.*[_]", "", VarRAW)
+    tmp = gsub("([{])|([}])", "", tmp)
+    tmp[!OK_] = ""
+    tmp = gsub("[[:alnum:]]", "*", tmp)
+    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
+    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
+    VarRAW = gsub("[_].*$", "", VarRAW)
+    VarRAW = paste0(VarRAW, tmp)
+    VarRAW = strsplit(VarRAW, "*")
+
+    convert2space = function (X) {
+        X = gsub("[[:digit:]]", "1.1", X)
+        X = gsub("[[:upper:]]", "1.6", X)
+        X = gsub("[[:lower:]]", "1.1", X)
+        X = gsub("([-])|([,])", "0.5", X)
+        X = gsub("([*])", "0.9", X)
+        return (X)    
+    }
+
+    Space = lapply(VarRAW, convert2space)
+    Space = lapply(Space, as.numeric)
+    Space = lapply(Space, sum)
+    Space = unlist(Space)
+    maxSpace = max(Space)
+
+    dy = dy_Ind + d_W_mat
+    
+    for (i in 1:nVar) {
+
+        var = Var[i] 
+            
+        for (j in 1:nModel) {
+            dataEXind_model = dataEXind[dataEXind$Model == Model[j],]
+            
+            dataEXind_model[[var]]
+
+            Ind = Ind +
+                
+                
+                
+                
+        }
+        
+        
+        
+        
+        
+        
+        
+        Ind = Ind +
+            
+            annotate("line",
+                     x=rep((i-1) + 0.5, 2)*ech_x,
+                     y=c(dy,
+                         dy + dy_L1 + dy_I1/2)*ech,
+                     linewidth=lw_L1, color=IPCCgrey67) +
+            
+            gg_circle(r=dr_I1*ech,
+                      xc=((i-1) + 0.5)*ech_x,
+                      yc=(dy + dy_L1 + dy_I1)*ech,
+                      color=IPCCgrey67, linewidth=lw_L1,
+                      fill="white") +
+            
+            # gg_circle(r=size_I1*(ech-dr_I1),
+            #           xc=((i-1) + 0.5)*ech_x,
+            #           yc=(dy + dy_L1 + dy_I1)*ech,
+            #           color=NA, linewidth=0, fill="white") +
+            
+            # annotation_custom(
+            #     subTopic_icon[[i]],
+            #     xmin=((i-1) + 0.5 - size_I1)*ech_x,
+            #     xmax=((i-1) + 0.5 + size_I1)*ech_x,
+            #     ymin=(dy +
+            #           dy_L1 + dy_I1 - size_I1)*ech,
+            #     ymax=(dy +
+            #           dy_L1 + dy_I1 + size_I1)*ech) +
+            
+            annotate("line",
+                     x=rep((i-1) + 0.5, 2)*ech_x,
+                     y=c(dy + d_W_mat +
+                         dy_L1 + dy_I1 + dy_T1,
+                         dy +
+                         dy_L1 + dy_I1 + dy_T1 + 
+                         maxSpace*ech_T1 + dy_L2_min)*ech,
+                     linewidth=lw_L1, color=IPCCgrey67) +
+            
+            annotate("rect",
+                     xmin=((i-1) + 0.1)*ech_x,
+                     xmax=((i-1) + 0.9)*ech_x,
+                     ymin=(dy +
+                           dy_L1 + dy_I1 + dy_T1)*ech,
+                     ymax=(dy +
+                           dy_L1 + dy_I1 + dy_T1 +
+                           Space[i]*ech_T1)*ech,
+                     fill="white",
+                     color=NA) +
+            
+            annotate("text",
+                     x=((i-1) + 0.5)*ech_x,
+                     y=(dy +
+                        dy_L1 + dy_I1 + dy_T1)*ech,
+                     label=TeX(VarTEX[i]),
+                     hjust=0, vjust=0.675,
+                     angle=90,
+                     size=size_T1,
+                     color=IPCCgrey40)
+    }
+
+    dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
+
+
+    nLine = c()
+    for (i in 1:nMainTopic) {
+        nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
+        label = guess_newline(mainTopic[i], nLim=nLim)
+        nLine = c(nLine, length(label))
+    }
+    dy_I2 = dy_I2 + dy_T2line*max(nLine)
+
+    for (i in 1:nMainTopic) {
+        
+        nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
+        label = guess_newline(mainTopic[i], nLim=nLim)
+        label =  rev(unlist(strsplit(label, "\n")))
+        nLine = length(label)
+        
+        Ind = Ind +
+            annotation_custom(
+                mainTopic_icon[[i]],
+                xmin=midMainTopic[i]*ech_x - size_I2*ech,
+                xmax=midMainTopic[i]*ech_x + size_I2*ech,
+                ymin=(dy + 
+                      dy_L4 + dy_I2 - size_I2)*ech,
+                ymax=(dy + 
+                      dy_L4 + dy_I2 + size_I2)*ech)
+
+        for (j in 1:nLine) {
+            Ind = Ind +
+                annotate("text",
+                         x=midMainTopic[i]*ech_x,
+                         y=(dy + 
+                            dy_L4 + dy_T2 +
+                            (j-1)*dy_T2line)*ech,
+                         hjust=0.5, vjust=0,
+                         angle=0,
+                         label=label[j],
+                         fontface="bold",
+                         size=size_T2,
+                         color=IPCCgrey05)
+        }
+
+        Ind = Ind +
+            annotate("line",
+                     x=c(midMainTopic[i], midMainTopic[i])*ech_x,
+                     y=c(dy,
+                         dy + dy_L4)*ech,
+                     linewidth=lw_L4, color=IPCCgrey48,
+                     lineend="round") +
+
+    annotate("line",
+             x=c(startMainTopic[i], endMainTopic[i])*ech_x,
+             y=rep(dy, 2)*ech,
+             linewidth=lw_L3, color=IPCCgrey48,
+             lineend="round")
+    }
+    
+    Ind = Ind +
+        scale_x_continuous(expand=c(0, 0)) + 
+        scale_y_continuous(limits=c(0, NA),
+                           expand=c(0, 0))
+    
+    # subTopic_path = subTopic_path[!duplicated(subTopic_path)]
+    # subTopic_label = subTopic[!duplicated(subTopic)]
+    # names(subTopic_path) = subTopic_label
+
+    # res = list(Ind=Ind, info=subTopic_path)
+    # return (res)
+    return (Ind)
+}
