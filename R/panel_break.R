@@ -62,7 +62,7 @@ panel_break_histogram = function (df_break, meta, title='') {
     midsOk = as.Date(res_histOk$mids)
 
     # Open a new plot with personal theme
-    plot = ggplot() + theme_ash() +
+    plot = ggplot() + theme_IPCC() +
         
               # Y grid
         theme(panel.grid.major.y=element_line(color='grey80', size=0.15),
@@ -195,7 +195,7 @@ panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
     
 
     # Open a new plot with personal theme
-    plot = ggplot() + theme_ash() +
+    plot = ggplot() + theme_IPCC() +
         
               # Y grid
         theme(panel.grid.major.y=element_line(color='grey80', size=0.15),

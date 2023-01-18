@@ -37,7 +37,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
                   "J", "A", "S", "O", "N", "D")
 
     # Open a new plot with the personalise theme
-    plot = ggplot() + theme_ash() +
+    plot = ggplot() + theme_IPCC() +
         # Theme modification
         theme(
             panel.background=element_rect(fill="white"),

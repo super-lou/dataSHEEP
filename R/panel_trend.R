@@ -41,7 +41,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
     minX_win = minX * 0.95#expansion
     
     # Open new plot
-    p = ggplot() + theme_ash()
+    p = ggplot() + theme_IPCC()
 
     ## Sub period background ##
     if (!is.null(trend_period)) {

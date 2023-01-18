@@ -25,6 +25,7 @@ page_diagnostic_datasheet = function (data,
                                       dataEXind,
                                       metaEXind,
                                       dataEXserie,
+                                      Colors,
                                       ModelGroup=NULL,
                                       icon_path="",
                                       logo_path="",
@@ -35,16 +36,17 @@ page_diagnostic_datasheet = function (data,
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     leg_width = 11
-    
 
 
     
     info_height = 3
     chronicle_height = 3
-    medQJ_height = 5
+    medQJ_height = 7
 
     medQJ_width = 10
     void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
+
+
     
     
     cm_height = 22
@@ -101,33 +103,36 @@ page_diagnostic_datasheet = function (data,
                          name="info",
                          height=info_height)
         
-        chronicle = panel_spaghetti(data_code,
+        chronicle = panel_chronicle(data_code,
+                                    var="Débit",
+                                    unit="m^{3}.s^{-1}",
                                     isSqrt=TRUE,
                                     missRect=TRUE,
                                     grid=TRUE,
-                                    first=FALSE,
-                                    last=TRUE)
+                                    first=TRUE,
+                                    last=FALSE)
         STOCK = add_plot(STOCK,
                          plot=chronicle,
                          name="chronicle",
                          height=chronicle_height)
 
-        print("aaaa")
-
         dataMOD = dataEXserie_code[["median{QJ}"]]
+        dataMOD$Date = as.Date(dataMOD$Yearday-1,
+                               origin=as.Date("1972-01-01"))
         dataMOD = dplyr::rename(dataMOD,
-                                Date=Yearday,
                                 Q_obs="median{QJ}_obs",
                                 Q_sim="median{QJ}_sim")
-
         medQJ = panel_spaghetti(dataMOD,
+                                Colors,
+                                var="Débit médian inter-annuel",
+                                unit="m^{3}.s^{-1}",
                                 isSqrt=TRUE,
                                 missRect=FALSE,
-                                grid=FALSE,
+                                isTitle=TRUE,
+                                grid=TRUE,
                                 first=FALSE,
                                 last=TRUE)
 
-        print("bbbb")
         STOCK = add_plot(STOCK,
                          plot=medQJ,
                          name="medQJ",
@@ -156,14 +161,10 @@ page_diagnostic_datasheet = function (data,
                          name="foot",
                          height=foot_height)
 
-        print("cccc")
-        
         res = merge_panel(STOCK, NAME=NAME,
                           page_margin=page_margin,
                           paper_size="A4",
                           hjust=0, vjust=1)
-
-        print("dddd")
 
         plot = res$plot
         paper_size = res$paper_size

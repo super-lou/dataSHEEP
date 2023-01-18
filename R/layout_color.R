@@ -19,7 +19,7 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-
+#f6f7f7
 IPCCgrey97 = "#f9f8f7" # lighter plot background
 IPCCgrey95 = "#f4f2f1" # plot background
 IPCCgrey92 = "#e9eceb" # 
@@ -53,7 +53,21 @@ INRAEdarkcyan = "#275662"
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function () {
+theme_IPCC = function (isTitle=FALSE) {
+    
+    if (isTitle) {
+        plot.title=element_text(size=9,
+                                vjust=0, hjust=-0.12,
+                                color=IPCCgrey25)
+        axis.title.y=element_blank()
+    } else {
+        plot.title=element_blank()
+        axis.title.y=element_text(size=9,
+                                  vjust=1.2, hjust=0.5,
+                                  color=IPCCgrey25)
+        
+    }
+    
     theme =
         theme(
             # White background
@@ -67,7 +81,9 @@ theme_IPCC = function () {
                                       size=0.7),
             # Grid
             panel.grid.major.x=element_blank(),
-            panel.grid.major.y=element_blank(),
+            # panel.grid.major.y=element_blank(),
+            panel.grid.major.y=element_line(color=IPCCgrey85,
+                                            size=0.25),
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker
@@ -81,11 +97,10 @@ theme_IPCC = function () {
             # Ticks minor
             ggh4x.axis.ticks.length.minor=rel(0.5),
             # Title
-            plot.title=element_blank(),
+            plot.title=plot.title,
             # Axis title
             axis.title.x=element_blank(),
-            axis.title.y=element_text(size=9, vjust=1.2, 
-                                      hjust=0.5, color=IPCCgrey25),
+            axis.title.y=axis.title.y,
             # Axis line
             axis.line.x=element_blank(),
             axis.line.y=element_blank()

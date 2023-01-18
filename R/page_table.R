@@ -691,7 +691,7 @@ page_table = function (list_df2plot, meta, trend_period,
                 options(repr.plot.width=width, repr.plot.height=height)
 
                 # Open a new plot with a personalise theme
-                mat = ggplot() + theme_ash() + 
+                mat = ggplot() + theme_IPCC() + 
                     # Modification of theme in order to remove axis
                     theme(
                         panel.border=element_blank(),

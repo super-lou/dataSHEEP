@@ -328,7 +328,8 @@ get_power = function (value) {
                 # Number of decimal with zero
                 ndec = nchar(dec)
                 # Number of decimal without zero
-                nnum = nchar(as.character(as.numeric(dec)))
+                nnum = nchar(as.character(
+                    as.numeric(dec)))
                 # Compute the power of ten associated
                 power = -(ndec - nnum + 1)
             }
