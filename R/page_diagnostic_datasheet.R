@@ -43,9 +43,11 @@ page_diagnostic_datasheet = function (data,
     chronicle_height = 3
     medQJ_height = 7
     FDC_height = 7
+    Ind_height = 12
     
     medQJ_width = 10
     FDC_width = 10
+    # Ind_width = 20
     # void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
 
 
@@ -67,8 +69,8 @@ page_diagnostic_datasheet = function (data,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    NAME = matrix(c("info", "chronicle", "medQJ", "foot",
-                    "info", "chronicle", "FDC", "foot"),
+    NAME = matrix(c("info", "chronicle", "medQJ", "Ind", "foot",
+                    "info", "chronicle", "FDC", "Ind", "foot"),
                   ncol=2)
     WIP = FALSE
 
@@ -187,6 +189,15 @@ page_diagnostic_datasheet = function (data,
                          name="FDC",
                          height=FDC_height,
                          width=FDC_width)
+
+        Ind = panel_indicator_distribution(dataEXind,
+                                           metaEXind,
+                                           icon_path=icon_path,
+                                           margin_add=margin(t=0, r=0, b=0, l=0, "mm"))
+        STOCK = add_plot(STOCK,
+                         plot=Ind,
+                         name="Ind",
+                         height=Ind_height)
 
         # STOCK = add_plot(STOCK,
         #                  plot=void(),
