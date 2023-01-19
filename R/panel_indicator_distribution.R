@@ -22,20 +22,34 @@
 panel_indicator_distribution = function (dataEXind,
                                          metaEXind,
                                          Colors,
+                                         codeLight,
                                          icon_path,
+                                         title="",
                                          alpha=0.7,
+                                         dTitle=0,
+                                         graph="bar",
                                          margin_add=margin(t=0, r=0, b=0, l=0, "mm")) {
 
     
 
-    density_Xmin = -1
-    density_Xmax = 2
-    fact = 1.15
-
     dx_grid = 0.2
+    dx_label = 0.05
+    dx_label_out = 0.4
     
-    dy_Ind = density_Xmax + 0.1
+    dx_bar = 0.14
+    dx_cross = 0.05
 
+    ech_bar = 2.2
+
+    ymin_grid = -1*ech_bar
+    ymax_grid = 2*ech_bar
+
+    dy_icon_out = 0.4
+    
+    fact = 1.15
+    
+    dy_Ind = ymax_grid + 0.1
+    
     lw_mat = 0.4
     d_W_mat = 0.25
     
@@ -93,19 +107,10 @@ panel_indicator_distribution = function (dataEXind,
     endMainTopic = cumsum(lenMainTopic) - dx_L3
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
-
-    # subTopic = sapply(Topic, '[[', 2)
-    # names(subTopic) = metaEXind$var
-
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
-
-    # subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
-    # subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
-    
     names(mainTopic_icon) = mainTopic
-    # names(subTopic_icon) = subTopic
 
     vars2keep = names(dataEXind)
     print(vars2keep)
@@ -195,7 +200,10 @@ panel_indicator_distribution = function (dataEXind,
     VarTEX = paste0("\\textbf{", VarTEX, "}")
 
     Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
-        theme(plot.margin=margin_add)
+        theme(plot.margin=margin_add,
+              plot.title=element_text(size=9,
+                                      vjust=0, hjust=dTitle,
+                                      color=IPCCgrey25))
 
     VarRAW = metaEXind$var
     VarRAW = gsub("median", "med", VarRAW)
@@ -231,110 +239,170 @@ panel_indicator_distribution = function (dataEXind,
 
     dy = dy_Ind + d_W_mat
 
-
-    # grid line
+    
     Ind = Ind +
-        
-        annotate("line",
-                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                 y=c(2, 2),
-                 color=IPCCgrey85,
-                 size=0.25,
-                 lineend="round") +
-        annotate("line",
-                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                 y=c(1, 1),
-                 color=IPCCgrey85,
-                 size=0.25,
-                 lineend="round") +       
-        annotate("line",
-                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                 y=c(0, 0),
-                 color=IPCCgrey60,
-                 size=0.6,
-                 lineend="round") +        
-        annotate("line",
-                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                 y=c(-1, -1),
-                 color=IPCCgrey85,
-                 size=0.25,
-                 lineend="round")
+        ggtitle(title)
+
+    
+    # grid line
+    major_tick = c(-1, -0.5, 0, 0.5, 1, 1.5, 2)
+    for (t in major_tick) {
+        if (t == 0) {
+            color = IPCCgrey60
+            size = 0.6
+        } else {
+            color = IPCCgrey85
+            size = 0.25
+        }
+        Ind = Ind +
+            annotate("line",
+                     x=(c(-dx_grid, nVar+dx_grid))*ech_x,
+                     y=c(t, t)*ech_bar,
+                     color=color,
+                     size=size,
+                     lineend="round") +
+            annotate("text",
+                     x=(-dx_grid-dx_label)*ech_x,
+                     y=t*ech_bar,
+                     label=t,
+                     hjust=1,
+                     vjust=0.5,
+                     color=IPCCgrey40,
+                     size=3)
+    }
         
     for (i in 1:nVar) {
         var = Var[i]
-        DX = list()
-        DY = list()
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            D = density(dataEXind_model[[var]], na.rm=TRUE)
-            DX_model = D$x
-            DY_model = D$y
-            DXok = density_Xmin <= DX_model & DX_model <= density_Xmax
-            DX_model = DX_model[DXok]
-            DY_model = DY_model[DXok]
-            DX = append(DX, list(DX_model))
-            DY = append(DY, list(DY_model))
+
+
+        if (graph == "bar") {
+            Alpha = c(0.4, 0.6, 0.8)
+            P = c(0.9, 0.8, 0.6)
+                            
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                Q_model = quantile(dataEXind_model[[var]]*ech_bar,
+                                   probs=c(max(P), 1-max(P)),
+                                   na.rm=TRUE)
+                Q_model[Q_model < ymin_grid] = ymin_grid
+                Q_model[Q_model > ymax_grid] = ymax_grid
+                Ind = Ind +
+                    annotate("line",
+                             x=rep((i-1) + 0.5 -
+                                   (nModel/2)*dx_bar+dx_bar/2 +
+                                   (j-1)*dx_bar,
+                                   2)*ech_x,
+                             y=Q_model,
+                             color="white",
+                             linewidth=2,
+                             lineend="round")
+            }
+            
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                for (k in 1:length(P)) {
+                    Q_model = quantile(dataEXind_model[[var]]*ech_bar,
+                                       probs=c(P[k], 1-P[k]),
+                                       na.rm=TRUE)
+                    Q_model[Q_model < ymin_grid] = ymin_grid
+                    Q_model[Q_model > ymax_grid] = ymax_grid
+                    Ind = Ind +
+                        annotate("line",
+                                 x=rep((i-1) + 0.5 -
+                                       (nModel/2)*dx_bar+dx_bar/2 +
+                                       (j-1)*dx_bar,
+                                       2)*ech_x,
+                                 y=Q_model,
+                                 color=Colors[names(Colors) == model],
+                                 linewidth=1.5,
+                                 alpha=Alpha[k],
+                                 lineend="round")
+                }
+
+                dataEXind_model_code =
+                    dataEXind_model[dataEXind_model$Code == codeLight,]
+                
+                Ind = Ind +
+                    annotate("line",
+                             x=c((i-1) + 0.5 -
+                                 (nModel/2)*dx_bar+dx_bar/2 +
+                                 (j-1)*dx_bar - dx_cross,
+                                 (i-1) + 0.5 -
+                                 (nModel/2)*dx_bar+dx_bar/2 +
+                                 (j-1)*dx_bar + dx_cross)*ech_x,
+                             y=rep(dataEXind_model_code[[var]],
+                                   2)*ech_bar,
+                             color="white",
+                             linewidth=0.6)
+                
+            }
         }
 
-        DYmaxAbs = lapply(DY, abs)
-        DYmaxAbs = lapply(DYmaxAbs, max, na.rm=TRUE)
-        DYmaxAbs = max(unlist(DYmaxAbs), na.rm=TRUE)
-
-        norm = function (X) {
-            return (X/(fact*DYmaxAbs))
-        }
-        DY = lapply(DY, norm)
-
-        for (j in 1:nModel) {
-            model = Model[j]
-            DX_model = DX[[j]]
-            DY_model = DY[[j]]
-            Ind = Ind +
-                annotate("path",
-                         x=((i-1) + 0.5)*ech_x + DY_model,
-                         y=DX_model,
-                         color="white",
-                         linewidth=1,
-                         lineend="round")
-            Ind = Ind +
-                annotate("path",
-                         x=((i-1) + 0.5)*ech_x - DY_model,
-                         y=DX_model,
-                         color="white",
-                         linewidth=1,
-                         lineend="round")
-        }
         
-        for (j in 1:nModel) {
-            model = Model[j]
-            DX_model = DX[[j]]
-            DY_model = DY[[j]]
-            Ind = Ind +
-                annotate("path",
-                         x=((i-1) + 0.5)*ech_x + DY_model,
-                         y=DX_model,
-                         color=Colors[names(Colors) == model],
-                         linewidth=0.6,
-                         alpha=alpha,
-                         lineend="round")
-            Ind = Ind +
-                annotate("path",
-                         x=((i-1) + 0.5)*ech_x - DY_model,
-                         y=DX_model,
-                         color=Colors[names(Colors) == model],
-                         linewidth=0.6,
-                         alpha=alpha,
-                         lineend="round")
-            # Ind = Ind +
-            #     annotate("ribbon",
-            #              xmin=((i-1) + 0.5)*ech_x - DY_model,
-            #              xmax=((i-1) + 0.5)*ech_x + DY_model,
-            #              y=DX_model,
-            #              fill=Colors[names(Colors) == model],
-            #              linewidth=0.6,
-            #              alpha=alpha,
-            #              lineend="round")
+        if (graph == "violon") {
+            DX = list()
+            DY = list()
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                D = density(dataEXind_model[[var]],
+                            n=1000, from=ymin_grid, to=ymax_grid,
+                            na.rm=TRUE)
+                DX_model = D$x
+                DY_model = D$y
+                DX = append(DX, list(DX_model))
+                DY = append(DY, list(DY_model))
+            }
+
+            DYmaxAbs = lapply(DY, abs)
+            DYmaxAbs = lapply(DYmaxAbs, max, na.rm=TRUE)
+            DYmaxAbs = max(unlist(DYmaxAbs), na.rm=TRUE)
+
+            norm = function (X) {
+                return (X/(fact*DYmaxAbs))
+            }
+            DY = lapply(DY, norm)
+            
+            for (j in 1:nModel) {
+                model = Model[j]
+                DX_model = DX[[j]]
+                DY_model = DY[[j]]
+                Ind = Ind +
+                    annotate("path",
+                             x=((i-1) + 0.5)*ech_x + DY_model,
+                             y=DX_model,
+                             color="white",
+                             linewidth=1,
+                             lineend="round") +
+                    annotate("path",
+                             x=((i-1) + 0.5)*ech_x - DY_model,
+                             y=DX_model,
+                             color="white",
+                             linewidth=1,
+                             lineend="round")
+            }
+            for (j in 1:nModel) {
+                model = Model[j]
+                DX_model = DX[[j]]
+                DY_model = DY[[j]]
+                Ind = Ind +
+                    annotate("path",
+                             x=((i-1) + 0.5)*ech_x + DY_model,
+                             y=DX_model,
+                             color=Colors[names(Colors) == model],
+                             linewidth=0.6,
+                             alpha=alpha,
+                             lineend="round") +
+                    annotate("path",
+                             x=((i-1) + 0.5)*ech_x - DY_model,
+                             y=DX_model,
+                             color=Colors[names(Colors) == model],
+                             linewidth=0.6,
+                             alpha=alpha,
+                             lineend="round")
+            }
         }
     }
     
@@ -354,20 +422,6 @@ panel_indicator_distribution = function (dataEXind,
                       yc=(dy + dy_L1 + dy_I1)*ech,
                       color=IPCCgrey67, linewidth=lw_L1,
                       fill="white") +
-            
-            # gg_circle(r=size_I1*(ech-dr_I1),
-            #           xc=((i-1) + 0.5)*ech_x,
-            #           yc=(dy + dy_L1 + dy_I1)*ech,
-            #           color=NA, linewidth=0, fill="white") +
-            
-            # annotation_custom(
-            #     subTopic_icon[[i]],
-            #     xmin=((i-1) + 0.5 - size_I1)*ech_x,
-            #     xmax=((i-1) + 0.5 + size_I1)*ech_x,
-            #     ymin=(dy +
-            #           dy_L1 + dy_I1 - size_I1)*ech,
-            #     ymax=(dy +
-            #           dy_L1 + dy_I1 + size_I1)*ech) +
             
             annotate("line",
                      x=rep((i-1) + 0.5, 2)*ech_x,
@@ -457,17 +511,20 @@ panel_indicator_distribution = function (dataEXind,
              linewidth=lw_L3, color=IPCCgrey48,
              lineend="round")
     }
+
+    dy = dy + dy_L4 + dy_I2 + size_I2
+    
     
     Ind = Ind +
-        scale_x_continuous(expand=c(0, 0)) + 
-        scale_y_continuous(limits=c(density_Xmin, NA),
-                           expand=c(0, 0))
-    
-    # subTopic_path = subTopic_path[!duplicated(subTopic_path)]
-    # subTopic_label = subTopic[!duplicated(subTopic)]
-    # names(subTopic_path) = subTopic_label
+        
+        scale_x_continuous(
+            limits=c((-dx_grid-dx_label-dx_label_out)*ech_x,
+                     NA),
+            expand=c(0, 0)) +
+        
+        scale_y_continuous(
+            limits=c(ymin_grid, (dy+dy_icon_out)*ech),
+            expand=c(0, 0))
 
-    # res = list(Ind=Ind, info=subTopic_path)
-    # return (res)
     return (Ind)
 }

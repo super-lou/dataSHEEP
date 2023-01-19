@@ -23,7 +23,7 @@
 #' @title panel spaghetti
 #' @export
 panel_spaghetti = function (data_code, Colors=NULL,
-                            var="débit journalier",
+                            title="débit journalier",
                             unit="m^{3}.s^{-1}",
                             alpha=0.7,
                             isSqrt=FALSE, missRect=FALSE,
@@ -75,9 +75,11 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     
     # Open new plot
-    p = ggplot() + theme_IPCC(isBack, isTitle, dTitle=dTitle) +
+    p = ggplot() +
+        theme_IPCC(isBack, isTitle, dTitle=dTitle) +
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
+        # theme_WIP()
 
     ### Grid ###
     if (!grid) {
@@ -190,8 +192,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
     
     # Y axis title
     unit = gsub(" ", "\\\\,", unit)
-    # ylabel = paste0("\\textbf{", var, "}", "\\,", "\\($", unit, "$\\)")
-    ylabel = paste0(var, "\\,", "($", unit, "$)")
+    # ylabel = paste0("\\textbf{", title, "}", "\\,", "\\($", unit, "$\\)")
+    ylabel = paste0(title, "\\,", "($", unit, "$)")
     yTeXlabel = TeX(ylabel)
 
     if (isTitle) {

@@ -126,6 +126,11 @@ theme_WIP = function () {
           axis.ticks.length=unit(1.5, 'mm'),
           # Ticks minor
           ggh4x.axis.ticks.length.minor=rel(0.5),
+          # Title
+          plot.title=element_blank(),
+          # Axis title
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
           # Axis line
           axis.line.x=element_line(color=IPCCgrey75, size=0.3),
           axis.line.y=element_line(color=IPCCgrey75, size=0.3))

@@ -37,13 +37,12 @@ page_diagnostic_datasheet = function (data,
 
     leg_width = 11
 
-
     
     info_height = 3
     chronicle_height = 3
     medQJ_height = 7
     FDC_height = 7
-    Ind_height = 12
+    Ind_height = 13
     
     medQJ_width = 10
     FDC_width = 10
@@ -108,7 +107,7 @@ page_diagnostic_datasheet = function (data,
                          height=info_height)
         
         chronicle = panel_spaghetti(data_code,
-                                    var="(a) Débit journalier",
+                                    title="(a) Débit journalier",
                                     unit="m^{3}.s^{-1}",
                                     alpha=0.4,
                                     isSqrt=TRUE,
@@ -138,14 +137,14 @@ page_diagnostic_datasheet = function (data,
                                 Q_sim="median{QJ}_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
-                                var="(b) Débit journalier médian inter-annuel",
+                                title="(b) Débit journalier médian inter-annuel",
                                 unit="m^{3}.s^{-1}",
                                 alpha=0.7,
                                 isSqrt=TRUE,
                                 missRect=FALSE,
                                 isBack=FALSE,
                                 isTitle=TRUE,
-                                dTitle=-0.17,
+                                dTitle=-0.3,
                                 date_labels="%B",
                                 breaks="3 months",
                                 minor_breaks="1 months",
@@ -168,7 +167,7 @@ page_diagnostic_datasheet = function (data,
                                 Q_sim="FDC_sim_Q")
         FDC = panel_spaghetti(dataMOD,
                               Colors,
-                              var="(c) Courbe des débits classés",
+                              title="(c) Courbe des débits classés",
                               unit="m^{3}.s^{-1}",
                               alpha=0.7,
                               isSqrt=TRUE,
@@ -194,10 +193,13 @@ page_diagnostic_datasheet = function (data,
             dataEXind,
             metaEXind,
             Colors,
+            codeLight=code,
             icon_path=icon_path,
-            alpha=0.7,
+            title="(d) Indicateurs de diagnostic",
+            alpha=0.4,
+            dTitle=0.01,
             margin_add=
-                margin(t=0, r=0, b=0, l=0, "mm"))
+                margin(t=-20, r=0, b=0, l=0, "mm"))
         STOCK = add_plot(STOCK,
                          plot=Ind,
                          name="Ind",
