@@ -190,10 +190,14 @@ page_diagnostic_datasheet = function (data,
                          height=FDC_height,
                          width=FDC_width)
 
-        Ind = panel_indicator_distribution(dataEXind,
-                                           metaEXind,
-                                           icon_path=icon_path,
-                                           margin_add=margin(t=0, r=0, b=0, l=0, "mm"))
+        Ind = panel_indicator_distribution(
+            dataEXind,
+            metaEXind,
+            Colors,
+            icon_path=icon_path,
+            alpha=0.7,
+            margin_add=
+                margin(t=0, r=0, b=0, l=0, "mm"))
         STOCK = add_plot(STOCK,
                          plot=Ind,
                          name="Ind",

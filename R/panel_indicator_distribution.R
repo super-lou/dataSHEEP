@@ -21,11 +21,20 @@
 
 panel_indicator_distribution = function (dataEXind,
                                          metaEXind,
+                                         Colors,
                                          icon_path,
+                                         alpha=0.7,
                                          margin_add=margin(t=0, r=0, b=0, l=0, "mm")) {
 
-    dy_Ind = 4
+    
 
+    density_Xmin = -1
+    density_Xmax = 2
+    fact = 1.15
+
+    dx_grid = 0.2
+    
+    dy_Ind = density_Xmax + 0.1
 
     lw_mat = 0.4
     d_W_mat = 0.25
@@ -47,7 +56,7 @@ panel_indicator_distribution = function (dataEXind,
     dx_L3 = 0.5
     lw_L3 = 0.45
 
-    dy_L4 = 0.5
+    dy_L4 = 0.3
     lw_L4 = 0.45
     
     dy_T2 = 0.27
@@ -221,28 +230,116 @@ panel_indicator_distribution = function (dataEXind,
     maxSpace = max(Space)
 
     dy = dy_Ind + d_W_mat
-    
+
+
+    # grid line
+    Ind = Ind +
+        
+        annotate("line",
+                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
+                 y=c(2, 2),
+                 color=IPCCgrey85,
+                 size=0.25,
+                 lineend="round") +
+        annotate("line",
+                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
+                 y=c(1, 1),
+                 color=IPCCgrey85,
+                 size=0.25,
+                 lineend="round") +       
+        annotate("line",
+                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
+                 y=c(0, 0),
+                 color=IPCCgrey60,
+                 size=0.6,
+                 lineend="round") +        
+        annotate("line",
+                 x=(c(-dx_grid, nVar+dx_grid))*ech_x,
+                 y=c(-1, -1),
+                 color=IPCCgrey85,
+                 size=0.25,
+                 lineend="round")
+        
     for (i in 1:nVar) {
-
-        var = Var[i] 
-            
+        var = Var[i]
+        DX = list()
+        DY = list()
         for (j in 1:nModel) {
-            dataEXind_model = dataEXind[dataEXind$Model == Model[j],]
-            
-            dataEXind_model[[var]]
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            D = density(dataEXind_model[[var]], na.rm=TRUE)
+            DX_model = D$x
+            DY_model = D$y
+            DXok = density_Xmin <= DX_model & DX_model <= density_Xmax
+            DX_model = DX_model[DXok]
+            DY_model = DY_model[DXok]
+            DX = append(DX, list(DX_model))
+            DY = append(DY, list(DY_model))
+        }
 
+        DYmaxAbs = lapply(DY, abs)
+        DYmaxAbs = lapply(DYmaxAbs, max, na.rm=TRUE)
+        DYmaxAbs = max(unlist(DYmaxAbs), na.rm=TRUE)
+
+        norm = function (X) {
+            return (X/(fact*DYmaxAbs))
+        }
+        DY = lapply(DY, norm)
+
+        for (j in 1:nModel) {
+            model = Model[j]
+            DX_model = DX[[j]]
+            DY_model = DY[[j]]
             Ind = Ind +
-                
-                
-                
-                
+                annotate("path",
+                         x=((i-1) + 0.5)*ech_x + DY_model,
+                         y=DX_model,
+                         color="white",
+                         linewidth=1,
+                         lineend="round")
+            Ind = Ind +
+                annotate("path",
+                         x=((i-1) + 0.5)*ech_x - DY_model,
+                         y=DX_model,
+                         color="white",
+                         linewidth=1,
+                         lineend="round")
         }
         
-        
-        
-        
-        
-        
+        for (j in 1:nModel) {
+            model = Model[j]
+            DX_model = DX[[j]]
+            DY_model = DY[[j]]
+            Ind = Ind +
+                annotate("path",
+                         x=((i-1) + 0.5)*ech_x + DY_model,
+                         y=DX_model,
+                         color=Colors[names(Colors) == model],
+                         linewidth=0.6,
+                         alpha=alpha,
+                         lineend="round")
+            Ind = Ind +
+                annotate("path",
+                         x=((i-1) + 0.5)*ech_x - DY_model,
+                         y=DX_model,
+                         color=Colors[names(Colors) == model],
+                         linewidth=0.6,
+                         alpha=alpha,
+                         lineend="round")
+            # Ind = Ind +
+            #     annotate("ribbon",
+            #              xmin=((i-1) + 0.5)*ech_x - DY_model,
+            #              xmax=((i-1) + 0.5)*ech_x + DY_model,
+            #              y=DX_model,
+            #              fill=Colors[names(Colors) == model],
+            #              linewidth=0.6,
+            #              alpha=alpha,
+            #              lineend="round")
+        }
+    }
+    
+    
+    for (i in 1:nVar) { 
         
         Ind = Ind +
             
@@ -363,7 +460,7 @@ panel_indicator_distribution = function (dataEXind,
     
     Ind = Ind +
         scale_x_continuous(expand=c(0, 0)) + 
-        scale_y_continuous(limits=c(0, NA),
+        scale_y_continuous(limits=c(density_Xmin, NA),
                            expand=c(0, 0))
     
     # subTopic_path = subTopic_path[!duplicated(subTopic_path)]

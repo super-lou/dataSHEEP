@@ -73,7 +73,6 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0) {
         axis.title.y=element_text(size=9,
                                   vjust=1.2, hjust=0.5,
                                   color=IPCCgrey25)
-        
     }
     
     theme =
