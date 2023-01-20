@@ -36,7 +36,7 @@ panel_indicator_distribution = function (dataEXind,
     dx_label = 0.05
     dx_label_out = 0.4
     
-    dx_bar = 0.14
+    dx_bar = 0.1
     dx_cross = 0.05
 
     ech_bar = 2.2
@@ -323,19 +323,21 @@ panel_indicator_distribution = function (dataEXind,
 
                 dataEXind_model_code =
                     dataEXind_model[dataEXind_model$Code == codeLight,]
-                
-                Ind = Ind +
-                    annotate("line",
-                             x=c((i-1) + 0.5 -
-                                 (nModel/2)*dx_bar+dx_bar/2 +
-                                 (j-1)*dx_bar - dx_cross,
-                                 (i-1) + 0.5 -
-                                 (nModel/2)*dx_bar+dx_bar/2 +
-                                 (j-1)*dx_bar + dx_cross)*ech_x,
-                             y=rep(dataEXind_model_code[[var]],
-                                   2)*ech_bar,
-                             color="white",
-                             linewidth=0.6)
+
+                if (nrow(dataEXind_model_code) != 0) {
+                    Ind = Ind +
+                        annotate("line",
+                                 x=c((i-1) + 0.5 -
+                                     (nModel/2)*dx_bar+dx_bar/2 +
+                                     (j-1)*dx_bar - dx_cross,
+                                     (i-1) + 0.5 -
+                                     (nModel/2)*dx_bar+dx_bar/2 +
+                                     (j-1)*dx_bar + dx_cross)*ech_x,
+                                 y=rep(dataEXind_model_code[[var]],
+                                       2)*ech_bar,
+                                 color="white",
+                                 linewidth=0.6)
+                }
                 
             }
         }
