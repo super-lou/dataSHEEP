@@ -34,7 +34,7 @@ panel_info = function(data, meta,
     if (!is.null(data_code)) {
         # Computes the hydrograph
         hyd = panel_hydrograph(data_code,
-                               margin=margin(t=0, r=0, b=0, l=5,
+                               margin=margin(t=2, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
     } else {
@@ -112,10 +112,10 @@ panel_info = function(data, meta,
         text3 = paste(
             # "<b>",
             "Superficie : ", meta_code$surface_km2_BH,
-            "  (km<sup>2</sup>) <br>",
-            "Altitude : ", meta_code$altitude_m_BH, "  (m)<br>",
-            "X = ", meta_code$L93X_m_BH, "  (m, Lambert93)<br>",
-            "Y = ", meta_code$L93Y_m_BH, "  (m, Lambert93)",
+            " km<sup>2</sup><br>",
+            "Altitude : ", meta_code$altitude_m_BH, " m<br>",
+            "X = ", meta_code$L93X_m_BH, "  m (Lambert93)<br>",
+            "Y = ", meta_code$L93Y_m_BH, "  m (Lambert93)",
             # "</b>",
             sep='')
         gtext3 = richtext_grob(text3,
@@ -143,9 +143,9 @@ panel_info = function(data, meta,
             # "<b>",
             "Date de début : ", debut, "<br>",
             "Date de fin : ", fin, "<br>",
-            "Nombre d'années : ", duration, "  (ans)", "<br>",
+            "Période disponible : ", duration, " ans", "<br>",
             "Taux de lacunes : ", signif(meta_code$tLac100, 2),
-            "  (%)",
+            " %",
             # "</b>",
             sep='')
         gtext4 = richtext_grob(text4,
@@ -163,7 +163,7 @@ panel_info = function(data, meta,
     P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 1, 6,
+    LM = matrix(c(1, 1, 5, 6,
                   2, 2, 5, 6,
                   3, 4, 5, 6,
                   3, 4, 5, 6),

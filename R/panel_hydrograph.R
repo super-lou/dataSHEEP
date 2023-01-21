@@ -44,18 +44,17 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
             panel.border=element_blank(),
             axis.text.x=element_text(margin=unit(c(0, 0, 0, 0), "mm"),
                                      vjust=1, hjust=0.5),
+            axis.text.y=element_text(size=8),
             axis.ticks.x=element_blank(),
             axis.line.y=element_line(color=IPCCgrey85, size=0.3),
-            plot.title=element_text(size=8, vjust=-0.5, 
-                                    hjust=-1E-3, color=IPCCgrey40),
-            axis.title.y=element_text(size=8, vjust=0, 
-                                      hjust=0.5,
-                                      color=IPCCgrey40)) +
+            plot.title=element_text(size=8, vjust=-1, 
+                                    hjust=-0.01, color=IPCCgrey40),
+            axis.title.y=element_blank()) +
         
         # Adds a title to the y axis
-        ggtitle(regime_hydro) +
+        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regime_hydro)))
         # Y axis title
-        ylab(bquote(bold('QM')~'['*m^{3}*'.'*s^{-1}*']'))
+        # ylab()
     
     # If there is no margins specified
     if (is.null(margin)) {
