@@ -24,12 +24,15 @@ leg_shape_info = function (Shape="rect",
                            Size=1,
                            Color=IPCCgrey50,
                            Label="A",
+                           ColorLabel=IPCCgrey50,
                            Cross=FALSE,
-                           dy_icon=1,
+                           dy_label=1,
                            dx_label=1,
                            height=10,
                            width=10,
                            shift=c(x=0, y=0),
+                           fontface="normal",
+                           add_margin=margin(0, 0, 0, 0),
                            WIP=FALSE) {
 
     N = max(c(length(Shape), length(Size),
@@ -44,6 +47,9 @@ leg_shape_info = function (Shape="rect",
     if (length(Color) != N) {
         Color = rep(Color[1], N)
     }
+    if (length(ColorLabel) != N) {
+        ColorLabel = rep(ColorLabel[1], N)
+    }
     if (length(Label) != N) {
         Label = rep(Label[1], N)
     }
@@ -54,6 +60,7 @@ leg_shape_info = function (Shape="rect",
     Shape = rev(Shape)
     Size = rev(Size)
     Color = rev(Color)
+    ColorLabel = rev(ColorLabel)
     Label = rev(Label)
     Cross = rev(Cross)
 
@@ -63,7 +70,7 @@ leg_shape_info = function (Shape="rect",
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=margin(0, 0, 0, 0))
+              plot.margin=add_margin)
 
     if (WIP) {
         plot = plot + theme_WIP()
@@ -73,6 +80,7 @@ leg_shape_info = function (Shape="rect",
         shape = Shape[i]
         size = Size[i]
         color = Color[i]
+        colorLabel = ColorLabel[i]
         label = Label[i]
         cross = Cross[i]
         
@@ -81,8 +89,8 @@ leg_shape_info = function (Shape="rect",
                 annotate("rect",
                          xmin=shift[1]+0,
                          xmax=(shift[1]+size),
-                         ymin=(shift[2]+dy_icon*(i-1)),
-                         ymax=(shift[2]+dy_icon*(i-1)+size),
+                         ymin=(shift[2]+dy_label*(i-1)),
+                         ymax=(shift[2]+dy_label*(i-1)+size),
                          fill=color)
         }
         
@@ -92,15 +100,15 @@ leg_shape_info = function (Shape="rect",
                     svgparser::read_svg(shape),
                     xmin=shift[1]+0,
                     xmax=(shift[1]+size),
-                    ymin=(shift[2]+dy_icon*(i-1)),
-                    ymax=(shift[2]+dy_icon*(i-1)+size))
+                    ymin=(shift[2]+dy_label*(i-1)),
+                    ymax=(shift[2]+dy_label*(i-1)+size))
         }
 
         if (cross) {
             plot = plot +
                 annotate("point",
                          x=shift[1]+size/2,
-                         y=(shift[2]+dy_icon*(i-1)+size/2),
+                         y=(shift[2]+dy_label*(i-1)+size/2),
                          shape=4, size=size*2, color="white")
         }
 
@@ -108,11 +116,12 @@ leg_shape_info = function (Shape="rect",
             plot = plot +
                 annotate('text',
                          x=(shift[1]+size+dx_label),
-                         y=(shift[2]+dy_icon*(i-1)+size/2),
+                         y=(shift[2]+dy_label*(i-1)+size/2),
                          label=label,
                          angle=0,
                          hjust=0, vjust=0.5,
-                         size=3, color=IPCCgrey50)
+                         size=3, color=colorLabel,
+                         fontface=fontface)
         }
     }
 

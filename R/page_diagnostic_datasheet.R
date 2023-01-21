@@ -43,14 +43,22 @@ page_diagnostic_datasheet = function (data,
     medQJ_height = 7
     FDC_height = 7
     Ind_height = 13
+
+    foot_height = 1.25
+    
+    # legColor_height = 29.7 - info_height - chronicle_height - medQJ_height - Ind_height - foot_height - page_margin["l"] - page_margin["r"]
+    legColor_height = 3
+    
+    
+    void_height = legColor_height
     
     medQJ_width = 10
     FDC_width = 10
-    # Ind_width = 20
-    # void_width = 21 - medQJ_width - page_margin["l"] - page_margin["r"]
+    legColor_width = 5
 
-
+    void_width = 21 - legColor_width - page_margin["l"] - page_margin["r"]
     
+
     
     cm_height = 22
     cm_width = 21 - page_margin["l"] - page_margin["r"]
@@ -60,7 +68,7 @@ page_diagnostic_datasheet = function (data,
     si_height = 1
     tl_height = cb_height + si_height + ssg_height
     
-    foot_height = 1.25
+    
 
     cm_margin = margin(t=1.2, r=0, b=2, l=0.5, "cm")
     tl_shift = c(x=3, y=0)
@@ -68,16 +76,20 @@ page_diagnostic_datasheet = function (data,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    NAME = matrix(c("info", "chronicle", "medQJ", "Ind", "foot",
-                    "info", "chronicle", "FDC", "Ind", "foot"),
-                  ncol=2)
+    NAME = matrix(c(
+        "info", "chronicle", "medQJ", "Ind", "legColor", "foot",
+        "info", "chronicle", "FDC", "Ind", "void", "foot"),
+    ncol=2)
     WIP = FALSE
 
 
     data_obs = dplyr::distinct(dplyr::select(data,
                                              c(Code, Date, Q_obs)))
     data_obs = dplyr::rename(data_obs, Q=Q_obs)
-    
+
+    Model = levels(factor(dataEXind$Model))
+    nModel = length(Model)
+                   
     Code = levels(factor(meta$Code))
     nCode = length(Code)
     
@@ -204,6 +216,36 @@ page_diagnostic_datasheet = function (data,
                          plot=Ind,
                          name="Ind",
                          height=Ind_height)
+
+        legColor = leg_shape_info(Shape="line",
+                                  Size=0,
+                                  Label=Model,
+                                  ColorLabel=
+                                      Colors[match(Model,
+                                                   names(Colors))],
+                                  fontface="bold",
+                                  dx_label=0,
+                                  dy_label=0.3,
+                                  height=legColor_height,
+                                  width=legColor_width,
+                                  add_margin=
+                                      margin(t=-20, r=0, b=0, l=0,
+                                             "mm"),
+                                  shift=c(0, 0))
+        STOCK = add_plot(STOCK,
+                         plot=legColor,
+                         name="legColor",
+                         height=legColor_height,
+                         width=legColor_width)
+
+
+
+        STOCK = add_plot(STOCK,
+                         plot=void(),
+                         name="void",
+                         height=void_height,
+                         width=void_width)
+        
 
         footName = paste0('fiche station : ', code)
         if (is.null(df_page)) {
