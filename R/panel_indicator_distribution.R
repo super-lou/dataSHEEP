@@ -26,9 +26,14 @@ panel_indicator_distribution = function (dataEXind,
                                          icon_path,
                                          title="",
                                          alpha=0.7,
+                                         alpha_spread=0.3,
+                                         p_spread=0.9,
                                          dTitle=0,
                                          graph="bar",
-                                         margin_add=margin(t=0, r=0, b=0, l=0, "mm")) {
+                                         add_name=FALSE,
+                                         margin_add=margin(t=0, r=0,
+                                                           b=0, l=0,
+                                                           "mm")) {
 
     
 
@@ -44,12 +49,23 @@ panel_indicator_distribution = function (dataEXind,
 
     dy_arrow = 0.045
     dl_arrow = 0.07
+
+    dx_leg = 2
+    dy_leg = 0.5
+    dy_line_leg = 0.18
+    xc_label = 8.5
+    dx_line_leg = 0.15
+    dl_line_leg = c(0.4, 0.3)
+
+    Alpha = c(alpha_spread, alpha)
+    major_tick = c(-1, -0.5, 0, 0.5, 1)
+    
     dx_arrow = 0.8
     
-    ymin_grid = -1*ech_bar
-    ymax_grid = 2*ech_bar
+    ymin_grid = min(major_tick)*ech_bar
+    ymax_grid = max(major_tick)*ech_bar
 
-    dy_icon_out = 0.4
+    dy_icon_out = 0.2
     
     fact = 1.15
 
@@ -57,7 +73,6 @@ panel_indicator_distribution = function (dataEXind,
     dy_Ind = ymax_grid + dy_gap
     
     lw_mat = 0.4
-    # d_W_mat = 0.25
     
     dy_L1 = 0.2
     lw_L1 = 0.25
@@ -85,11 +100,11 @@ panel_indicator_distribution = function (dataEXind,
     ech_T2 = 7
     
     dy_I2 = 1.3
-    size_I2 = 0.7
+    size_I2 = 0.6
 
     
     ech = 1
-    ech_x = 2 
+    ech_x = 2
     
     complete = function (X) {
         if (length(X) < 2) {
@@ -141,6 +156,10 @@ panel_indicator_distribution = function (dataEXind,
     nameCol = names(dataEXind_tmp)
     Var = nameCol
     nVar = length(Var)
+
+    x_limits =
+        c((-dx_grid-dx_label-dx_label_out)*ech_x,
+        (nVar+dx_grid)*ech_x)
 
     VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
@@ -248,9 +267,49 @@ panel_indicator_distribution = function (dataEXind,
     Ind = Ind +
         ggtitle(title)
 
-    
+    if (add_name) {
+
+        find = function (x, table) {
+            which(grepl(x, table))[1]
+        }
+        color = Colors[sapply(Model, find, table=names(Colors))]
+        
+        for (i in 1:nModel) {
+            for (k in 1:length(Alpha)) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(xc_label -
+                                 (nModel/2)*dx_leg-dx_leg/2 +
+                                 (i-1)*dx_leg -
+                                 dx_line_leg - 
+                                 dl_line_leg[k],
+                                 xc_label -
+                                 (nModel/2)*dx_leg-dx_leg/2 +
+                                 (i-1)*dx_leg -
+                                 dx_line_leg)*ech_x,
+                             y=rep(ymin_grid -
+                                   (dy_gap + dy_leg - dy_line_leg)*ech,
+                                   2),
+                             alpha=Alpha[k],
+                             linewidth=1.5,
+                             color=color[i],
+                             lineend="round")
+            }
+            
+            Ind = Ind +
+                annotate("text",
+                         x=(xc_label -
+                            (nModel/2)*dx_leg-dx_leg/2 +
+                            (i-1)*dx_leg)*ech_x,
+                         y=ymin_grid -
+                             (dy_gap + dy_leg)*ech,
+                         label=Model[i],
+                         color=IPCCgrey25,
+                         hjust=0, vjust=0, size=3.2)
+        }
+    }
+
     # grid line
-    major_tick = c(-1, -0.5, 0, 0.5, 1, 1.5, 2)
     for (t in major_tick) {
         color = IPCCgrey85
         size = 0.2
@@ -271,7 +330,8 @@ panel_indicator_distribution = function (dataEXind,
                      size=3)
     }
 
-    ref_tick = c(KGE=1, NSE=1, Rc=1, epsilon=1)
+    ref_tick = c(KGE=1, NSE=1)
+    shift_var = c(Rc=-1, epsilon=-1)
     
     for (i in 1:nVar) {
         var = Var[i]
@@ -279,8 +339,13 @@ panel_indicator_distribution = function (dataEXind,
         varRAW = gsub("[{]", "[{]", var)
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
-        tickOk = sapply(names(ref_tick), grepl, x=varRAW)
         
+        varOk = sapply(names(shift_var), grepl, x=varRAW)
+        if (any(varOk)) {
+            dataEXind[[var]] = dataEXind[[var]] + shift_var[varOk]
+        }
+        
+        tickOk = sapply(names(ref_tick), grepl, x=varRAW)
         if (any(tickOk)) {
             tick = ref_tick[tickOk]
         } else {
@@ -297,14 +362,12 @@ panel_indicator_distribution = function (dataEXind,
                      lineend="round")
         
         if (graph == "bar") {
-            Alpha = c(0.4, 0.6, 0.8)
-            P = c(0.9, 0.8, 0.6)
-                            
+            
             for (j in 1:nModel) {
                 model = Model[j]
                 dataEXind_model = dataEXind[dataEXind$Model == model,]
                 Q_model = quantile(dataEXind_model[[var]]*ech_bar,
-                                   probs=c(max(P), 1-max(P)),
+                                   probs=c(p_spread, 1-p_spread),
                                    na.rm=TRUE)
                 Q_model[Q_model < ymin_grid] = ymin_grid
                 Q_model[Q_model > ymax_grid] = ymax_grid
@@ -323,40 +386,46 @@ panel_indicator_distribution = function (dataEXind,
             for (j in 1:nModel) {
                 model = Model[j]
                 dataEXind_model = dataEXind[dataEXind$Model == model,]
-                for (k in 1:length(P)) {
-                    Q_model = quantile(dataEXind_model[[var]]*ech_bar,
-                                       probs=c(P[k], 1-P[k]),
-                                       na.rm=TRUE)
-                    Q_model[Q_model < ymin_grid] = ymin_grid
-                    Q_model[Q_model > ymax_grid] = ymax_grid
-                    Ind = Ind +
-                        annotate("line",
-                                 x=rep((i-1) + 0.5 -
-                                       (nModel/2)*dx_bar+dx_bar/2 +
-                                       (j-1)*dx_bar,
-                                       2)*ech_x,
-                                 y=Q_model,
-                                 color=Colors[names(Colors) == model],
-                                 linewidth=1.5,
-                                 alpha=Alpha[k],
-                                 lineend="round")
-                }
+                Q_model = quantile(dataEXind_model[[var]]*ech_bar,
+                                   probs=c(p_spread, 1-p_spread),
+                                   na.rm=TRUE)
+                Q_model[Q_model < ymin_grid] = ymin_grid
+                Q_model[Q_model > ymax_grid] = ymax_grid
+                Ind = Ind +
+                    annotate("line",
+                             x=rep((i-1) + 0.5 -
+                                   (nModel/2)*dx_bar+dx_bar/2 +
+                                   (j-1)*dx_bar,
+                                   2)*ech_x,
+                             y=Q_model,
+                             color=Colors[names(Colors) == model],
+                             linewidth=1.5,
+                             alpha=alpha_spread,
+                             lineend="round")
 
                 dataEXind_model_code =
                     dataEXind_model[dataEXind_model$Code == codeLight,]
                 if (nrow(dataEXind_model_code) != 0) {
-                    Ind = Ind +
-                        annotate("line",
-                                 x=c((i-1) + 0.5 -
-                                     (nModel/2)*dx_bar+dx_bar/2 +
-                                     (j-1)*dx_bar - dx_cross_back,
-                                     (i-1) + 0.5 -
-                                     (nModel/2)*dx_bar+dx_bar/2 +
-                                     (j-1)*dx_bar + dx_cross_back)*ech_x,
-                                 y=rep(dataEXind_model_code[[var]],
-                                       2)*ech_bar,
-                                 color="white",
-                                 linewidth=1)   
+                    
+                    above = dataEXind_model_code[[var]]*ech_bar >
+                        ymax_grid
+                    below = ymin_grid >
+                        dataEXind_model_code[[var]]*ech_bar
+
+                    if (!above & !below) {
+                        Ind = Ind +
+                            annotate("line",
+                                     x=c((i-1) + 0.5 -
+                                         (nModel/2)*dx_bar+dx_bar/2 +
+                                         (j-1)*dx_bar - dx_cross_back,
+                                         (i-1) + 0.5 -
+                                         (nModel/2)*dx_bar+dx_bar/2 +
+                                         (j-1)*dx_bar + dx_cross_back)*ech_x,
+                                     y=rep(dataEXind_model_code[[var]],
+                                           2)*ech_bar,
+                                     color="white",
+                                     linewidth=1)
+                    }
                 }
             }
 
@@ -365,33 +434,40 @@ panel_indicator_distribution = function (dataEXind,
                 dataEXind_model = dataEXind[dataEXind$Model == model,]
                 dataEXind_model_code =
                     dataEXind_model[dataEXind_model$Code == codeLight,]
-                if (nrow(dataEXind_model_code) != 0) {
-                    Ind = Ind +
-                        annotate("line",
-                                 x=c((i-1) + 0.5 -
-                                     (nModel/2)*dx_bar+dx_bar/2 +
-                                     (j-1)*dx_bar - dx_cross,
-                                     (i-1) + 0.5 -
-                                     (nModel/2)*dx_bar+dx_bar/2 +
-                                     (j-1)*dx_bar + dx_cross)*ech_x,
-                                 y=rep(dataEXind_model_code[[var]],
-                                       2)*ech_bar,
-                                 color=Colors[names(Colors) == model],
-                                 alpha=alpha,
-                                 linewidth=0.3,
-                                 lineend="round")
+                
+                if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
 
-                    above = dataEXind_model_code[[var]] > ymax_grid
-                    below = ymin_grid > dataEXind_model_code[[var]]
-                    if (above | below) {
+                    above = dataEXind_model_code[[var]]*ech_bar >
+                        ymax_grid
+                    below = ymin_grid >
+                        dataEXind_model_code[[var]]*ech_bar
+
+                    if (!above & !below) {
+                        Ind = Ind +
+                            annotate("line",
+                                     x=c((i-1) + 0.5 -
+                                         (nModel/2)*dx_bar+dx_bar/2 +
+                                         (j-1)*dx_bar - dx_cross,
+                                         (i-1) + 0.5 -
+                                         (nModel/2)*dx_bar+dx_bar/2 +
+                                         (j-1)*dx_bar + dx_cross)*ech_x,
+                                     y=rep(dataEXind_model_code[[var]],
+                                           2)*ech_bar,
+                                     color=
+                                         Colors[names(Colors) == model],
+                                     alpha=alpha,
+                                     linewidth=0.3,
+                                     lineend="round")
+                        
+                    } else {
                         x = ((i-1) + 0.5 -
                              (nModel/2)*dx_bar+dx_bar/2 +
                              (j-1)*dx_bar)*ech_x
 
                         Q_model =
                             quantile(dataEXind_model[[var]]*ech_bar,
-                                           probs=c(max(P), 1-max(P)),
-                                           na.rm=TRUE)
+                                     probs=c(p_spread, 1-p_spread),
+                                     na.rm=TRUE)
                         Q_model[Q_model < ymin_grid] = ymin_grid
                         Q_model[Q_model > ymax_grid] = ymax_grid
                         
@@ -408,7 +484,6 @@ panel_indicator_distribution = function (dataEXind,
                                 (dy_arrow +
                                  dl_arrow)*ech_bar
                         }
-                        
                         Ind = Ind +
                             annotate("segment",
                                      x=x, xend=x,
@@ -420,74 +495,8 @@ panel_indicator_distribution = function (dataEXind,
                                      arrow=arrow(length=unit(dx_arrow,
                                                              "mm")),
                                      lineend="round")
-                        
                     }
                 }
-            }
-        }
-
-        
-        if (graph == "violon") {
-            DX = list()
-            DY = list()
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
-                D = density(dataEXind_model[[var]],
-                            n=1000, from=ymin_grid, to=ymax_grid,
-                            na.rm=TRUE)
-                DX_model = D$x
-                DY_model = D$y
-                DX = append(DX, list(DX_model))
-                DY = append(DY, list(DY_model))
-            }
-
-            DYmaxAbs = lapply(DY, abs)
-            DYmaxAbs = lapply(DYmaxAbs, max, na.rm=TRUE)
-            DYmaxAbs = max(unlist(DYmaxAbs), na.rm=TRUE)
-
-            norm = function (X) {
-                return (X/(fact*DYmaxAbs))
-            }
-            DY = lapply(DY, norm)
-            
-            for (j in 1:nModel) {
-                model = Model[j]
-                DX_model = DX[[j]]
-                DY_model = DY[[j]]
-                Ind = Ind +
-                    annotate("path",
-                             x=((i-1) + 0.5)*ech_x + DY_model,
-                             y=DX_model,
-                             color="white",
-                             linewidth=1,
-                             lineend="round") +
-                    annotate("path",
-                             x=((i-1) + 0.5)*ech_x - DY_model,
-                             y=DX_model,
-                             color="white",
-                             linewidth=1,
-                             lineend="round")
-            }
-            for (j in 1:nModel) {
-                model = Model[j]
-                DX_model = DX[[j]]
-                DY_model = DY[[j]]
-                Ind = Ind +
-                    annotate("path",
-                             x=((i-1) + 0.5)*ech_x + DY_model,
-                             y=DX_model,
-                             color=Colors[names(Colors) == model],
-                             linewidth=0.6,
-                             alpha=alpha,
-                             lineend="round") +
-                    annotate("path",
-                             x=((i-1) + 0.5)*ech_x - DY_model,
-                             y=DX_model,
-                             color=Colors[names(Colors) == model],
-                             linewidth=0.6,
-                             alpha=alpha,
-                             lineend="round")
             }
         }
     }
@@ -604,12 +613,13 @@ panel_indicator_distribution = function (dataEXind,
     Ind = Ind +
         
         scale_x_continuous(
-            limits=c((-dx_grid-dx_label-dx_label_out)*ech_x,
-                     NA),
+            limits=x_limits,
             expand=c(0, 0)) +
         
         scale_y_continuous(
-            limits=c(ymin_grid-dy_gap*ech, (dy+dy_icon_out)*ech),
+            limits=
+                c(ymin_grid-(dy_gap+dy_leg)*ech,
+                (dy+dy_icon_out)*ech),
             expand=c(0, 0))
 
     return (Ind)

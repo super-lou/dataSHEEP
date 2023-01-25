@@ -31,7 +31,7 @@ leg_shape_info = function (Shape="rect",
                            height=10,
                            width=10,
                            shift=c(x=0, y=0),
-                           fontface="normal",
+                           fontface="plain",
                            add_margin=margin(0, 0, 0, 0),
                            WIP=FALSE) {
 

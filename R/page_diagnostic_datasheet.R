@@ -163,7 +163,8 @@ page_diagnostic_datasheet = function (data,
                                 d_breaks=months(2),
                                 isBackObsAbove=TRUE,
                                 grid=TRUE,
-                                margin_add=margin(t=0, r=3.5, b=0, l=0, "mm"),
+                                margin_add=
+                                    margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
         STOCK = add_plot(STOCK,
@@ -192,7 +193,8 @@ page_diagnostic_datasheet = function (data,
                               break_round=1,
                               isBackObsAbove=TRUE,
                               grid=TRUE,
-                              margin_add=margin(t=0, r=0, b=0, l=3.5, "mm"),
+                              margin_add=
+                                  margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
                               last=TRUE)
         STOCK = add_plot(STOCK,
@@ -207,38 +209,16 @@ page_diagnostic_datasheet = function (data,
             Colors,
             codeLight=code,
             icon_path=icon_path,
-            title="(d) Indicateurs de diagnostic",
+            title="(d) Critères de diagnostic",
             alpha=0.85,
             dTitle=0.01,
+            add_name=TRUE,
             margin_add=
-                margin(t=-10, r=0, b=0, l=0, "mm"))
+                margin(t=-6, r=0, b=0, l=0, "mm"))
         STOCK = add_plot(STOCK,
                          plot=Ind,
                          name="Ind",
                          height=Ind_height)
-
-        legColor = leg_shape_info(Shape="line",
-                                  Size=0,
-                                  Label=Model,
-                                  ColorLabel=
-                                      Colors[match(Model,
-                                                   names(Colors))],
-                                  fontface="bold",
-                                  dx_label=0,
-                                  dy_label=0.3,
-                                  height=legColor_height,
-                                  width=legColor_width,
-                                  add_margin=
-                                      margin(t=-20, r=0, b=0, l=0,
-                                             "mm"),
-                                  shift=c(0, 0))
-        STOCK = add_plot(STOCK,
-                         plot=legColor,
-                         name="legColor",
-                         height=legColor_height,
-                         width=legColor_width)
-
-
 
         STOCK = add_plot(STOCK,
                          plot=void(),
@@ -247,7 +227,7 @@ page_diagnostic_datasheet = function (data,
                          width=void_width)
         
 
-        footName = paste0('fiche station : ', code)
+        footName = paste0('fiche station de diagnostic : ', code)
         if (is.null(df_page)) {
             n_page = i
         } else {

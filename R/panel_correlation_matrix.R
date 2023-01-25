@@ -54,7 +54,7 @@ panel_correlation_matrix = function (dataEX,
     dy_T2 = 0.3
     dy_T2line = 0.8
     size_T2 = 2.7
-    ech_T2 = 1.5
+    ech_T2 = 2.1
     
     dy_I2 = 2
     size_I2 = 1
@@ -85,18 +85,18 @@ panel_correlation_matrix = function (dataEX,
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
 
-    subTopic = sapply(Topic, '[[', 2)
-    names(subTopic) = metaEX$var
-
+    # subTopic = sapply(Topic, '[[', 2)
+    # names(subTopic) = metaEX$var
+    
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
 
-    subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
-    subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
+    # subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
+    # subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
     
-    names(mainTopic_icon) = mainTopic
-    names(subTopic_icon) = subTopic
+    # names(mainTopic_icon) = mainTopic
+    # names(subTopic_icon) = subTopic
 
     vars2keep = names(dataEX)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
@@ -490,10 +490,10 @@ panel_correlation_matrix = function (dataEX,
         scale_x_continuous(expand=c(0, 0)) + 
         scale_y_continuous(expand=c(0, 0))
     
-    subTopic_path = subTopic_path[!duplicated(subTopic_path)]
-    subTopic_label = subTopic[!duplicated(subTopic)]
-    names(subTopic_path) = subTopic_label
+    # subTopic_path = subTopic_path[!duplicated(subTopic_path)]
+    # subTopic_label = subTopic[!duplicated(subTopic)]
+    # names(subTopic_path) = subTopic_label
 
-    res = list(cm=cm, info=subTopic_path)
-    return (res)
+    # res = list(cm=cm, info=subTopic_path)
+    return (cm)
 }

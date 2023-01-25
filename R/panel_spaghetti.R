@@ -151,7 +151,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color="white",
-                                  linewidth=0.8,
+                                  linewidth=1,
                                   lineend="round")
         }
         if (is.null(Colors)) {
@@ -167,7 +167,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color=Colors[names(Colors) == model],
-                                  linewidth=0.6,
+                                  linewidth=0.7,
                                   alpha=alpha,
                                   lineend="round")
         }
@@ -179,16 +179,24 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=0.4,
+                              linewidth=1,
+                              lineend="round") +
+            ggplot2::annotate("line",
+                              x=data_code_obs$Date,
+                              y=data_code_obs$Q,
+                              color=IPCCgrey25,
+                              linewidth=0.3,
                               lineend="round")
+    } else {
+        p = p +
+            ggplot2::annotate("line",
+                              x=data_code_obs$Date,
+                              y=data_code_obs$Q,
+                              color=IPCCgrey25,
+                              linewidth=0.2,
+                              lineend="round") 
     }
-    p = p +
-        ggplot2::annotate("line",
-                          x=data_code_obs$Date,
-                          y=data_code_obs$Q,
-                          color=IPCCgrey25,
-                          linewidth=0.2,
-                          lineend="round")
+
     
     # Y axis title
     unit = gsub(" ", "\\\\,", unit)

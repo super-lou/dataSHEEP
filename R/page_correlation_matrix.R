@@ -100,12 +100,12 @@ page_correlation_matrix = function (dataEX, metaEX,
                          name="info",
                          height=info_height)
         
-        res = panel_correlation_matrix(dataEX_model,
+        cm = panel_correlation_matrix(dataEX_model,
                                        metaEX,
                                        icon_path=icon_path,
                                        margin=cm_margin)
-        cm = res$cm
-        subTopic_path = res$info
+        # cm = res$cm
+        # subTopic_path = res$info
         STOCK = add_plot(STOCK,
                          plot=cm,
                          name="cm",
@@ -176,7 +176,7 @@ page_correlation_matrix = function (dataEX, metaEX,
                                     "Significatif à un risque de 10 %",
                                     "Non significatif à un risque de 10 %"),
                                 Cross=c(FALSE, TRUE),
-                                dy_icon=0.35,
+                                dy_label=0.35,
                                 dx_label=0.2,
                                 height=si_height,
                                 width=leg_width,
