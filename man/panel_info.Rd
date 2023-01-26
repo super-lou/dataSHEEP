@@ -5,14 +5,10 @@
 \title{Info panel}
 \usage{
 panel_info(
-  list_df2plot,
+  data,
   meta,
-  trend_period = NULL,
-  mean_period = NULL,
-  period = NULL,
-  shapefile_list = NULL,
+  Shapefiles = NULL,
   codeLight = NULL,
-  data_code = NULL,
   to_do = "all",
   zone_to_show = "France"
 )
