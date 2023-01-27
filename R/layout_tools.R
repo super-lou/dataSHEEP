@@ -371,6 +371,9 @@ gpct = function (pct, L, min_lim=NULL, shift=FALSE) {
     return (xL)
 }
 
+
+#' @title round_label
+#' @export
 round_label = function (labelRaw, direction="V", ncharLim=4) {
     if (direction == "V") {
         label2 = signif(labelRaw, 2)
