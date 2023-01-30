@@ -151,7 +151,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color="white",
-                                  linewidth=1,
+                                  linewidth=0.7,
                                   lineend="round")
         }
         if (is.null(Colors)) {
@@ -167,7 +167,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color=Colors[names(Colors) == model],
-                                  linewidth=0.7,
+                                  linewidth=0.4,
                                   alpha=alpha,
                                   lineend="round")
         }
@@ -179,13 +179,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=1,
+                              linewidth=1.5,
                               lineend="round") +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color=IPCCgrey25,
-                              linewidth=0.3,
+                              linewidth=0.55,
                               lineend="round")
     } else {
         p = p +
@@ -200,7 +200,6 @@ panel_spaghetti = function (data_code, Colors=NULL,
     
     # Y axis title
     unit = gsub(" ", "\\\\,", unit)
-    # ylabel = paste0("\\textbf{", title, "}", "\\,", "\\($", unit, "$\\)")
     ylabel = paste0(title, "\\,", "($", unit, "$)")
     yTeXlabel = TeX(ylabel)
 
@@ -225,18 +224,23 @@ panel_spaghetti = function (data_code, Colors=NULL,
             if (Xmax-Xmin <= 1) {
                 Xmin = lubridate::year(X)[1]
                 Xmax = lubridate::year(X)[1] + 1
+                # add = format(paste0(lubridate::year(X)[1],
+                                    # "-12-31"),
+                             # date_labels)
+            } else {
+                add = NULL
             }
-            year = lubridate::year(X)[1]
-            seq.Date(from=as.Date(paste0(Xmin, "-01-01")) + d_breaks,
-                     to=as.Date(paste0(Xmax, "-01-01")) + d_breaks,
-                     by=breaks)
+            res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")) + d_breaks,
+                           to=as.Date(paste0(Xmax, "-01-01")) + d_breaks,
+                           by=breaks)
         } else {
             Xmin = round(min(X), break_round)
             Xmax = round(max(X), break_round)
-            seq(from=Xmin + d_breaks,
-                to=Xmax + d_breaks,
-                by=breaks)
+            res = seq(from=Xmin + d_breaks,
+                      to=Xmax + d_breaks,
+                      by=breaks)
         }
+        return (res)
     }
 
     get_minor_breaks = function(X) {
@@ -247,17 +251,17 @@ panel_spaghetti = function (data_code, Colors=NULL,
                 Xmin = lubridate::year(X)[1]
                 Xmax = lubridate::year(X)[1] + 1
             }
-            year = lubridate::year(X)[1]
-            seq.Date(from=as.Date(paste0(Xmin, "-01-01")),
-                     to=as.Date(paste0(Xmax, "-01-01")),
-                     by=minor_breaks)
+            res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")),
+                           to=as.Date(paste0(Xmax, "-01-01")),
+                           by=minor_breaks)
         } else {
             Xmin = round(min(X), break_round)
             Xmax = round(max(X), break_round)
-            seq(from=Xmin + d_breaks,
-                to=Xmax + d_breaks,
-                by=minor_breaks)
+            res = seq(from=Xmin + d_breaks,
+                      to=Xmax + d_breaks,
+                      by=minor_breaks)
         }
+        return (res)
     }
         
     # Parameters of the x axis contain the limit of the date dataEx

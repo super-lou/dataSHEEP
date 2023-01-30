@@ -32,9 +32,7 @@ panel_indicator_distribution = function (dataEXind,
                                          margin_add=margin(t=0, r=0,
                                                            b=0, l=0,
                                                            "mm")) {
-
     
-
     dx_grid = 0.2
     dx_label = 0.05
     dx_label_out = 0.4
