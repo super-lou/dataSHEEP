@@ -24,24 +24,30 @@ panel_indicator_distribution = function (dataEXind,
                                          Colors,
                                          codeLight,
                                          icon_path,
+                                         prob=0.1,
                                          title="",
                                          alpha=0.7,
+                                         alpha_spread=0.3,
                                          dTitle=0,
-                                         graph="bar",
                                          add_name=FALSE,
                                          margin_add=margin(t=0, r=0,
                                                            b=0, l=0,
                                                            "mm")) {
+    dl_grid=0.12
+    dr_grid=0.12
+
+    dspace_label = 0.12
+    dspace_grid = 0.14
+
+    dx_rect = 0.12
+    dy_rect = 0.05
     
-    dx_grid = 0.2
-    dx_label = 0.05
-    dx_label_out = 0.4
+    dx_label = -0.1
     
     dx_bar = 0.095
+        
     dx_cross_back = 0.05
     dx_cross = 0.035
-
-    ech_bar = 2.6
 
     dy_arrow = 0.045
     dl_arrow = 0.07
@@ -55,13 +61,40 @@ panel_indicator_distribution = function (dataEXind,
 
     lw = 1.3
 
-    major_tick = c(0, 1)
-    minor_tick = c(-1, -0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8)
-    
     dx_arrow = 0.8
+
+    ech_bar = 5
+
+    major_tick_info = list("KGE"=c(0, 0.6, 0.8, 1),
+                           "^epsilon"=c(0, 1, 2),
+                           "^alpha"=c(0, 1, 2),
+                           "default"=c(-1, 0, 1))
+    minor_tick_info =
+        list("KGE"=c(0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9),
+             "^epsilon"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+             "^alpha"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+             "default"=c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
+
+    norm_tick_info = c()
+    shift_tick_info = c()
+    for (i in 1:length(major_tick_info)) {
+        major_tick = major_tick_info[[i]]
+        name = names(major_tick_info)[i]
+        minor_tick = minor_tick_info[[i]]
+        norm_tick_info = c(norm_tick_info,
+                           1 / (max(c(major_tick, minor_tick)) -
+                                min(c(major_tick, minor_tick))))
+        names(norm_tick_info)[i] = name
+        shift_tick_info = c(shift_tick_info,
+                            -min(c(major_tick, minor_tick)))
+        names(shift_tick_info)[i] = name
+        
+    }
+
+    norm_tick_info = norm_tick_info*ech_bar
     
-    ymin_grid = min(c(minor_tick, major_tick))*ech_bar
-    ymax_grid = max(c(minor_tick, major_tick))*ech_bar
+    ymin_grid = 0#min(c(minor_tick, major_tick))*ech_bar
+    ymax_grid = ech_bar#max(c(minor_tick, major_tick))*ech_bar
 
     dy_icon_out = 0.2
     
@@ -156,8 +189,8 @@ panel_indicator_distribution = function (dataEXind,
     nVar = length(Var)
 
     x_limits =
-        c((-dx_grid-dx_label-dx_label_out)*ech_x,
-        (nVar+dx_grid)*ech_x)
+        c((-dx_label-dspace_label)*ech_x,
+        (nVar)*ech_x)
 
     VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
@@ -197,24 +230,24 @@ panel_indicator_distribution = function (dataEXind,
         } 
 
         if (grepl("mean", var) & !grepl("mean[{]", var)) {
-            var = gsub("mean", "\\\\textit{moy}", var)
+            var = gsub("mean", "", var)
         } else if (grepl("mean", var) & grepl("mean[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("mean[{]", "\\\\textit{moy}", var)
+            var = gsub("mean[{]", "", var)
         } 
 
         if (grepl("median", var) & !grepl("median[{]", var)) {
-            var = gsub("median", "\\\\textit{med}", var)
+            var = gsub("median", "", var)
         } else if (grepl("median", var) & grepl("median[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("median[{]", "\\\\textit{med}", var)
+            var = gsub("median[{]", "", var)
         } 
         
-        if (grepl("sqrt", var) & !grepl("sqrt[{]", var)) {
-            var = gsub("sqrt", "\\\\textit{sqrt}", var)
-        } else if (grepl("sqrt", var) & grepl("sqrt[{]", var)) {
+        if (grepl("racine", var) & !grepl("racine[{]", var)) {
+            var = gsub("racine", "\u221A", var)
+        } else if (grepl("racine", var) & grepl("racine[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("sqrt[{]", "\\\\textit{sqrt}", var)
+            var = gsub("racine[{]", "\u221A", var)
         } 
         
         VarTEX[i] = var
@@ -228,8 +261,9 @@ panel_indicator_distribution = function (dataEXind,
                                       color=IPCCgrey25))
 
     VarRAW = metaEXind$var
-    VarRAW = gsub("median", "med", VarRAW)
-    VarRAW = gsub("mean", "moy", VarRAW)
+    VarRAW = gsub("racine", "r", VarRAW)
+    VarRAW = gsub("median", "", VarRAW)
+    VarRAW = gsub("mean", "", VarRAW)
     VarRAW = gsub("HYP", "H", VarRAW)
     VarRAW = gsub("alpha", "A", VarRAW)
     VarRAW = gsub("epsilon", "E", VarRAW)
@@ -245,8 +279,8 @@ panel_indicator_distribution = function (dataEXind,
     VarRAW = strsplit(VarRAW, "*")
 
     convert2space = function (X) {
-        X = gsub("[[:digit:]]", "1.1", X)
-        X = gsub("[[:upper:]]", "1.6", X)
+        X = gsub("[[:digit:]]", "1.2", X)
+        X = gsub("[[:upper:]]", "1.4", X)
         X = gsub("[[:lower:]]", "1.1", X)
         X = gsub("([-])|([,])", "0.5", X)
         X = gsub("([*])", "0.9", X)
@@ -305,45 +339,12 @@ panel_indicator_distribution = function (dataEXind,
         }
     }
 
-    # grid line
-    for (t in major_tick) {
-        Ind = Ind +
-            annotate("line",
-                     x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                     y=c(t, t)*ech_bar,
-                     color=IPCCgrey67, #IPCCgrey85
-                     size=0.2,
-                     lineend="round") +
-            annotate("text",
-                     x=(-dx_grid-dx_label)*ech_x,
-                     y=t*ech_bar,
-                     label=t,
-                     hjust=1,
-                     vjust=0.5,
-                     color=IPCCgrey40,
-                     size=3)
-    }
-
-    for (t in minor_tick) {
-        Ind = Ind +
-            annotate("line",
-                     x=(c(-dx_grid, nVar+dx_grid))*ech_x,
-                     y=c(t, t)*ech_bar,
-                     color=IPCCgrey85,
-                     size=0.2,
-                     lineend="round") +
-            annotate("text",
-                     x=(-dx_grid-dx_label)*ech_x,
-                     y=t*ech_bar,
-                     label=t,
-                     hjust=1,
-                     vjust=0.5,
-                     color=IPCCgrey85,
-                     size=2.8)
-    }
-
-    ref_tick = c(KGE=1, NSE=1)
-    shift_var = c(Rc=-1, epsilon=-1)
+    Code = levels(factor(dataEXind$Code))
+    letterCode = substr(Code, "1", "1")
+    letterCodeLight = substr(codeLight, "1", "1")
+    SHCode = Code[letterCode == letterCodeLight]
+    id_save = ""
+    space = 0
     
     for (i in 1:nVar) {
         var = Var[i]
@@ -352,144 +353,249 @@ panel_indicator_distribution = function (dataEXind,
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
         
-        varOk = sapply(names(shift_var), grepl, x=varRAW)
-        if (any(varOk)) {
-            dataEXind[[var]] = dataEXind[[var]] + shift_var[varOk]
-        }
-        
-        tickOk = sapply(names(ref_tick), grepl, x=varRAW)
-        if (any(tickOk)) {
-            tick = ref_tick[tickOk]
+        id = sapply(names(major_tick_info), grepl, x=varRAW)
+        if (all(!id)) {
+            id = "default"
         } else {
-            tick = 0
+            id = names(major_tick_info)[id]
+        }
+        
+        major_tick = major_tick_info[[id]]
+        minor_tick = minor_tick_info[[id]]
+        norm = norm_tick_info[id]
+        shift = shift_tick_info[id]
+
+        if (id != id_save) {
+
+            space = space + dspace_label
+
+            Ind = Ind +
+                annotate("rect",
+                         xmin=(i-1+dl_grid+space)*ech_x,
+                         xmax=(i-1-dx_label+space-dspace_label - dx_rect)*ech_x,
+                         ymin=ymin_grid - dy_rect*ech_bar,
+                         ymax=ymax_grid + dy_rect*ech_bar,
+                         fill=IPCCgrey97,
+                         size=0)
+            
+            for (t in major_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1+dl_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey67,
+                             size=0.2,
+                             lineend="round") +
+                    annotate("text",
+                             x=(i-1-dx_label+space)*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             hjust=1,
+                             vjust=0.5,
+                             color=IPCCgrey40,
+                             size=2.5)
+            }
+            for (t in minor_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1+dl_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey85,
+                             size=0.2,
+                             lineend="round") +
+                    annotate("text",
+                             x=(i-1-dx_label+space)*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             hjust=1,
+                             vjust=0.5,
+                             color=IPCCgrey75,
+                             size=2.2)
+            }
+        } else {
+
+            space = space - dspace_grid
+            
+            for (t in major_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1-dr_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey67,
+                             size=0.2,
+                             lineend="round")
+            }
+            for (t in minor_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1-dr_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey85,
+                             size=0.2,
+                             lineend="round")
+            }
+        }
+        id_save = id
+        
+
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEXind_model_code =
+                dataEXind_model[dataEXind_model$Code %in% SHCode,]
+            
+            if (nrow(dataEXind_model_code) != 0) {
+                Q = (quantile(dataEXind_model_code[[var]],
+                              c(prob, 1-prob), na.rm=TRUE)+shift)*norm
+                
+                Q[Q > ymax_grid] = ymax_grid
+                Q[ymin_grid > Q] = ymin_grid
+                
+                Ind = Ind +
+                    annotate("line",
+                             x=rep((i-1) + 0.5 -
+                                   (nModel/2)*dx_bar+dx_bar/2 +
+                                   (j-1)*dx_bar + space, 2)*ech_x,
+                             y=Q,
+                             color="white",
+                             linewidth=2,
+                             lineend="round")
+            }
         }
 
-        Ind = Ind +
-            annotate("line",
-                     x=c(i-1, i)*ech_x,
-                     y=c(tick, tick)*ech_bar,
-                     color=IPCCgrey25,
-                     size=0.4,
-                     lineend="round")
-        
-        if (graph == "bar") {
-
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
-                
-                if (nrow(dataEXind_model_code) != 0) {
-                    
-                    above = dataEXind_model_code[[var]]*ech_bar >
-                        ymax_grid
-                    below = ymin_grid >
-                        dataEXind_model_code[[var]]*ech_bar
-
-                    y = dataEXind_model_code[[var]]*ech_bar
-                    
-                    if (above) {
-                        y = ymax_grid
-                    } else if (below) {
-                        y = ymin_grid
-                    }
-                    
-                    Ind = Ind +
-                        annotate("line",
-                                 x=rep((i-1) + 0.5 -
-                                       (nModel/2)*dx_bar+dx_bar/2 +
-                                       (j-1)*dx_bar,
-                                       2)*ech_x,
-                                 y=c(tick*ech_bar, y),
-                                 color="white",
-                                 linewidth=2,
-                                 lineend="round")
-                }
-            }
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEXind_model_code =
+                dataEXind_model[dataEXind_model$Code %in% SHCode,]
             
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
+            if (nrow(dataEXind_model_code) != 0) {
+                Q = (quantile(dataEXind_model_code[[var]],
+                              c(prob, 1-prob), na.rm=TRUE)+shift)*norm
                 
-                if (nrow(dataEXind_model_code) != 0) {
-                    
-                    above = dataEXind_model_code[[var]]*ech_bar >
-                        ymax_grid
-                    below = ymin_grid >
-                        dataEXind_model_code[[var]]*ech_bar
+                Q[Q > ymax_grid] = ymax_grid
+                Q[ymin_grid > Q] = ymin_grid
+                
+                Ind = Ind +
+                    annotate("line",
+                             x=rep((i-1) + 0.5 -
+                                   (nModel/2)*dx_bar+dx_bar/2 +
+                                   (j-1)*dx_bar + space, 2)*ech_x,
+                             y=Q,
+                             color=
+                                 Colors[names(Colors) == model],
+                             alpha=alpha_spread,
+                             linewidth=1.5,
+                             lineend="round")
+            }
+        }
 
-                    y = dataEXind_model_code[[var]]*ech_bar
-                    
-                    if (above) {
-                        y = ymax_grid
-                    } else if (below) {
-                        y = ymin_grid
-                    }
-                    
+        
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEXind_model_code =
+                dataEXind_model[dataEXind_model$Code == codeLight,]
+            
+            if (nrow(dataEXind_model_code) != 0) {
+                above = (dataEXind_model_code[[var]]+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (dataEXind_model_code[[var]]+shift)*norm
+
+                if (!above & !below) {
                     Ind = Ind +
-                        annotate("line",
-                                 x=rep((i-1) + 0.5 -
-                                       (nModel/2)*dx_bar+dx_bar/2 +
-                                       (j-1)*dx_bar,
-                                       2)*ech_x,
-                                 y=c(tick*ech_bar, y),
-                                 color=Colors[names(Colors) == model],
-                                 linewidth=1.3,
-                                 alpha=alpha,
-                                 lineend="round")
+                        annotate("point",
+                                 x=((i-1) + 0.5 -
+                                    (nModel/2)*dx_bar+dx_bar/2 +
+                                    (j-1)*dx_bar + space)*ech_x,
+                                 y=(dataEXind_model_code[[var]]+shift)*norm,
+                                 color="white",
+                                 size=2.4,
+                                 stroke=0)
                 }
             }
+        }
+        
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEXind_model_code =
+                dataEXind_model[dataEXind_model$Code == codeLight,]
+            
+            if (nrow(dataEXind_model_code) != 0) {
+                above = (dataEXind_model_code[[var]]+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (dataEXind_model_code[[var]]+shift)*norm
 
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
+                if (!above & !below) {
+                    Ind = Ind +
+                        annotate("point",
+                                 x=((i-1) + 0.5 -
+                                    (nModel/2)*dx_bar+dx_bar/2 +
+                                    (j-1)*dx_bar + space)*ech_x,
+                                 y=(dataEXind_model_code[[var]]+shift)*norm,
+                                 color=
+                                     Colors[names(Colors) == model],
+                                 alpha=alpha,
+                                 size=1.5,
+                                 stroke=0)
+                }
+            }
+        }
+
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEXind_model_code =
+                dataEXind_model[dataEXind_model$Code == codeLight,]
+            
+            if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
                 
-                if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
+                above = (dataEXind_model_code[[var]]+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (dataEXind_model_code[[var]]+shift)*norm
+                
+                if (above | below) {
+                    x = ((i-1) + 0.5 -
+                         (nModel/2)*dx_bar+dx_bar/2 +
+                         (j-1)*dx_bar + space)*ech_x
                     
-                    above = dataEXind_model_code[[var]]*ech_bar >
-                        ymax_grid
-                    below = ymin_grid >
-                        dataEXind_model_code[[var]]*ech_bar
-                    
-                    if (above | below) {
-                        x = ((i-1) + 0.5 -
-                             (nModel/2)*dx_bar+dx_bar/2 +
-                             (j-1)*dx_bar)*ech_x
-                        
-                        if (above) {
-                            y = ymax_grid +
-                                dy_arrow*ech_bar
-                            yend = ymax_grid +
-                                (dy_arrow +
-                                 dl_arrow)*ech_bar
-                        } else if (below) {
-                            y = ymin_grid -
-                                dy_arrow*ech_bar
-                            yend = ymin_grid -
-                                (dy_arrow +
-                                 dl_arrow)*ech_bar
-                        }
-                        Ind = Ind +
-                            annotate("segment",
-                                     x=x, xend=x,
-                                     y=y, yend=yend,
-                                     color=
-                                         Colors[names(Colors) == model],
-                                     alpha=alpha,
-                                     linewidth=0.3,
-                                     arrow=arrow(length=unit(dx_arrow,
-                                                             "mm")),
-                                     lineend="round")
+                    if (above) {
+                        y = ymax_grid +
+                            dy_arrow*norm
+                        yend = ymax_grid +
+                            (dy_arrow +
+                             dl_arrow)*norm
+                    } else if (below) {
+                        y = ymin_grid -
+                            dy_arrow*norm
+                        yend = ymin_grid -
+                            (dy_arrow +
+                             dl_arrow)*norm
                     }
+                    Ind = Ind +
+                        annotate("segment",
+                                 x=x, xend=x,
+                                 y=y, yend=yend,
+                                 color=
+                                     Colors[names(Colors) == model],
+                                 alpha=alpha,
+                                 linewidth=0.3,
+                                 arrow=arrow(length=unit(dx_arrow,
+                                                         "mm")),
+                                 lineend="round")
                 }
             }
         }
     }
+    
     
     
     for (i in 1:nVar) { 

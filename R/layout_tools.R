@@ -485,7 +485,10 @@ load_shapefile = function (resources_path, data,
     codeBasin = codeBasin[codeBasin$Code %in% Code,]
     codeBasin = st_simplify(codeBasin,
                             preserveTopology=TRUE,
-                            dTolerance=toleranceRel/10)
+                            dTolerance=toleranceRel/3)
+    
+    codeBasin = st_transform(codeBasin, 2154)
+    
 
     # If the river shapefile needs to be load
     if (!("none" %in% river_selection)) {
@@ -500,7 +503,7 @@ load_shapefile = function (resources_path, data,
         }
         river = st_simplify(river,
                             preserveTopology=TRUE,
-                            dTolerance=toleranceRel/2)
+                            dTolerance=toleranceRel/3)
         river = st_transform(river, 2154) 
     } else {
         river = NULL

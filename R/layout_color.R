@@ -50,12 +50,15 @@ INRAElightcyan = "#66c1bf"
 INRAEmediumcyan = "#008c8e"
 INRAEdarkcyan = "#275662"
 
+INRAElightblue = "#9ed6e3"
+
+
 
 ## 1. PERSONALISATION ________________________________________________
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0) {
+theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0, isXlabel=FALSE) {
 
     if (isBack) {
         panel.background=element_rect(fill=IPCCgrey97)
@@ -73,6 +76,14 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0) {
         axis.title.y=element_text(size=9,
                                   vjust=1.2, hjust=0.5,
                                   color=IPCCgrey25)
+    }
+
+    if (isXlabel) {
+        axis.title.x = element_text(size=7.5,
+                                    vjust=1, hjust=1,
+                                    color=IPCCgrey40)
+    } else {
+        axis.title.x = element_blank()
     }
     
     theme =
@@ -106,7 +117,7 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0) {
             # Title
             plot.title=plot.title,
             # Axis title
-            axis.title.x=element_blank(),
+            axis.title.x=axis.title.x,
             axis.title.y=axis.title.y,
             # Axis line
             axis.line.x=element_blank(),

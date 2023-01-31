@@ -51,6 +51,13 @@ panel_mini_map = function (data, meta, Shapefiles,
         geom_sf(data=france,
                 color=NA,
                 fill=IPCCgrey97)
+
+    map = map +
+        # Plot the hydrological basin
+        geom_sf(data=basin,
+                color=IPCCgrey85,
+                fill=NA,
+                size=0.25)
     
     # If the river shapefile exists
     if (!is.null(river)) {
@@ -60,14 +67,14 @@ panel_mini_map = function (data, meta, Shapefiles,
                     color="white",
                     alpha=1,
                     fill=NA,
-                    linewidth=0.4,
+                    linewidth=0.7,
                     na.rm=TRUE)
         map = map +
             geom_sf(data=river,
                     color=INRAElightcyan,
                     alpha=1,
                     fill=NA,
-                    linewidth=0.2,
+                    linewidth=0.35,
                     na.rm=TRUE)
     }
 
@@ -77,19 +84,7 @@ panel_mini_map = function (data, meta, Shapefiles,
         geom_sf(data=france,
                 color="white",
                 fill=NA,
-                linewidth=0.55)
-    map = map +
-        geom_sf(data=basin,
-                color="white",
-                fill=NA,
-                linewidth=0.45)
-    
-    # Plot boundaries
-    map = map +
-        geom_sf(data=basin,
-                color=IPCCgrey67,
-                fill=NA,
-                linewidth=0.3)
+                linewidth=0.7)
     map = map +
         geom_sf(data=france,
                 color=IPCCgrey40,
@@ -132,48 +127,42 @@ panel_mini_map = function (data, meta, Shapefiles,
                      color=IPCCgrey40, size=size)
     }
     
+    Code = levels(factor(meta$Code))
+    L93X = meta$L93X_m_BH[match(meta$Code, Code)]           
+    L93Y = meta$L93Y_m_BH[match(meta$Code, Code)]
+    
+    # Creates a tibble to stores all the data to plot
+    plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=Code)
+    
+    # Extract data of all stations not to highlight
+    plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
+    # Extract data of the station to highlight
+    plot_map_code = plot_map[plot_map$Code == codeLight,]
+    # Plots only the localisation
+    
+    map = map +
+        geom_sf(data=codeBasin[codeBasin$Code == codeLight,],
+                color="white",
+                fill=NA,
+                linewidth=1) +
+        geom_sf(data=codeBasin[codeBasin$Code == codeLight,],
+                color=INRAEdarkcyan,
+                fill=NA,
+                linewidth=0.3)
+
+    map = map +
+        geom_point(data=plot_map_code,
+                   aes(x=L93X, y=L93Y),
+                   shape=21, size=1.4, stroke=0.3,
+                   color="white",
+                   fill=INRAEcyan)
+
+
     map = map +
         # Allows to crop shapefile without graphical problem
         coord_sf(xlim=xlim, ylim=ylim,
                  expand=FALSE)
     
-    
-    Code = levels(factor(meta$Code))
-    Lon = meta$L93X_m_BH[match(meta$Code, Code)]           
-    Lat = meta$L93Y_m_BH[match(meta$Code, Code)]
-    
-    # Creates a tibble to stores all the data to plot
-    plot_map = tibble(Lon=Lon, Lat=Lat, Code=Code)
-    
-    if (!is.null(codeLight)) {
-        # Extract data of all stations not to highlight
-        plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
-        # Extract data of the station to highlight
-        plot_map_code = plot_map[plot_map$Code == codeLight,]
-        # Plots only the localisation
-        map = map +
-            # For all stations not to highlight
-            geom_point(data=plot_map_codeNo,
-                       aes(x=Lon, y=Lat),
-                       shape=21, size=0.5, stroke=0.5,
-                       color=IPCCgrey50,
-                       fill=IPCCgrey50) +
-            # For the station to highlight
-            geom_point(data=plot_map_code,
-                       aes(x=Lon, y=Lat),
-                       shape=21, size=2, stroke=0.5,
-                       color=IPCCgrey97,
-                       fill=INRAEcyan)
-    } else {
-        # Plots only the localisation
-        map = map +
-            # For all stations not to highlight
-            geom_point(data=plot_map,
-                       aes(x=Lon, y=Lat),
-                       shape=21, size=0.5, stroke=0.5,
-                       color=codeAll_color,
-                       fill=IPCCgrey50)
-    }    
     return (map)
 }
 

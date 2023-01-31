@@ -35,6 +35,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             minor_breaks="2 years",
                             d_breaks=0,
                             break_round=-1,
+                            Xlabel=NULL,
                             isBackObsAbove=TRUE,
                             axis_xlim=NULL, grid=TRUE,
                             margin_add=margin(t=0, r=0, b=0, l=0, "mm"),
@@ -76,7 +77,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     
     # Open new plot
     p = ggplot() +
-        theme_IPCC(isBack, isTitle, dTitle=dTitle) +
+        theme_IPCC(isBack, isTitle, dTitle=dTitle, isXlabel=!is.null(Xlabel)) +
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
         # theme_WIP()
@@ -209,6 +210,11 @@ panel_spaghetti = function (data_code, Colors=NULL,
     } else {
         p = p +
             ylab(yTeXlabel)
+    }
+
+    if (!is.null(Xlabel)) {
+        p = p +
+            xlab(Xlabel)
     }
 
     if (first) {
