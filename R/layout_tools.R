@@ -273,14 +273,14 @@ add_plot = function (STOCK, plot=NULL, name="",
     if (overwrite_by_name == FALSE | !any(which(STOCK$name == name))) {
         if (nrow(STOCK) == 0) {
             STOCK = tibble(name=name,
-                          height=height, width=width,
-                          first=first, last=last,
-                          plot=NULL)
+                           height=height, width=width,
+                           first=first, last=last,
+                           plot=NULL)
         } else {
             STOCK = bind_rows(STOCK, tibble(name=name,
-                                          height=height, width=width,
-                                          first=first, last=last,
-                                          plot=NULL))
+                                            height=height, width=width,
+                                            first=first, last=last,
+                                            plot=NULL))
         }
         STOCK$plot[[nrow(STOCK)]] = plot
 
@@ -537,8 +537,8 @@ load_font = function (path=NULL, force_import=FALSE) {
     extrafont::font_import(paths=path)
     
     # if (is.null(extrafont::fonts()) | force_import) {
-        # remotes::install_version("Rttf2pt1", version = "1.3.8")
-        # extrafont::font_import(paths=path)
+    # remotes::install_version("Rttf2pt1", version = "1.3.8")
+    # extrafont::font_import(paths=path)
     # }
     # extrafont::loadfonts(device="all", quiet=TRUE)
     # theme = theme(text=element_text(family="frutiger-57-condensed"))
@@ -595,3 +595,65 @@ plotly_save = function (fig, path) {
     unlink(file.path(dirname(path), libdir), recursive=TRUE)
 }
 
+
+other_letters = c("é", "è", "à")
+numbers = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+symbols = c("-", "_", ".", ",")
+get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
+                                          other_letters,
+                                          numbers, symbols),
+                               size=50, font="sans",
+                               isNorm=TRUE,
+                               out_dir="letter",
+                               save=FALSE) {
+    library(magick)
+    if (!dir.exists(out_dir)) {
+        dir.create(out_dir)
+    }
+    find_id = function (X, a, where="") {
+        if (any(a %in% X)) {
+            id = which(X == a)
+            if (where == "first") {
+                id = id[1]
+            } else if (where == "last") {
+                id = id[length(id)]
+            }
+            return (id)
+        } else {
+            return (NA)
+        }
+    }
+    PX = c()
+    for (letter in alphabet) {
+        img = image_blank(width=size, height=size, color="white")
+        img = image_annotate(img, letter, size=size, font=font, color="#000000")
+        pixels = as.character(c(image_data(img, channel="gray")))
+        pixels[pixels != "ff"] = "1"
+        pixels[pixels == "ff"] = "0"
+        pixels = as.numeric(pixels)
+        pixels = matrix(pixels, ncol=size, byrow=TRUE)
+        if (save) {
+            write.table(pixels,
+                        file=file.path(out_dir,
+                                       paste0(letter, ".txt")),
+                        row.names=FALSE, col.names=FALSE)
+        }
+        first_one = apply(pixels, 1, find_id, a=1, where="first")
+        last_one = apply(pixels, 1, find_id, a=1, where="last")
+        px = max(last_one, na.rm=TRUE) -
+            min(first_one, na.rm=TRUE) + 1
+        PX = c(PX, px)
+        names(PX)[length(PX)] = letter
+    }
+    PX = c(PX, PX["_"])
+    names(PX)[length(PX)] = ' '
+    if (isNorm) {
+        PX = PX/max(PX)
+    }
+    return (PX)
+}
+
+
+X2px = function (X, PX) {
+    PX[X]
+}

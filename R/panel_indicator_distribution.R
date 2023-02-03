@@ -21,6 +21,7 @@
 
 panel_indicator_distribution = function (dataEXind,
                                          metaEXind,
+                                         meta,
                                          Colors,
                                          codeLight,
                                          icon_path,
@@ -33,6 +34,8 @@ panel_indicator_distribution = function (dataEXind,
                                          margin_add=margin(t=0, r=0,
                                                            b=0, l=0,
                                                            "mm")) {
+
+## 1. PARAMETERS _____________________________________________________
     dl_grid=0.12
     dr_grid=0.12
 
@@ -44,43 +47,201 @@ panel_indicator_distribution = function (dataEXind,
     
     dx_label = -0.1
     
-    dx_bar = 0.095
+    dx_bar = 0.09
         
     dx_cross_back = 0.05
     dx_cross = 0.035
 
     dy_arrow = 0.045
-    dl_arrow = 0.07
+    dl_arrow = 0.2
 
-    dx_leg = 2.1
+
+    x_title = 0
+    
     dy_leg = 0.5
-    dy_line_leg = 0.18
-    xc_label = 7.8
-    dx_line_leg = 0.15
-    dl_line_leg = 0.4
+    dx_leg_line = 0.3
+    dy_leg_line = 0.25
+    dl_leg_line = 0.7
+    dy_leg_point = 0.3
+    dl_leg_line_grad = 0.2
+    dr_leg_line_grad = 0.1
+    w_leg_line_grad = 0.3
+    dx_leg_arrow = 11.5
+    dy_leg_arrow = 0.6
+    dy_leg_arrow_gap = 0.1
+    dx_leg_arrow_text = 0.1
 
+    dy_mod = 1.8
+    dx_mod_subtitle = 4.5
+    dy_mod_subtitle = 0.05
+    dx_mod_name = 0
+    dy_mod_name = 0.5
+    dx_mod_space = 0.7
+    dy_mod_line = 0.18
+    dx_mod_line = 0.12
+    dl_mod_line = c(0.3, 0.15)
+    alpha_mod_line = c(alpha_spread, alpha) 
+
+    ech_text_mod = 0.41
+
+    
+    dy_interp = 1.4
+
+    
     lw = 1.3
 
     dx_arrow = 0.8
 
     ech_bar = 5
 
-    major_tick_info = list("KGE"=c(0, 0.6, 0.8, 1),
-                           "^epsilon"=c(0, 1, 2),
-                           "^alpha"=c(0, 1, 2),
-                           "default"=c(-1, 0, 1))
-    minor_tick_info =
+    major_tick_val = list("KGE"=c(0, 0.6, 0.8, 1),
+                          "^epsilon"=c(0, 1, 2),
+                          "^alpha"=c(0, 1, 2),
+                          "default"=c(-1, 0, 1))
+    minor_tick_val =
         list("KGE"=c(0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9),
              "^epsilon"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
              "^alpha"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
              "default"=c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
 
+    tick_perfect = c("(KGE)|(^epsilon)|(^alpha)"=1,
+                     "(^Biais$)|(^Q[[:digit:]]+$)|([{]t.*[}])"=0)
+
+    tick_rel = list("^KGE"=FALSE,
+                    "^Biais$"=FALSE,
+                    "(^epsilon.*)|(^alphaQA$)|([{]t.*[}])"=TRUE,
+                    "(^Q[[:digit:]]+$)|(^alphaCDC$)"=TRUE)
+    
+
+    # abs(res - perfect) si que +
+    # res - perfect si + et -
+    tick_diff = list("^KGE"=c(0.2, 0.4, 0.6),
+                     "^Biais$"=c(0.1, 0.2, 0.3),
+                     "(^epsilon.*)|(^alphaQA$)|([{]t.*[}])"=c(0.2, 0.4, 0.6),
+                     "(^Q[[:digit:]]+$)|(^alphaCDC$)"=c(0.1, 0.2, 0.3))
+    
+    interp_text = list(
+        
+        "^KGE"=c(
+            "X reproduit correctement les observations.",
+            "X reproduit de manière acceptable les observations.",
+            "X ne reproduit que partielement les observations.",
+            "X reproduit mal les observations."),
+        
+        "^Biais$"=c(
+            "X a un biais faible.",
+            "X a un biais acceptable.",
+            "X a un biais important.",
+            "X a un biais trop important."),
+        
+        "^epsilon.*P.*DJF"=c(
+            "X a une bonne sensibilité aux variations de précipitations hivernales.",
+            "X a une bonne sensibilité aux variations de précipitations hivernales.",  
+            "X est un peu trop sensibles aux variations de précipitations hivernales.",
+            "X est peu sensibles aux variations de précipitations hivernales.",
+            "X est trop sensibles aux variations de précipitations hivernales.",
+            "X n'est pas assez sensibles aux variations de précipitations hivernales.",
+            "X est excessivement trop sensibles aux variations de précipitations hivernales.",
+            "X est excessivement peu sensibles aux variations de précipitations hivernales."),
+
+        "^epsilon.*P.*JJA"=c(
+            "X a une bonne sensibilité aux variations de précipitations estivales.",
+            "X a une bonne sensibilité aux variations de précipitations estivales.",
+            "X est un peu trop sensibles aux variations de précipitations estivales.",
+            "X est peu sensibles aux variations de précipitations estivales.",
+            "X est trop sensibles aux variations de précipitations estivales.",
+            "X n'est pas assez sensibles aux variations de précipitations estivales.",
+            "X est excessivement trop sensibles aux variations de précipitations estivales.",
+            "X excessivement peu sensibles aux variations de précipitations estivales."),
+
+        "^epsilon.*T.*DJF"=c(
+            "X a une bonne sensibilité aux variations de température en hiver.",
+            "X a une bonne sensibilité aux variations de température en hiver.",
+            "X est un peu trop sensibles aux variations de température en hiver.",
+            "X est peu sensibles aux variations de température en hiver.",
+            "X est trop sensibles aux variations de température en hiver.",
+            "X n'est pas assez sensibles aux variations de température en hiver.",
+            "X excessivement trop sensibles aux variations de température en hiver.",
+            "X excessivement peu sensibles aux variations de température en hiver."),
+
+        "^epsilon.*T.*JJA"=c(
+            "X a une bonne sensibilité aux variations de température en été.",
+            "X a une bonne sensibilité aux variations de température en été.",
+            "X est un peu trop sensibles aux variations de température en été.",
+            "X est peu sensibles aux variations de température en été.",
+            "X est trop sensibles aux variations de température en été.",
+            "X n'est pas assez sensibles aux variations de température en été.",
+            "X est excessivement trop sensibles aux variations de température en été.",
+            "X est excessivement peu sensibles aux variations de température en été."),
+
+        "^Q10$"=c(
+            "X restitue bien l'intensité des hautes eaux.",
+            "X restitue bien l'intensité des hautes eaux.",
+            "X accentue légèrement l'intensité des hautes eaux.",
+            "X atténue légèrement l'intensité des hautes eaux.",
+            "X accentue l'intensité des hautes eaux.",
+            "X atténue l'intensité des hautes eaux.",
+            "X accentue trop l'intensité des hautes eaux.",
+            "X atténue trop l'intensité des hautes eaux."),
+
+        "tQJXA"=c(
+            "X restitue bien la temporalité annuelle des crues.",
+            "X restitue bien la temporalité annuelle des crues.",
+            "X produit des crues légèrement plus tard dans l'année.",
+            "X produit des crues légèrement plus tôt dans l'année.",
+            "X produit des crues plus tard dans l'année.",
+            "X produit des crues plus tôt dans l'année.",
+            "X produit des crues trop tard dans l'année.",
+            "X produit des crues trop tôt dans l'année."),
+
+        "^alphaCDC$"=c(
+            "X restitue bien le régime des moyennes eaux.",
+            "X restitue bien le régime des moyennes eaux.",
+            "X accentue légèrement le régime des moyennes eaux.",
+            "X atténue légèrement le régime des moyennes eaux.",
+            "X accentue le régime des moyennes eaux.",
+            "X atténue le régime des moyennes eaux.",
+            "X accentue trop le régime des moyennes eaux.",
+            "X atténue trop le régime des moyennes eaux."),
+
+        "^alphaQA$"=c(
+            "X restitue bien l'évolution au cours du temps du débit moyen annuel.",
+            "X restitue bien l'évolution au cours du temps du débit moyen annuel.",
+            "X accentue légèrement la hausse au cours du temps du débit moyen annuel.",
+            "X accentue légèrement la baisse au cours du temps du débit moyen annuel.",
+            "X accentue la hausse au cours du temps du débit moyen annuel.",
+            "X accentue la baisse au cours du temps du débit moyen annuel.",
+            "X accentue trop la hausse au cours du temps du débit moyen annuel.",
+            "X accentue trop la baisse au cours du temps du débit moyen annuel."),
+
+        "^Q90$"=c(
+            "X restitue bien l'intensité des basses eaux.",
+            "X restitue bien l'intensité des basses eaux.",
+            "X atténue légèrement l'intensité des basses eaux.",
+            "X accentue légèrement l'intensité des basses eaux.",
+            "X atténue l'intensité des basses eaux.",
+            "X accentue l'intensité des basses eaux.",
+            "X atténue trop l'intensité des basses eaux.",
+            "X accentue trop l'intensité des basses eaux."),
+
+        "tVCN10"=c(
+            "X restitue bien la temporalité annuelle des étiages.",
+            "X restitue bien la temporalité annuelle des étiages.",
+            "X produit des étiages légèrement plus tard dans l'année.",
+            "X produit des étiages légèrement plus tôt dans l'année.",
+            "X produit des étiages plus tard dans l'année.",
+            "X produit des étiages plus tôt dans l'année.",
+            "X produit des étiages trop tard dans l'année.",
+            "X produit des étiages trop tôt dans l'année."))
+
+    
+
     norm_tick_info = c()
     shift_tick_info = c()
-    for (i in 1:length(major_tick_info)) {
-        major_tick = major_tick_info[[i]]
-        name = names(major_tick_info)[i]
-        minor_tick = minor_tick_info[[i]]
+    for (i in 1:length(major_tick_val)) {
+        major_tick = major_tick_val[[i]]
+        name = names(major_tick_val)[i]
+        minor_tick = minor_tick_val[[i]]
         norm_tick_info = c(norm_tick_info,
                            1 / (max(c(major_tick, minor_tick)) -
                                 min(c(major_tick, minor_tick))))
@@ -96,7 +257,7 @@ panel_indicator_distribution = function (dataEXind,
     ymin_grid = 0#min(c(minor_tick, major_tick))*ech_bar
     ymax_grid = ech_bar#max(c(minor_tick, major_tick))*ech_bar
 
-    dy_icon_out = 0.2
+    dy_icon_out = 0.18
     
     fact = 1.15
 
@@ -112,7 +273,7 @@ panel_indicator_distribution = function (dataEXind,
     size_I1 = 0.45
     dr_I1 = 0.15
     
-    dy_T1 = 0.3
+    dy_T1 = 0.1
     size_T1 = 3.2
     ech_T1 = 0.23
 
@@ -125,18 +286,17 @@ panel_indicator_distribution = function (dataEXind,
     dy_L4 = 0.3
     lw_L4 = 0.45
     
-    dy_T2 = 0.27
+    dy_T2 = 0.17
     dy_T2line = 0.4
     size_T2 = 2.7
     ech_T2 = 7
     
-    dy_I2 = 1.3
-    size_I2 = 0.6
-
+    dy_I2 = 1
+    size_I2 = 0.5
     
-    ech = 1
     ech_x = 2
-    
+
+## 2. DATA FORMATTING ________________________________________________
     complete = function (X) {
         if (length(X) < 2) {
             X = c(X, NA)
@@ -187,11 +347,7 @@ panel_indicator_distribution = function (dataEXind,
     nameCol = names(dataEXind_tmp)
     Var = nameCol
     nVar = length(Var)
-
-    x_limits =
-        c((-dx_label-dspace_label)*ech_x,
-        (nVar)*ech_x)
-
+    
     VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
         var = VarTEX[i]
@@ -254,98 +410,109 @@ panel_indicator_distribution = function (dataEXind,
     }
     VarTEX = paste0("\\textbf{", VarTEX, "}")
 
-    Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
-        theme(plot.margin=margin_add,
-              plot.title=element_text(size=9,
-                                      vjust=0, hjust=dTitle,
-                                      color=IPCCgrey25))
-
-    VarRAW = metaEXind$var
-    VarRAW = gsub("racine", "r", VarRAW)
-    VarRAW = gsub("median", "", VarRAW)
-    VarRAW = gsub("mean", "", VarRAW)
-    VarRAW = gsub("HYP", "H", VarRAW)
-    VarRAW = gsub("alpha", "A", VarRAW)
-    VarRAW = gsub("epsilon", "E", VarRAW)
-    OK_ = grepl("[_]", VarRAW)
-    tmp = gsub("^.*[_]", "", VarRAW)
-    tmp = gsub("([{])|([}])", "", tmp)
-    tmp[!OK_] = ""
-    tmp = gsub("[[:alnum:]]", "*", tmp)
-    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
-    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
-    VarRAW = gsub("[_].*$", "", VarRAW)
-    VarRAW = paste0(VarRAW, tmp)
-    VarRAW = strsplit(VarRAW, "*")
-
-    convert2space = function (X) {
-        X = gsub("[[:digit:]]", "1.2", X)
-        X = gsub("[[:upper:]]", "1.4", X)
-        X = gsub("[[:lower:]]", "1.1", X)
-        X = gsub("([-])|([,])", "0.5", X)
-        X = gsub("([*])", "0.9", X)
-        return (X)    
-    }
-
-    Space = lapply(VarRAW, convert2space)
-    Space = lapply(Space, as.numeric)
-    Space = lapply(Space, sum)
-    Space = unlist(Space)
-    maxSpace = max(Space)
-
-    dy = dy_Ind
-
-    
-    Ind = Ind +
-        ggtitle(title)
-
-    if (add_name) {
-
-        find = function (x, table) {
-            which(grepl(x, table))[1]
-        }
-        color = Colors[sapply(Model, find, table=names(Colors))]
-        
-        for (i in 1:nModel) {
-            Ind = Ind +
-                annotate("line",
-                         x=c(xc_label -
-                             (nModel/2)*dx_leg-dx_leg/2 +
-                             (i-1)*dx_leg -
-                             dx_line_leg - 
-                             dl_line_leg,
-                             xc_label -
-                             (nModel/2)*dx_leg-dx_leg/2 +
-                             (i-1)*dx_leg -
-                             dx_line_leg)*ech_x,
-                         y=rep(ymin_grid -
-                               (dy_gap + dy_leg - dy_line_leg)*ech,
-                               2),
-                         alpha=alpha,
-                         linewidth=1.5,
-                         color=color[i],
-                         lineend="round")
-            
-            Ind = Ind +
-                annotate("text",
-                         x=(xc_label -
-                            (nModel/2)*dx_leg-dx_leg/2 +
-                            (i-1)*dx_leg)*ech_x,
-                         y=ymin_grid -
-                             (dy_gap + dy_leg)*ech,
-                         label=Model[i],
-                         color=IPCCgrey25,
-                         hjust=0, vjust=0, size=3.2)
-        }
-    }
+    meta_code = meta[meta$Code == codeLight,]
 
     Code = levels(factor(dataEXind$Code))
     letterCode = substr(Code, "1", "1")
     letterCodeLight = substr(codeLight, "1", "1")
-    SHCode = Code[letterCode == letterCodeLight]
+    regionCode = Code[letterCode == letterCodeLight]
     id_save = ""
     space = 0
+    Spaces = c()
+
+
+
+
     
+    dquantile = function (x, prob=0.1) {
+        x = abs(quantile(x, 1-prob, na.rm=TRUE) -
+                quantile(x, prob, na.rm=TRUE))
+        names(x) = NULL
+        return (x)
+    }
+    
+    mean_diff = function (x) {
+        return (mean(diff(x)))
+    }
+    
+    dataEXind_multi =
+        dplyr::summarise(dplyr::group_by(dataEXind, Code),
+                         dplyr::across(where(is.numeric),
+                                       median,
+                                       na.rm=TRUE),
+                         .groups="drop")
+    dataEXind_multi_code =
+        dataEXind_multi[dataEXind_multi$Code == codeLight,]
+
+
+    text = list()
+    for (i in 1:nVar) {
+        var = Var[i]
+        x = dataEXind[dataEXind$Code == codeLight,][[var]]
+
+        per = tick_perfect[sapply(names(tick_perfect), grepl, var)]
+        names(per) = NULL
+        dif = unlist(tick_diff[sapply(names(tick_diff), grepl, var)], use.names=FALSE)
+        rel = unlist(tick_rel[sapply(names(tick_rel), grepl, var)], use.names=FALSE)
+        interp = unlist(interp_text[sapply(names(interp_text), grepl, var)], use.names=FALSE)        
+
+        print(var)
+
+        if (dquantile(x, 0.1) < 2*mean_diff(dif)) {
+            model = "L'ensemble des modèles hydrologiques"
+            x = dataEXind_multi_code[[var]]
+            
+        } else {
+            step = abs(x-median(x, na.rm=TRUE))
+            model = Model[step <= quantile(step, probs=0.9, na.rm=TRUE)]
+            x = dataEXind[dataEXind$Model == model &
+                          dataEXind$Code == codeLight,][[var]]
+        }
+
+        print(x)
+        print(per)
+
+        if (rel) {
+            ec = x - per
+        } else {
+            ec = abs(x - per)
+        }
+
+        print(ec)
+        print(dif)
+
+        id = min(which(ec <= c(dif, 10**99)))
+        print(id)
+
+        line = gsub("X", model, interp[id])
+        text = append(text, list(line))
+        names(text)[length(text)] = var
+
+        print(line)
+        print("")
+    }
+
+
+
+    
+    
+
+## 3. GRAPHICAL INITIALISATION _______________________________________
+    Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
+        theme(plot.margin=margin_add,
+              plot.title=element_text(size=9,
+                                      vjust=0, hjust=dTitle,
+                                      color=IPCCgrey25)) +
+        ggtitle(title)
+    
+    x_limits =
+        c((-dx_label-dspace_label)*ech_x,
+        (nVar)*ech_x)
+    dy = dy_Ind
+    Ind = Ind 
+
+
+## 4. INDICATOR BAR PLOT _____________________________________________
     for (i in 1:nVar) {
         var = Var[i]
 
@@ -353,18 +520,18 @@ panel_indicator_distribution = function (dataEXind,
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
         
-        id = sapply(names(major_tick_info), grepl, x=varRAW)
+        id = sapply(names(major_tick_val), grepl, x=varRAW)
         if (all(!id)) {
             id = "default"
         } else {
-            id = names(major_tick_info)[id]
+            id = names(major_tick_val)[id]
         }
         
-        major_tick = major_tick_info[[id]]
-        minor_tick = minor_tick_info[[id]]
+        major_tick = major_tick_val[[id]]
+        minor_tick = minor_tick_val[[id]]
         norm = norm_tick_info[id]
         shift = shift_tick_info[id]
-
+        
         if (id != id_save) {
 
             space = space + dspace_label
@@ -440,16 +607,38 @@ panel_indicator_distribution = function (dataEXind,
             }
         }
         id_save = id
+        Spaces = c(Spaces, space)
+    }
+
+    for (i in 1:nVar) {
+        var = Var[i]
+
+        varRAW = gsub("[{]", "[{]", var)
+        varRAW = gsub("[}]", "[}]", varRAW)
+        varRAW = gsub("[_]", "[_]", varRAW)
         
+        id = sapply(names(major_tick_val), grepl, x=varRAW)
+        if (all(!id)) {
+            id = "default"
+        } else {
+            id = names(major_tick_val)[id]
+        }
+        
+        major_tick = major_tick_val[[id]]
+        minor_tick = minor_tick_val[[id]]
+        norm = norm_tick_info[id]
+        shift = shift_tick_info[id]
+
+        space = Spaces[i]
 
         for (j in 1:nModel) {
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_code =
-                dataEXind_model[dataEXind_model$Code %in% SHCode,]
+            dataEXind_model_region =
+                dataEXind_model[dataEXind_model$Code %in% regionCode,]
             
-            if (nrow(dataEXind_model_code) != 0) {
-                Q = (quantile(dataEXind_model_code[[var]],
+            if (nrow(dataEXind_model_region) != 0) {
+                Q = (quantile(dataEXind_model_region[[var]],
                               c(prob, 1-prob), na.rm=TRUE)+shift)*norm
                 
                 Q[Q > ymax_grid] = ymax_grid
@@ -470,11 +659,11 @@ panel_indicator_distribution = function (dataEXind,
         for (j in 1:nModel) {
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_code =
-                dataEXind_model[dataEXind_model$Code %in% SHCode,]
+            dataEXind_model_region =
+                dataEXind_model[dataEXind_model$Code %in% regionCode,]
             
-            if (nrow(dataEXind_model_code) != 0) {
-                Q = (quantile(dataEXind_model_code[[var]],
+            if (nrow(dataEXind_model_region) != 0) {
+                Q = (quantile(dataEXind_model_region[[var]],
                               c(prob, 1-prob), na.rm=TRUE)+shift)*norm
                 
                 Q[Q > ymax_grid] = ymax_grid
@@ -571,14 +760,14 @@ panel_indicator_distribution = function (dataEXind,
                         y = ymax_grid +
                             dy_arrow*norm
                         yend = ymax_grid +
-                            (dy_arrow +
-                             dl_arrow)*norm
+                            dy_arrow*norm +
+                             dl_arrow
                     } else if (below) {
                         y = ymin_grid -
                             dy_arrow*norm
                         yend = ymin_grid -
-                            (dy_arrow +
-                             dl_arrow)*norm
+                            dy_arrow*norm -
+                            dl_arrow
                     }
                     Ind = Ind +
                         annotate("segment",
@@ -595,49 +784,72 @@ panel_indicator_distribution = function (dataEXind,
             }
         }
     }
+
     
+## 5. TOPIC INFO _____________________________________________________
+    VarRAW = metaEXind$var
+    VarRAW = gsub("racine", "r", VarRAW)
+    VarRAW = gsub("median", "", VarRAW)
+    VarRAW = gsub("mean", "", VarRAW)
+    VarRAW = gsub("HYP", "H", VarRAW)
+    VarRAW = gsub("alpha", "A", VarRAW)
+    VarRAW = gsub("epsilon", "E", VarRAW)
+    OK_ = grepl("[_]", VarRAW)
+    tmp = gsub("^.*[_]", "", VarRAW)
+    tmp = gsub("([{])|([}])", "", tmp)
+    tmp[!OK_] = ""
+    tmp = gsub("[[:alnum:]]", "*", tmp)
+    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
+    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
+    VarRAW = gsub("[_].*$", "", VarRAW)
+    VarRAW = paste0(VarRAW, tmp)
+    VarRAW = strsplit(VarRAW, "*")
+
+    convert2space = function (X) {
+        X = gsub("[[:digit:]]", "1.2", X)
+        X = gsub("[[:upper:]]", "1.4", X)
+        X = gsub("[[:lower:]]", "1.1", X)
+        X = gsub("([-])|([,])", "0.5", X)
+        X = gsub("([*])", "0.9", X)
+        return (X) 
+    }
     
+    Span = lapply(VarRAW, convert2space)
+    Span = lapply(Span, as.numeric)
+    Span = lapply(Span, sum)
+    Span = unlist(Span)
+    maxSpan = max(Span)
     
     for (i in 1:nVar) { 
+
+        space = Spaces[i]
         
         Ind = Ind +
             
             annotate("line",
-                     x=rep((i-1) + 0.5, 2)*ech_x,
-                     y=c(dy,
-                         dy + dy_L1 + dy_I1/2)*ech,
-                     linewidth=lw_L1, color=IPCCgrey67) +
-            
-            gg_circle(r=dr_I1*ech,
-                      xc=((i-1) + 0.5)*ech_x,
-                      yc=(dy + dy_L1 + dy_I1)*ech,
-                      color=IPCCgrey67, linewidth=lw_L1,
-                      fill="white") +
-            
-            annotate("line",
-                     x=rep((i-1) + 0.5, 2)*ech_x,
+                     x=rep((i-1) + 0.5 + space, 2)*ech_x,
                      y=c(dy + dy_gap +
-                         dy_L1 + dy_I1 + dy_T1,
+                         dy_T1,
                          dy +
-                         dy_L1 + dy_I1 + dy_T1 + 
-                         maxSpace*ech_T1 + dy_L2_min)*ech,
+                         dy_T1 + 
+                         maxSpan*ech_T1 + dy_L2_min),
                      linewidth=lw_L1, color=IPCCgrey67) +
             
             annotate("rect",
-                     xmin=((i-1) + 0.1)*ech_x,
-                     xmax=((i-1) + 0.9)*ech_x,
+                     xmin=((i-1) + 0.1 + space)*ech_x,
+                     xmax=((i-1) + 0.9 + space)*ech_x,
                      ymin=(dy +
-                           dy_L1 + dy_I1 + dy_T1)*ech,
+                           dy_T1),
                      ymax=(dy +
-                           dy_L1 + dy_I1 + dy_T1 +
-                           Space[i]*ech_T1)*ech,
+                           dy_T1 +
+                           Span[i]*ech_T1),
                      fill="white",
                      color=NA) +
             
             annotate("text",
-                     x=((i-1) + 0.5)*ech_x,
+                     x=((i-1) + 0.5 + space)*ech_x,
                      y=(dy +
-                        dy_L1 + dy_I1 + dy_T1)*ech,
+                        dy_T1),
                      label=TeX(VarTEX[i]),
                      hjust=0, vjust=0.675,
                      angle=90,
@@ -645,8 +857,8 @@ panel_indicator_distribution = function (dataEXind,
                      color=IPCCgrey40)
     }
 
-    dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
-
+    dy = dy +
+        dy_T1 + maxSpan*ech_T1 + dy_L2_min
 
     nLine = c()
     for (i in 1:nMainTopic) {
@@ -657,6 +869,9 @@ panel_indicator_distribution = function (dataEXind,
     dy_I2 = dy_I2 + dy_T2line*max(nLine)
 
     for (i in 1:nMainTopic) {
+
+        spaces = Spaces[mainTopicVAR == mainTopic[i]]
+        space = mean(spaces)
         
         nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
         label = guess_newline(mainTopic[i], nLim=nLim)
@@ -666,20 +881,20 @@ panel_indicator_distribution = function (dataEXind,
         Ind = Ind +
             annotation_custom(
                 mainTopic_icon[[i]],
-                xmin=midMainTopic[i]*ech_x - size_I2*ech,
-                xmax=midMainTopic[i]*ech_x + size_I2*ech,
+                xmin=(midMainTopic[i] + space)*ech_x - size_I2,
+                xmax=(midMainTopic[i] + space)*ech_x + size_I2,
                 ymin=(dy + 
-                      dy_L4 + dy_I2 - size_I2)*ech,
+                      dy_L4 + dy_I2 - size_I2),
                 ymax=(dy + 
-                      dy_L4 + dy_I2 + size_I2)*ech)
+                      dy_L4 + dy_I2 + size_I2))
 
         for (j in 1:nLine) {
             Ind = Ind +
                 annotate("text",
-                         x=midMainTopic[i]*ech_x,
+                         x=(midMainTopic[i] + space)*ech_x,
                          y=(dy + 
                             dy_L4 + dy_T2 +
-                            (j-1)*dy_T2line)*ech,
+                            (j-1)*dy_T2line),
                          hjust=0.5, vjust=0,
                          angle=0,
                          label=label[j],
@@ -690,33 +905,311 @@ panel_indicator_distribution = function (dataEXind,
 
         Ind = Ind +
             annotate("line",
-                     x=c(midMainTopic[i], midMainTopic[i])*ech_x,
+                     x=c(midMainTopic[i] + space,
+                         midMainTopic[i] + space)*ech_x,
                      y=c(dy,
-                         dy + dy_L4)*ech,
+                         dy + dy_L4),
                      linewidth=lw_L4, color=IPCCgrey48,
                      lineend="round") +
 
     annotate("line",
-             x=c(startMainTopic[i], endMainTopic[i])*ech_x,
-             y=rep(dy, 2)*ech,
+             x=c(startMainTopic[i] + spaces[1],
+                 endMainTopic[i] + spaces[length(spaces)])*ech_x,
+             y=rep(dy, 2),
              linewidth=lw_L3, color=IPCCgrey48,
              lineend="round")
     }
 
     dy = dy + dy_L4 + dy_I2 + size_I2
+
+
+## 6. BAR PLOT LEGEND ________________________________________________
+    Ind = Ind +
+        annotate("text",
+                 x=x_title,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg),
+                 label="LÉGENDE",
+                 color=IPCCgrey25,
+                 hjust=0, vjust=0, size=2.5) +
+        
+        annotate("line",
+                 x=rep(dx_leg_line, 2),
+                 y=c(ymin_grid - (dy_gap +
+                                  dy_leg +
+                                  dy_leg_line),
+                     ymin_grid - (dy_gap +
+                                  dy_leg +
+                                  dy_leg_line +
+                                  dl_leg_line)),
+                 color=IPCCgrey50,
+                 alpha=alpha_spread,
+                 linewidth=1.5,
+                 lineend="round") +
+        annotate("point",
+                 x=rep(dx_leg_line, 2),
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 color="white",
+                 size=2.4,
+                 stroke=0) +
+        annotate("point",
+                 x=rep(dx_leg_line, 2),
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 alpha=alpha,
+                 color=IPCCgrey50,
+                 size=1.5,
+                 stroke=0) +
+        
+        annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_leg +
+                                    dy_leg_line), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.2) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_line),
+                 label=paste0("<b>", (1-prob)*100,
+                              "%</b> des résultats dans la région ",
+                              "hydrologique de ",
+                              meta_code$region_hydro,
+                              " sont <b>inférieurs</b> à cette valeur"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2) +
+        
+            annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dy_leg_point), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.2) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 label=paste0("<b>Valeur relative</b> du critère ",
+                              "à la station"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2) +
+        
+        annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dl_leg_line), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.2) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line),
+                 label=paste0("<b>", prob*100,
+                              "%</b> des résultats dans la région ",
+                              "hydrologique de ",
+                              meta_code$region_hydro,
+                              " sont <b>supérieurs</b> à cette valeur"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2) +
+        
+        annotate("segment",
+                 x=dx_leg_line +
+                     dx_leg_arrow,
+                 xend=dx_leg_line +
+                     dx_leg_arrow,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_arrow -
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_leg +
+                                   dy_leg_arrow -
+                                   dy_leg_arrow_gap/2 -
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("segment",
+                 x=dx_leg_line +
+                     dx_leg_arrow,
+                 xend=dx_leg_line +
+                     dx_leg_arrow,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_arrow +
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_leg +
+                                   dy_leg_arrow +
+                                   dy_leg_arrow_gap/2 +
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dx_leg_arrow +
+                     dx_leg_arrow_text,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_leg_arrow),
+                 label=paste0("Valeur <b>hors limite</b>"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2)
     
+
+    
+## 7. MODEL HYDRO LEGEND _____________________________________________
+    PX = get_alphabet_in_px(save=FALSE)
+    
+    title_mod = "MODÈLES HYDROLOGIQUES"
+    Ind = Ind +
+        annotate("text",
+                 x=x_title,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_mod),
+                 label=title_mod,
+                 color=IPCCgrey25,
+                 hjust=0, vjust=0, size=2.5) +
+        annotate("text",
+                 x=x_title + dx_mod_subtitle,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_mod) +
+                     dy_mod_subtitle,
+                 label="(recouvrement de surface)",
+                 color=IPCCgrey25,
+                 hjust=0, vjust=0, size=2.2)
+
+    Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
+    Span = lapply(Span, sum)
+    Span = unlist(Span)
+    Span = c(0, Span)
+
+    find = function (x, table) {
+        which(grepl(x, table))[1]
+    }
+    
+    color = Colors[sapply(Model, find, table=names(Colors))]
+    for (i in 1:nModel) {
+
+        for (k in 1:length(dl_mod_line)) {
+            Ind = Ind +
+                annotate("line",
+                         x=c(dx_mod_name + dx_mod_space*(i-1) +
+                             max(dl_mod_line) -
+                             dl_mod_line[k],
+                             dx_mod_name + dx_mod_space*(i-1) +
+                             max(dl_mod_line))*ech_x +
+                           sum(Span[1:i])*ech_text_mod,
+                         y=rep(ymin_grid -
+                               (dy_gap +
+                                dy_leg +
+                                dy_mod +
+                                dy_mod_name -
+                                dy_mod_line),
+                               2),
+                         alpha=alpha_mod_line[k],
+                         linewidth=1.5,
+                         color=color[i],
+                         lineend="round")
+        }
+        Ind = Ind +
+            annotate("text",
+                     x=(dx_mod_name + dx_mod_space*(i-1) +
+                        max(dl_mod_line) +
+                        dx_mod_line)*ech_x +
+                       sum(Span[1:i])*ech_text_mod,
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_leg +
+                          dy_mod +
+                          dy_mod_name),
+                     label=Model[i],
+                     color=IPCCgrey25,
+                     hjust=0, vjust=0, size=3.2)
+    }
+
+
+## 8. SURFACE LEGEND _________________________________________________
+
+    
+
+## 9. INTERPRETATION BLOC ____________________________________________
+    Ind = Ind +
+        annotate("text",
+                 x=x_title,
+                 y=ymin_grid - (dy_gap +
+                                dy_leg +
+                                dy_mod +
+                                dy_interp),
+                 label="INTERPRÉTATIONS",
+                 color=IPCCgrey25,
+                 hjust=0, vjust=0, size=2.5)
+    
+
+    
+    
+## 10. END OF GRAPH __________________________________________________
+    y_limits=
+        c(ymin_grid - (dy_gap +
+                       dy_leg +
+                       dy_mod +
+                       dy_interp),
+        (dy+dy_icon_out))
     
     Ind = Ind +
-        
-        scale_x_continuous(
-            limits=x_limits,
-            expand=c(0, 0)) +
-        
-        scale_y_continuous(
-            limits=
-                c(ymin_grid-(dy_gap+dy_leg)*ech,
-                (dy+dy_icon_out)*ech),
-            expand=c(0, 0))
+        scale_x_continuous(limits=x_limits,
+                           expand=c(0, 0)) +
+        scale_y_continuous(limits=y_limits,
+                           expand=c(0, 0))
 
     return (Ind)
 }

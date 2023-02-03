@@ -151,7 +151,7 @@ page_diagnostic_datasheet = function (data,
                                 Colors,
                                 title="(b) Débit journalier médian inter-annuel",
                                 unit="m^{3}.s^{-1}",
-                                alpha=0.8,
+                                alpha=0.85,
                                 isSqrt=TRUE,
                                 missRect=FALSE,
                                 isBack=FALSE,
@@ -182,7 +182,7 @@ page_diagnostic_datasheet = function (data,
                               Colors,
                               title="(c) Courbe des débits classés",
                               unit="m^{3}.s^{-1}",
-                              alpha=0.8,
+                              alpha=0.85,
                               isSqrt=TRUE,
                               missRect=FALSE,
                               isTitle=TRUE,
@@ -207,16 +207,17 @@ page_diagnostic_datasheet = function (data,
         Ind = panel_indicator_distribution(
             dataEXind,
             metaEXind,
+            meta,
             Colors,
             codeLight=code,
             icon_path=icon_path,
             title="(d) Critères de diagnostic",
-            alpha=0.8,
-            alpha_spread=0.2,
+            alpha=0.85,
+            alpha_spread=0.25,
             dTitle=0.01,
             add_name=TRUE,
             margin_add=
-                margin(t=-6, r=0, b=0, l=0, "mm"))
+                margin(t=0, r=0, b=0, l=0, "cm"))
         STOCK = add_plot(STOCK,
                          plot=Ind,
                          name="Ind",
@@ -229,7 +230,7 @@ page_diagnostic_datasheet = function (data,
                          width=void_width)
         
 
-        footName = paste0('fiche station de diagnostic : ', code)
+        footName = paste0('Fiche station de diagnostic')
         if (is.null(df_page)) {
             n_page = i
         } else {

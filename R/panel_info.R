@@ -94,7 +94,7 @@ panel_info = function(data, meta,
         text2 = paste(
             "<b>",
             "Gestionnaire : ", meta_code$gestionnaire, "<br>",
-            "Bassin hydrographique : ", meta_code$region_hydro,
+            "Région hydrographique : ", meta_code$region_hydro,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
@@ -136,8 +136,8 @@ panel_info = function(data, meta,
                               origin=as.Date("1970-01-01")) -
             as.numeric(format(as.Date(meta_code$debut), "%Y"),
                        origin=as.Date("1970-01-01"))
-        debut = format(as.Date(meta_code$debut), "%d/%m/%Y")
-        fin = format(as.Date(meta_code$fin), "%d/%m/%Y")
+        debut = format(min(data_code$Date), "%d/%m/%Y")
+        fin = format(max(data_code$Date), "%d/%m/%Y")
 
         text4 = paste(
             # "<b>",

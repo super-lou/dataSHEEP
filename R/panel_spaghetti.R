@@ -78,9 +78,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
     # Open new plot
     p = ggplot() +
         theme_IPCC(isBack, isTitle, dTitle=dTitle, isXlabel=!is.null(Xlabel)) +
+        # theme_WIP() + 
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
-        # theme_WIP()
+    
 
     ### Grid ###
     if (!grid) {
@@ -180,7 +181,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=1.5,
+                              linewidth=1.7,
                               lineend="round") +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
@@ -323,10 +324,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
     # Margins
     tt = 2.5
     t = 2
-    r = 
     tb = 3
     b = 2
-    l = 
     
     if (last == "all") {
         pLastTRUE = p

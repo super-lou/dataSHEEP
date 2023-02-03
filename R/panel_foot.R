@@ -28,6 +28,14 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
     nLogo = length(logo_path)
     nbg = nLogo + 3
     P = vector(mode='list', length=nbg)
+
+    # gtext_name = richtext_grob(name,
+    #                            x=0, y=0.5,
+    #                            margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+    #                            hjust=0, vjust=0.5,
+    #                            gp=gpar(col="#00A3A8", fontsize=8))
+    
+    # P[[1]] = gtext_name
     P[[1]] = void()
     LM_row = c(1)
     widths = c(1)
@@ -74,7 +82,12 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
         widths = c(widths, width)
     }
 
-    text_page = paste0(name, "  <b>p. ", n_page, "</b>")
+    # text_page = paste0("<b>p. ", n_page, "</b>")
+    text_page = paste0(name,
+                       "<span style='color:white'>&#95;</span>",
+                       "<b>p. ",
+                       n_page, "</b>")
+
     
     text_date = format(Sys.Date(),
                        "%B<span style='color:white'>&#95;</span>%Y")
