@@ -657,3 +657,8 @@ get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
 X2px = function (X, PX) {
     PX[X]
 }
+
+
+
+
+
