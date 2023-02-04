@@ -25,6 +25,7 @@ panel_indicator_distribution = function (dataEXind,
                                          Colors,
                                          codeLight,
                                          icon_path,
+                                         Warnings=NULL,
                                          prob=0.1,
                                          title="",
                                          alpha=0.7,
@@ -985,11 +986,15 @@ panel_indicator_distribution = function (dataEXind,
                                 dy_leg +
                                 dy_mod +
                                 dy_interp),
-                 label="INTERPRÉTATIONS",
+                 label="AVERTISSEMENT",
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.5)
     
 
+
+    Warnings
+
+    
     
     
 ## 10. END OF GRAPH __________________________________________________
