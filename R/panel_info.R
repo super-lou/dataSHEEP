@@ -131,11 +131,8 @@ panel_info = function(data, meta,
     # Time info about station
     if ('temporal' %in% to_do | 'all' %in% to_do) {
         # Computes the time span of data, the start and the end
-        duration = as.numeric(format(as.Date(meta_code$fin),
-                                     "%Y"),
-                              origin=as.Date("1970-01-01")) -
-            as.numeric(format(as.Date(meta_code$debut), "%Y"),
-                       origin=as.Date("1970-01-01"))
+        duration = round(as.numeric(max(data_code$Date) -
+                                    min(data_code$Date))/365.25)
         debut = format(min(data_code$Date), "%d/%m/%Y")
         fin = format(max(data_code$Date), "%d/%m/%Y")
 

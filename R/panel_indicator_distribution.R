@@ -58,21 +58,8 @@ panel_indicator_distribution = function (dataEXind,
 
 
     x_title = 0
-    
-    dy_leg = 0.5
-    dx_leg_line = 0.3
-    dy_leg_line = 0.25
-    dl_leg_line = 0.7
-    dy_leg_point = 0.3
-    dl_leg_line_grad = 0.2
-    dr_leg_line_grad = 0.1
-    w_leg_line_grad = 0.3
-    dx_leg_arrow = 11.5
-    dy_leg_arrow = 0.6
-    dy_leg_arrow_gap = 0.1
-    dx_leg_arrow_text = 0.1
 
-    dy_mod = 1.8
+    dy_mod = 0.5
     dx_mod_subtitle = 4.5
     dy_mod_subtitle = 0.05
     dx_mod_name = 0
@@ -82,17 +69,37 @@ panel_indicator_distribution = function (dataEXind,
     dx_mod_line = 0.12
     dl_mod_line = c(0.3, 0.15)
     alpha_mod_line = c(alpha_spread, alpha) 
-
     ech_text_mod = 0.41
 
+
+    dy_leg = 1.8
+    dh_leg = 3
+    dx_leg_line = 0.3
+    dy_leg_line = 0.25
+    dl_leg_line = 0.85
+    dy_leg_point = 0.4
+    dl_leg_line_grad = 0.2
+    dr_leg_line_grad = 0.1
+    w_leg_line_grad = 0.3
+    dx_leg_arrow = 11.5
+    dy_leg_arrow = 0.6
+    dy_leg_arrow_gap = 0.1
+    dx_leg_arrow_text = 0.1
     
-    dy_interp = 1.4
+    dx_interp = 10
+    dl_interp_text_line = 0.05
+    dr_interp_text_line = 0.05
+    w_interp_text_line = 0.2
+    dy_interp_text = 0.3
+    dy_interp_line = 0.35
+    dy_interp_nline = 0.3
+    
+    
+    
+    
 
     
-    lw = 1.3
-
     dx_arrow = 0.8
-
     ech_bar = 5
 
     major_tick_val = list("KGE"=c(0, 0.6, 0.8, 1),
@@ -718,190 +725,8 @@ panel_indicator_distribution = function (dataEXind,
 
     dy = dy + dy_L4 + dy_I2 + size_I2
 
-
-## 6. BAR PLOT LEGEND ________________________________________________
-    Ind = Ind +
-        annotate("text",
-                 x=x_title,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg),
-                 label="LÉGENDE",
-                 color=IPCCgrey25,
-                 hjust=0, vjust=0, size=2.5) +
-        
-        annotate("line",
-                 x=rep(dx_leg_line, 2),
-                 y=c(ymin_grid - (dy_gap +
-                                  dy_leg +
-                                  dy_leg_line),
-                     ymin_grid - (dy_gap +
-                                  dy_leg +
-                                  dy_leg_line +
-                                  dl_leg_line)),
-                 color=IPCCgrey50,
-                 alpha=alpha_spread,
-                 linewidth=1.5,
-                 lineend="round") +
-        annotate("point",
-                 x=rep(dx_leg_line, 2),
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 color="white",
-                 size=2.4,
-                 stroke=0) +
-        annotate("point",
-                 x=rep(dx_leg_line, 2),
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 alpha=alpha,
-                 color=IPCCgrey50,
-                 size=1.5,
-                 stroke=0) +
-        
-        annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_leg +
-                                    dy_leg_line), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.2) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_line),
-                 label=paste0("<b>", (1-prob)*100,
-                              "%</b> des résultats dans la région ",
-                              "hydrologique de ",
-                              meta_code$region_hydro,
-                              " sont <b>inférieurs</b> à cette valeur"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2) +
-        
-            annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dy_leg_point), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.2) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 label=paste0("<b>Valeur relative</b> du critère ",
-                              "à la station"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2) +
-        
-        annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dl_leg_line), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.2) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_line +
-                                dl_leg_line),
-                 label=paste0("<b>", prob*100,
-                              "%</b> des résultats dans la région ",
-                              "hydrologique de ",
-                              meta_code$region_hydro,
-                              " sont <b>supérieurs</b> à cette valeur"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2) +
-        
-        annotate("segment",
-                 x=dx_leg_line +
-                     dx_leg_arrow,
-                 xend=dx_leg_line +
-                     dx_leg_arrow,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_arrow -
-                                dy_leg_arrow_gap/2),
-                 yend=ymin_grid - (dy_gap +
-                                   dy_leg +
-                                   dy_leg_arrow -
-                                   dy_leg_arrow_gap/2 -
-                                   dl_arrow),
-                 color=IPCCgrey50,
-                 alpha=alpha,
-                 linewidth=0.3,
-                 arrow=arrow(length=unit(dx_arrow,
-                                         "mm")),
-                 lineend="round") +
-        annotate("segment",
-                 x=dx_leg_line +
-                     dx_leg_arrow,
-                 xend=dx_leg_line +
-                     dx_leg_arrow,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_arrow +
-                                dy_leg_arrow_gap/2),
-                 yend=ymin_grid - (dy_gap +
-                                   dy_leg +
-                                   dy_leg_arrow +
-                                   dy_leg_arrow_gap/2 +
-                                   dl_arrow),
-                 color=IPCCgrey50,
-                 alpha=alpha,
-                 linewidth=0.3,
-                 arrow=arrow(length=unit(dx_arrow,
-                                         "mm")),
-                 lineend="round") +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dx_leg_arrow +
-                     dx_leg_arrow_text,
-                 y=ymin_grid - (dy_gap +
-                                dy_leg +
-                                dy_leg_arrow),
-                 label=paste0("Valeur <b>hors limite</b>"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2)
     
-
-    
-## 7. MODEL HYDRO LEGEND _____________________________________________
+## 6. MODEL HYDRO LEGEND _____________________________________________
     PX = get_alphabet_in_px(save=FALSE)
     
     title_mod = "MODÈLES HYDROLOGIQUES"
@@ -909,7 +734,6 @@ panel_indicator_distribution = function (dataEXind,
         annotate("text",
                  x=x_title,
                  y=ymin_grid - (dy_gap +
-                                dy_leg +
                                 dy_mod),
                  label=title_mod,
                  color=IPCCgrey25,
@@ -917,7 +741,6 @@ panel_indicator_distribution = function (dataEXind,
         annotate("text",
                  x=x_title + dx_mod_subtitle,
                  y=ymin_grid - (dy_gap +
-                                dy_leg +
                                 dy_mod) +
                      dy_mod_subtitle,
                  label="(recouvrement de surface)",
@@ -947,7 +770,6 @@ panel_indicator_distribution = function (dataEXind,
                            sum(Span[1:i])*ech_text_mod,
                          y=rep(ymin_grid -
                                (dy_gap +
-                                dy_leg +
                                 dy_mod +
                                 dy_mod_name -
                                 dy_mod_line),
@@ -965,7 +787,6 @@ panel_indicator_distribution = function (dataEXind,
                        sum(Span[1:i])*ech_text_mod,
                      y=ymin_grid -
                          (dy_gap +
-                          dy_leg +
                           dy_mod +
                           dy_mod_name),
                      label=Model[i],
@@ -974,25 +795,263 @@ panel_indicator_distribution = function (dataEXind,
     }
 
 
-## 8. SURFACE LEGEND _________________________________________________
+## 7. SURFACE LEGEND _________________________________________________
 
+
+## 8. BAR PLOT LEGEND ________________________________________________
+    Ind = Ind +
+        annotate("text",
+                 x=x_title,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg),
+                 label="LÉGENDE",
+                 color=IPCCgrey25,
+                 hjust=0, vjust=0, size=2.5) +
+        
+        annotate("line",
+                 x=rep(dx_leg_line, 2),
+                 y=c(ymin_grid - (dy_gap +
+                                  dy_mod +
+                                  dy_leg +
+                                  dy_leg_line),
+                     ymin_grid - (dy_gap +
+                                  dy_mod +
+                                  dy_leg +
+                                  dy_leg_line +
+                                  dl_leg_line)),
+                 color=IPCCgrey50,
+                 alpha=alpha_spread,
+                 linewidth=1.5,
+                 lineend="round") +
+        annotate("point",
+                 x=rep(dx_leg_line, 2),
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 color="white",
+                 size=2.4,
+                 stroke=0) +
+        annotate("point",
+                 x=rep(dx_leg_line, 2),
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 alpha=alpha,
+                 color=IPCCgrey50,
+                 size=1.5,
+                 stroke=0) +
+        
+        annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.25) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line),
+                 label=paste0("<b>Quantile à ", (1-prob)*100,
+                              "%</b> des résultats dans la région hydrologique"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2.4) +
+        
+            annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dy_leg_point), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.25) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dy_leg_point),
+                 label="<b>Valeur</b> du critère à la station",
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2.4) +
+        
+        annotate("line",
+                 x=c(dx_leg_line +
+                     dl_leg_line_grad,
+                     dx_leg_line +
+                     dl_leg_line_grad + 
+                     w_leg_line_grad),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dl_leg_line), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.25) +
+        annotate("richtext",
+                 x=dx_leg_line +
+                     dl_leg_line_grad +
+                     w_leg_line_grad +
+                     dr_leg_line_grad,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line),
+                 label=paste0("<b>Quantile à ", prob*100,
+                              "%</b> des résultats dans la région hydrologique"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2.4) +
+        
+        annotate("segment",
+                 x=dx_leg_line,
+                 xend=dx_leg_line,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow -
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_mod +
+                                   dy_leg +
+                                   dy_leg_line +
+                                   dl_leg_line +
+                                   dy_leg_arrow -
+                                   dy_leg_arrow_gap/2 -
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("segment",
+                 x=dx_leg_line,
+                 xend=dx_leg_line,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow +
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_mod +
+                                   dy_leg +
+                                   dy_leg_line +
+                                   dl_leg_line +
+                                   dy_leg_arrow +
+                                   dy_leg_arrow_gap/2 +
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("richtext",
+                 x=dx_leg_line + 
+                     dx_leg_arrow_text,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow),
+                 label=paste0("Valeur <b>hors limite</b>"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2.4)
     
 
 ## 9. INTERPRETATION BLOC ____________________________________________
     Ind = Ind +
         annotate("text",
-                 x=x_title,
+                 x=x_title + dx_interp,
                  y=ymin_grid - (dy_gap +
-                                dy_leg +
                                 dy_mod +
-                                dy_interp),
+                                dy_leg),
                  label="AVERTISSEMENT",
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.5)
+
+    Warnings_code = Warnings[Warnings$Code == codeLight,]
+    nWar_lim = 5
+    nLine = 0
+    nLim = 100
+    for (i in 1:nWar_lim) {
+
+        Label = guess_newline(Warnings_code$line[i], nLim=nLim)
+        Label = unlist(strsplit(Label, "\n"))
+        
+        Ind = Ind +
+            annotate("line",
+                 x=c(x_title + dx_interp +
+                     dl_interp_text_line,
+                     x_title + dx_interp +
+                     dl_interp_text_line + 
+                     w_interp_text_line),
+                 y=rep(ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_interp_text +
+                                    (i-1)*dy_interp_line +
+                                    nLine*dy_interp_nline), 2),
+                 color=IPCCgrey85,
+                 linewidth=0.25)
+        for (j in 1:length(Label)) {
+            Ind = Ind +
+                annotate("richtext",
+                         x=x_title + dx_interp +
+                             dl_interp_text_line + 
+                             w_interp_text_line +
+                             dr_interp_text_line,
+                         y=ymin_grid - (dy_gap +
+                                        dy_mod +
+                                        dy_leg +
+                                        dy_interp_text +
+                                        (i-1)*dy_interp_line +
+                                        (nLine+(j-1))*dy_interp_nline),
+                         label=Label[j],
+                         fill=NA, label.color=NA,
+                         color=IPCCgrey50,
+                         hjust=0, vjust=0.55, size=2.4)
+        }
+        nLine = nLine + length(Label)-1
+    }
+
+
     
 
-
-    Warnings
 
     
     
@@ -1002,7 +1061,7 @@ panel_indicator_distribution = function (dataEXind,
         c(ymin_grid - (dy_gap +
                        dy_leg +
                        dy_mod +
-                       dy_interp),
+                       dh_leg),
         (dy+dy_icon_out))
     
     Ind = Ind +

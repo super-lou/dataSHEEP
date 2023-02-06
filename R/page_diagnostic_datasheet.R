@@ -28,6 +28,7 @@ page_diagnostic_datasheet = function (data,
                                       Colors,
                                       ModelGroup=NULL,
                                       icon_path="",
+                                      Warnings=NULL,
                                       logo_path="",
                                       df_page=NULL,
                                       Shapefiles=NULL,
@@ -42,7 +43,7 @@ page_diagnostic_datasheet = function (data,
     chronicle_height = 3
     medQJ_height = 7
     FDC_height = 7
-    Ind_height = 13
+    Ind_height = 15
 
     foot_height = 1.25
     
@@ -211,6 +212,7 @@ page_diagnostic_datasheet = function (data,
             Colors,
             codeLight=code,
             icon_path=icon_path,
+            Warnings=Warnings,
             title="(d) Critères de diagnostic",
             alpha=0.85,
             alpha_spread=0.25,
