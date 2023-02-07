@@ -290,8 +290,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                     x=0.76, y=-1,
                                     label="1   basses eaux",
                                     color=IPCCgrey50,
-                                    size=2.8,
-                                    vjust=0.55, hjust=0) +
+                                    size=2.7,
+                                    vjust=0.51, hjust=0) +
                            annotate("segment",
                                     x=0.3, xend=0.25,
                                     y=-1, yend=-1,
@@ -303,8 +303,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                     x=0.24, y=-1,
                                     label="hautes eaux   0",
                                     color=IPCCgrey50,
-                                    size=2.8,
-                                    vjust=0.55, hjust=1) +
+                                    size=2.7,
+                                    vjust=0.51, hjust=1) +
                            scale_x_continuous(limits=c(0, 1),
                                               expand=c(0, 0)) +
                            scale_y_continuous(limits=c(-2, 2),

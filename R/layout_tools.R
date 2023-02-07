@@ -598,16 +598,17 @@ plotly_save = function (fig, path) {
 
 other_letters = c("é", "è", "à")
 numbers = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-symbols = c("-", "_", ".", ",")
+symbols = c("-", "_", ".", ",", "*")
 get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
                                           other_letters,
                                           numbers, symbols),
                                size=50, font="sans",
+                               style="normal",
                                isNorm=TRUE,
                                out_dir="letter",
                                save=FALSE) {
     library(magick)
-    if (!dir.exists(out_dir)) {
+    if (save &!dir.exists(out_dir)) {
         dir.create(out_dir)
     }
     find_id = function (X, a, where="") {
@@ -623,10 +624,18 @@ get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
             return (NA)
         }
     }
+
+    if (style == "bold") {
+        weight = 700
+    } else {
+        weight = 400
+    }
+    
     PX = c()
     for (letter in alphabet) {
         img = image_blank(width=size, height=size, color="white")
-        img = image_annotate(img, letter, size=size, font=font, color="#000000")
+        img = image_annotate(img, letter, size=size, style="normal",
+                             weight=weight, font=font, color="#000000")
         pixels = as.character(c(image_data(img, channel="gray")))
         pixels[pixels != "ff"] = "1"
         pixels[pixels == "ff"] = "0"

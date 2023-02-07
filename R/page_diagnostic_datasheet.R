@@ -41,6 +41,7 @@ page_diagnostic_datasheet = function (data,
     
     info_height = 3
     chronicle_height = 3
+    QA_height = 3
     medQJ_height = 7
     FDC_height = 7
     Ind_height = 15
@@ -48,16 +49,16 @@ page_diagnostic_datasheet = function (data,
     foot_height = 1.25
     
     # legColor_height = 29.7 - info_height - chronicle_height - medQJ_height - Ind_height - foot_height - page_margin["l"] - page_margin["r"]
-    legColor_height = 3
+    # legColor_height = 3
     
     
-    void_height = legColor_height
+    # void_height = legColor_height
     
     medQJ_width = 10
     FDC_width = 10
-    legColor_width = 5
+    # legColor_width = 5
 
-    void_width = 21 - legColor_width - page_margin["l"] - page_margin["r"]
+    # void_width = 21 - legColor_width - page_margin["l"] - page_margin["r"]
     
 
     
@@ -78,8 +79,8 @@ page_diagnostic_datasheet = function (data,
     si_shift = c(x=2.5, y=0.2)
 
     NAME = matrix(c(
-        "info", "chronicle", "medQJ", "Ind", "legColor", "foot",
-        "info", "chronicle", "FDC", "Ind", "void", "foot"),
+        "info", "chronicle", "QA", "medQJ", "Ind", "foot",
+        "info", "chronicle", "QA", "FDC", "Ind", "foot"),
     ncol=2)
     WIP = FALSE
 
@@ -134,13 +135,43 @@ page_diagnostic_datasheet = function (data,
                                     minor_breaks="2 years",
                                     isBackObsAbove=FALSE,
                                     grid=TRUE,
-                                    margin_add=margin(t=1, r=0, b=0, l=0, "mm"),
+                                    margin_add=
+                                        margin(t=1, r=0, b=-2, l=0, "mm"),
                                     first=FALSE,
-                                    last=TRUE)
+                                    last=FALSE)
         STOCK = add_plot(STOCK,
                          plot=chronicle,
                          name="chronicle",
                          height=chronicle_height)
+
+        dataMOD = dataEXserie_code[["QA"]]
+        dataMOD = dplyr::rename(dataMOD,
+                                Q_obs="QA_obs",
+                                Q_sim="QA_sim")
+        QA = panel_spaghetti(dataMOD,
+                             Colors,
+                             title="(b) Débit annuel",
+                             unit="m^{3}.s^{-1}",
+                             alpha=0.85,
+                             isSqrt=TRUE,
+                             missRect=FALSE,
+                             isBack=FALSE,
+                             isTitle=TRUE,
+                             dTitle=-0.03,
+                             sizeYticks=6,
+                             date_labels="%Y",
+                             breaks="10 years",
+                             minor_breaks="2 years",
+                             isBackObsAbove=TRUE,
+                             grid=TRUE,
+                             margin_add=
+                                 margin(t=-2, r=0, b=0, l=0, "mm"),
+                             first=FALSE,
+                             last=TRUE)
+        STOCK = add_plot(STOCK,
+                         plot=QA,
+                         name="QA",
+                         height=QA_height)
 
         dataMOD = dataEXserie_code[["median{QJ}"]]
         dataMOD$Date = as.Date(dataMOD$Yearday-1,
@@ -150,7 +181,7 @@ page_diagnostic_datasheet = function (data,
                                 Q_sim="median{QJ}_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
-                                title="(b) Débit journalier médian inter-annuel",
+                                title="(c) Débit journalier médian inter-annuel",
                                 unit="m^{3}.s^{-1}",
                                 alpha=0.85,
                                 isSqrt=TRUE,
@@ -181,7 +212,7 @@ page_diagnostic_datasheet = function (data,
                                 Q_sim="FDC_sim_Q")
         FDC = panel_spaghetti(dataMOD,
                               Colors,
-                              title="(c) Courbe des débits classés",
+                              title="(d) Courbe des débits classés",
                               unit="m^{3}.s^{-1}",
                               alpha=0.85,
                               isSqrt=TRUE,
@@ -214,23 +245,23 @@ page_diagnostic_datasheet = function (data,
             codeLight=code,
             icon_path=icon_path,
             Warnings=Warnings,
-            title="(d) Critères de diagnostic",
+            title="(e) Critères de diagnostic",
             alpha=0.85,
             alpha_spread=0.25,
-            dTitle=0.01,
+            dTitle=0,
             add_name=TRUE,
             margin_add=
-                margin(t=0, r=0, b=0, l=0, "cm"))
+                margin(t=-3, r=0, b=0, l=0, "cm"))
         STOCK = add_plot(STOCK,
                          plot=Ind,
                          name="Ind",
                          height=Ind_height)
 
-        STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         height=void_height,
-                         width=void_width)
+        # STOCK = add_plot(STOCK,
+        #                  plot=void(),
+        #                  name="void",
+        #                  height=void_height,
+        #                  width=void_width)
         
 
         footName = paste0('Fiche station de diagnostic')

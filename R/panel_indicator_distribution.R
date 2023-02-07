@@ -100,7 +100,7 @@ panel_indicator_distribution = function (dataEXind,
 
     
     dx_arrow = 0.8
-    ech_bar = 5
+    ech_bar = 5.5
 
     major_tick_val = list("KGE"=c(0, 0.6, 0.8, 1),
                           "^epsilon"=c(0, 1, 2),
@@ -152,23 +152,26 @@ panel_indicator_distribution = function (dataEXind,
     
     dy_T1 = 0.1
     size_T1 = 3.2
-    ech_T1 = 0.23
+    dy_T1_space = 0.6
+    ech_text_var = 0.46
 
     dy_L2_min = 0.5
     lw_L2 = 0.25
-    
+
+    dl_L3 = 0.3
+    dr_L3 = 0.3
     dx_L3 = 0.5
     lw_L3 = 0.45
 
-    dy_L4 = 0.3
-    lw_L4 = 0.45
-    
-    dy_T2 = 0.17
+
+    dx_T2 = 0.3
+    dy_T2 = 0.15
     dy_T2line = 0.4
     size_T2 = 2.7
     ech_T2 = 7
-    
-    dy_I2 = 1
+
+    # dx_I2 = 0.2
+    dy_I2 = 0.6
     size_I2 = 0.5
     
     ech_x = 2
@@ -296,8 +299,6 @@ panel_indicator_distribution = function (dataEXind,
     id_save = ""
     space = 0
     Spaces = c()
-
-
 
 
 ## 3. GRAPHICAL INITIALISATION _______________________________________
@@ -590,91 +591,28 @@ panel_indicator_distribution = function (dataEXind,
 
     
 ## 5. TOPIC INFO _____________________________________________________
-    VarRAW = metaEXind$var
-    VarRAW = gsub("racine", "r", VarRAW)
-    VarRAW = gsub("median", "", VarRAW)
-    VarRAW = gsub("mean", "", VarRAW)
-    VarRAW = gsub("HYP", "H", VarRAW)
-    VarRAW = gsub("alpha", "A", VarRAW)
-    VarRAW = gsub("epsilon", "E", VarRAW)
-    OK_ = grepl("[_]", VarRAW)
-    tmp = gsub("^.*[_]", "", VarRAW)
-    tmp = gsub("([{])|([}])", "", tmp)
-    tmp[!OK_] = ""
-    tmp = gsub("[[:alnum:]]", "*", tmp)
-    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
-    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
-    VarRAW = gsub("[_].*$", "", VarRAW)
-    VarRAW = paste0(VarRAW, tmp)
-    VarRAW = strsplit(VarRAW, "*")
-
-    convert2space = function (X) {
-        X = gsub("[[:digit:]]", "1.2", X)
-        X = gsub("[[:upper:]]", "1.4", X)
-        X = gsub("[[:lower:]]", "1.1", X)
-        X = gsub("([-])|([,])", "0.5", X)
-        X = gsub("([*])", "0.9", X)
-        return (X) 
-    }
-    
-    Span = lapply(VarRAW, convert2space)
-    Span = lapply(Span, as.numeric)
-    Span = lapply(Span, sum)
-    Span = unlist(Span)
-    maxSpan = max(Span)
-    
     for (i in 1:nVar) { 
 
         space = Spaces[i]
         
         Ind = Ind +
-            
-            annotate("line",
-                     x=rep((i-1) + 0.5 + space, 2)*ech_x,
-                     y=c(dy + dy_gap +
-                         dy_T1,
-                         dy +
-                         dy_T1 + 
-                         maxSpan*ech_T1 + dy_L2_min),
-                     linewidth=lw_L1, color=IPCCgrey67) +
-            
-            annotate("rect",
-                     xmin=((i-1) + 0.1 + space)*ech_x,
-                     xmax=((i-1) + 0.9 + space)*ech_x,
-                     ymin=(dy +
-                           dy_T1),
-                     ymax=(dy +
-                           dy_T1 +
-                           Span[i]*ech_T1),
-                     fill="white",
-                     color=NA) +
-            
             annotate("text",
                      x=((i-1) + 0.5 + space)*ech_x,
                      y=(dy +
                         dy_T1),
                      label=TeX(VarTEX[i]),
-                     hjust=0, vjust=0.675,
-                     angle=90,
+                     hjust=0.5, vjust=0,
+                     angle=0,
                      size=size_T1,
                      color=IPCCgrey40)
     }
 
-    dy = dy +
-        dy_T1 + maxSpan*ech_T1 + dy_L2_min
-
-    nLine = c()
-    for (i in 1:nMainTopic) {
-        nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
-        label = guess_newline(mainTopic[i], nLim=nLim)
-        nLine = c(nLine, length(label))
-    }
-    dy_I2 = dy_I2 + dy_T2line*max(nLine)
+    dy = dy + dy_T1 + dy_T1_space
 
     for (i in 1:nMainTopic) {
 
         spaces = Spaces[mainTopicVAR == mainTopic[i]]
-        space = mean(spaces)
+        space = spaces[1]
         
         nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
         label = guess_newline(mainTopic[i], nLim=nLim)
@@ -684,21 +622,23 @@ panel_indicator_distribution = function (dataEXind,
         Ind = Ind +
             annotation_custom(
                 mainTopic_icon[[i]],
-                xmin=(midMainTopic[i] + space)*ech_x - size_I2,
-                xmax=(midMainTopic[i] + space)*ech_x + size_I2,
-                ymin=(dy + 
-                      dy_L4 + dy_I2 - size_I2),
-                ymax=(dy + 
-                      dy_L4 + dy_I2 + size_I2))
+                xmin=(startMainTopic[i] + space)*ech_x - size_I2,
+                xmax=(startMainTopic[i] + space)*ech_x + size_I2,
+                ymin=(dy + dy_I2 - size_I2),
+                ymax=(dy + dy_I2 + size_I2))
 
         for (j in 1:nLine) {
+            if (nLine == 1) {
+                y = dy + dy_I2 - dy_T2 
+            } else {
+                y = dy + dy_I2 + (j-1)*dy_T2line -
+                    dy_T2line/2 - dy_T2
+            }
             Ind = Ind +
                 annotate("text",
-                         x=(midMainTopic[i] + space)*ech_x,
-                         y=(dy + 
-                            dy_L4 + dy_T2 +
-                            (j-1)*dy_T2line),
-                         hjust=0.5, vjust=0,
+                         x=(startMainTopic[i] + space + dx_T2)*ech_x,
+                         y=y,
+                         hjust=0, vjust=0,
                          angle=0,
                          label=label[j],
                          fontface="bold",
@@ -708,27 +648,19 @@ panel_indicator_distribution = function (dataEXind,
 
         Ind = Ind +
             annotate("line",
-                     x=c(midMainTopic[i] + space,
-                         midMainTopic[i] + space)*ech_x,
-                     y=c(dy,
-                         dy + dy_L4),
-                     linewidth=lw_L4, color=IPCCgrey48,
-                     lineend="round") +
-
-    annotate("line",
-             x=c(startMainTopic[i] + spaces[1],
-                 endMainTopic[i] + spaces[length(spaces)])*ech_x,
-             y=rep(dy, 2),
-             linewidth=lw_L3, color=IPCCgrey48,
-             lineend="round")
+                     x=c(startMainTopic[i] - dl_L3 +
+                         spaces[1],
+                         endMainTopic[i] + dr_L3 + 
+                         spaces[length(spaces)])*ech_x,
+                     y=rep(dy, 2),
+                     linewidth=lw_L3, color=IPCCgrey48,
+                     lineend="round")
     }
 
-    dy = dy + dy_L4 + dy_I2 + size_I2
+    dy = dy + dy_I2 + size_I2
 
     
 ## 6. MODEL HYDRO LEGEND _____________________________________________
-    PX = get_alphabet_in_px(save=FALSE)
-    
     title_mod = "MODÈLES HYDROLOGIQUES"
     Ind = Ind +
         annotate("text",
@@ -747,6 +679,8 @@ panel_indicator_distribution = function (dataEXind,
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.2)
 
+    PX = get_alphabet_in_px(save=TRUE)
+    
     Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
     Span = lapply(Span, sum)
     Span = unlist(Span)
@@ -1005,7 +939,7 @@ panel_indicator_distribution = function (dataEXind,
                  hjust=0, vjust=0, size=2.5)
 
     Warnings_code = Warnings[Warnings$Code == codeLight,]
-    nWar_lim = 5
+    nWar_lim = 6
     nLine = 0
     nLim = 100
     for (i in 1:nWar_lim) {
