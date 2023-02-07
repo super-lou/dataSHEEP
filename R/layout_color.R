@@ -80,7 +80,7 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0, isXlabel=FALSE) {
 
     if (isXlabel) {
         axis.title.x = element_text(size=7.5,
-                                    vjust=1, hjust=1,
+                                    vjust=1, hjust=0.5,
                                     color=IPCCgrey40)
     } else {
         axis.title.x = element_blank()

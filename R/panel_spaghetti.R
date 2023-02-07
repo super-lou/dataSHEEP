@@ -35,6 +35,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             minor_breaks="2 years",
                             d_breaks=0,
                             break_round=-1,
+                            isNormLaw=FALSE,
                             Xlabel=NULL,
                             isBackObsAbove=TRUE,
                             axis_xlim=NULL, grid=TRUE,
@@ -42,6 +43,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             first=FALSE, last=FALSE) {
 
     isDate = inherits(data_code$Date, 'Date')
+
+    if (isNormLaw) {
+        data_code = data_code[data_code$Date != 0 &
+                              data_code$Date != 1,]
+        # data_code$Date[data_code$Date == 0] = 1e-50
+        # data_code$Date[data_code$Date == 1] = 1-1e-50
+    }
     
     if ("Model" %in% names(data_code)) {
         Model = levels(factor(data_code$Model))
@@ -76,7 +84,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     
     # Open new plot
-    p = ggplot() +
+    p = ggplot() + coord_cartesian(clip="off") + 
         theme_IPCC(isBack, isTitle, dTitle=dTitle, isXlabel=!is.null(Xlabel)) +
         # theme_WIP() + 
         theme(panel.border=element_blank(),
@@ -129,7 +137,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                           x=limits,
                           y=c(0, 0),
                           color=IPCCgrey60,
-                          size=0.6,
+                          size=0.5,
                           lineend="round")
     
     ### Data ###
@@ -231,11 +239,6 @@ panel_spaghetti = function (data_code, Colors=NULL,
             if (Xmax-Xmin <= 1) {
                 Xmin = lubridate::year(X)[1]
                 Xmax = lubridate::year(X)[1] + 1
-                # add = format(paste0(lubridate::year(X)[1],
-                                    # "-12-31"),
-                             # date_labels)
-            } else {
-                add = NULL
             }
             res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")) + d_breaks,
                            to=as.Date(paste0(Xmax, "-01-01")) + d_breaks,
@@ -270,27 +273,77 @@ panel_spaghetti = function (data_code, Colors=NULL,
         }
         return (res)
     }
+
+    if (isNormLaw) {
         
-    # Parameters of the x axis contain the limit of the date dataEx
-    if (isDate) {
         p = p +
-            scale_x_date(
-                breaks=get_breaks,
-                minor_breaks=get_minor_breaks,
-                guide='axis_minor',
-                date_labels=date_labels,
-                limits=limits,
-                position=position, 
-                expand=c(0, 0))
-    } else {
+            annotation_custom(
+                ggplotGrob(ggplot() + theme_void() +
+                           annotate("segment",
+                                    x=0.7, xend=0.75,
+                                    y=-1, yend=-1,
+                                    color=IPCCgrey50,
+                                    linewidth=0.3,
+                                    arrow=arrow(length=unit(1, "mm")),
+                                    lineend="round") +
+                           annotate("text",
+                                    x=0.76, y=-1,
+                                    label="1   basses eaux",
+                                    color=IPCCgrey50,
+                                    size=2.8,
+                                    vjust=0.55, hjust=0) +
+                           annotate("segment",
+                                    x=0.3, xend=0.25,
+                                    y=-1, yend=-1,
+                                    color=IPCCgrey50,
+                                    linewidth=0.3,
+                                    arrow=arrow(length=unit(1, "mm")),
+                                    lineend="round") +
+                           annotate("text",
+                                    x=0.24, y=-1,
+                                    label="hautes eaux   0",
+                                    color=IPCCgrey50,
+                                    size=2.8,
+                                    vjust=0.55, hjust=1) +
+                           scale_x_continuous(limits=c(0, 1),
+                                              expand=c(0, 0)) +
+                           scale_y_continuous(limits=c(-2, 2),
+                                              expand=c(0, 0))),
+                xmin=-Inf, xmax=Inf,
+                ymin=-2, ymax=2)
+
+        
         p = p +
             scale_x_continuous(
+                trans=scales::probability_trans("norm"),
                 breaks=get_breaks,
                 minor_breaks=get_minor_breaks,
                 guide='axis_minor',
                 limits=limits,
                 position=position, 
                 expand=c(0, 0))
+        
+    } else {
+        if (isDate) {
+            p = p +
+                scale_x_date(
+                    breaks=get_breaks,
+                    minor_breaks=get_minor_breaks,
+                    guide='axis_minor',
+                    date_labels=date_labels,
+                    limits=limits,
+                    position=position, 
+                    expand=c(0, 0))
+        } else {
+            p = p +
+                scale_x_continuous(
+                    breaks=get_breaks,
+                    minor_breaks=get_minor_breaks,
+                    guide='axis_minor',
+                    limits=limits,
+                    position=position, 
+                    expand=c(0, 0))
+        }
     }
     
 
