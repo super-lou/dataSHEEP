@@ -92,7 +92,7 @@ page_diagnostic_datasheet = function (data,
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
                    
-    Code = levels(factor(meta$Code))
+    Code = levels(factor(data$Code))
     nCode = length(Code)
     
     for (i in 1:nCode) {
