@@ -60,7 +60,7 @@ panel_indicator_distribution = function (dataEXind,
     x_title = 0
 
     dy_mod = 0.5
-    dx_mod_subtitle = 4.5
+    dx_mod_subtitle = 4.4
     dy_mod_subtitle = 0.05
     dx_mod_name = 0
     dy_mod_name = 0.5
@@ -68,6 +68,7 @@ panel_indicator_distribution = function (dataEXind,
     dy_mod_line = 0.18
     dx_mod_line = 0.12
     dl_mod_line = c(0.3, 0.15)
+    dy_mod_surf = 0.3
     alpha_mod_line = c(alpha_spread, alpha) 
     ech_text_mod = 0.41
 
@@ -95,21 +96,16 @@ panel_indicator_distribution = function (dataEXind,
     dy_interp_nline = 0.3
     
     
-    
-    
-
-    
     dx_arrow = 0.8
     ech_bar = 5.5
 
-    major_tick_val = list("KGE"=c(0, 0.6, 0.8, 1),
-                          "^epsilon"=c(0, 1, 2),
-                          "^alpha"=c(0, 1, 2),
+    major_tick_val = list("KGE"=c(0.5, 1),
+                          "(^epsilon)|(^alpha)"=c(0.5, 1, 2),
                           "default"=c(-1, 0, 1))
     minor_tick_val =
-        list("KGE"=c(0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9),
-             "^epsilon"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
-             "^alpha"=c(0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+        list("KGE"=c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
+             "(^epsilon)|(^alpha)"=c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+             # "(^epsilon)|(^alpha)"=c(0, 0.25, 0.75, 1.25, 1.5, 1.75),
              "default"=c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
 
 
@@ -363,7 +359,7 @@ panel_indicator_distribution = function (dataEXind,
                              y=(t+shift)*norm,
                              label=t,
                              hjust=1,
-                             vjust=0.5,
+                             vjust=0.52,
                              color=IPCCgrey40,
                              size=2.5)
             }
@@ -381,9 +377,9 @@ panel_indicator_distribution = function (dataEXind,
                              y=(t+shift)*norm,
                              label=t,
                              hjust=1,
-                             vjust=0.5,
+                             vjust=0.49,
                              color=IPCCgrey75,
-                             size=2.2)
+                             size=2.1)
             }
         } else {
 
@@ -670,14 +666,15 @@ panel_indicator_distribution = function (dataEXind,
                  label=title_mod,
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.5) +
-        annotate("text",
+        annotate("richtext",
                  x=x_title + dx_mod_subtitle,
                  y=ymin_grid - (dy_gap +
                                 dy_mod) +
                      dy_mod_subtitle,
-                 label="(recouvrement de surface)",
+                 label="(Surface simulée par le modèle en km<sup>2</sup>)",
                  color=IPCCgrey25,
-                 hjust=0, vjust=0, size=2.2)
+                 fill=NA, label.color=NA,
+                 hjust=0, vjust=0.43, size=2.2)
 
     PX = get_alphabet_in_px(save=TRUE)
     
@@ -725,7 +722,20 @@ panel_indicator_distribution = function (dataEXind,
                           dy_mod_name),
                      label=Model[i],
                      color=IPCCgrey25,
-                     hjust=0, vjust=0, size=3.2)
+                     hjust=0, vjust=0, size=3.2) +
+            annotate("text",
+                     x=(dx_mod_name + dx_mod_space*(i-1) +
+                        max(dl_mod_line) +
+                        dx_mod_line)*ech_x +
+                       sum(Span[1:i])*ech_text_mod,
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_mod_name +
+                          dy_mod_surf),
+                     label="(xxxx)",
+                     color=IPCCgrey25,
+                     hjust=0, vjust=0, size=2.4)
     }
 
 
@@ -940,11 +950,15 @@ panel_indicator_distribution = function (dataEXind,
 
     Warnings_code = Warnings[Warnings$Code == codeLight,]
     nWar_lim = 6
+    nWar = nrow(Warnings_code)
     nLine = 0
     nLim = 100
-    for (i in 1:nWar_lim) {
-
-        Label = guess_newline(Warnings_code$line[i], nLim=nLim)
+    for (i in 1:nWar) {
+        if (i > nWar_lim) {
+            break
+        }
+        
+        Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
         Label = unlist(strsplit(Label, "\n"))
         
         Ind = Ind +
@@ -984,12 +998,6 @@ panel_indicator_distribution = function (dataEXind,
     }
 
 
-    
-
-
-    
-    
-    
 ## 10. END OF GRAPH __________________________________________________
     y_limits=
         c(ymin_grid - (dy_gap +

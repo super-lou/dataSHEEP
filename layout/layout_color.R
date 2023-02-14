@@ -49,7 +49,6 @@ INRAEcyan = "#00a3a6"
 INRAElightcyan = "#66c1bf"
 INRAEmediumcyan = "#008c8e"
 INRAEdarkcyan = "#275662"
-
 INRAElightblue = "#9ed6e3"
 
 
