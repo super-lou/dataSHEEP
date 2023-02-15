@@ -419,18 +419,18 @@ float2frac = function (X, den) {
 #' @description  Generates a list of shapefiles to draw a hydrological
 #' map of the France
 #' @param resources_path Path to the resources directory.
-#' @param fr_shpdir Directory you want to use in ash\\resources_path\\
+#' @param france_dir Directory you want to use in ash\\resources_path\\
 #' to get the France shapefile.
-#' @param fr_shpname Name of the France shapefile.
-#' @param bs_shpdir Directory you want to use in ash\\resources_path\\
+#' @param france_file Name of the France shapefile.
+#' @param basinHydro_dir Directory you want to use in ash\\resources_path\\
 #' to get the hydrological basin shapefile.
-#' @param bs_shpname Name of the hydrological basin shapefile.
-#' @param sbs_shpdir Directory you want to use in
+#' @param basinHydro_file Name of the hydrological basin shapefile.
+#' @param regionHydro_dir Directory you want to use in
 #' ash\\resources_path\\ to get the hydrological sub-basin shapefile.
-#' @param sbs_shpname Name of the hydrological sub-basin shapefile.
-#' @param rv_shpdir Directory you want to use in ash\\resources_path\\
+#' @param regionHydro_file Name of the hydrological sub-basin shapefile.
+#' @param river_dir Directory you want to use in ash\\resources_path\\
 #' to get the hydrological network shapefile.
-#' @param rv_shpname  Name of the hydrological network shapefile.
+#' @param river_file  Name of the hydrological network shapefile.
 #' @param show_river Boolean to indicate if the shapefile of the
 #' hydrological network will be charge because it is a heavy one and
 #' that it slows down the entire process (default : TRUE)
@@ -438,24 +438,34 @@ float2frac = function (X, den) {
 #' with 'geom_polygon' or 'geom_path'.
 #' @export
 load_shapefile = function (resources_path, Code,
-                           fr_shpdir, fr_shpname,
-                           bs_shpdir, bs_shpname,
-                           sbs_shpdir, sbs_shpname,
-                           cbs_shpdir, cbs_shpname, cbs_coord,
-                           rv_shpdir, rv_shpname,
+                           france_dir, france_file,
+                           basinHydro_dir, basinHydro_file,
+                           regionHydro_dir, regionHydro_file,
+                           entiteHydro_dir, entiteHydro_file,
+                           entiteHydro_coord,
+                           river_dir, river_file,
                            river_selection=c('all'),
                            toleranceRel=10000) {
     
     # Path for shapefile
-    fr_shppath = file.path(resources_path, fr_shpdir, fr_shpname)
-    bs_shppath = file.path(resources_path, bs_shpdir, bs_shpname)
-    sbs_shppath = file.path(resources_path, sbs_shpdir, sbs_shpname)
-    cbs_shppath = file.path(resources_path, cbs_shpdir, cbs_shpname)
-    rv_shppath = file.path(resources_path, rv_shpdir, rv_shpname)
-
+    france_path = file.path(resources_path,
+                            france_dir,
+                            france_file)
+    basinHydro_path = file.path(resources_path,
+                                basinHydro_dir,
+                                basinHydro_file)
+    regionHydro_path = file.path(resources_path,
+                                 regionHydro_dir,
+                                 regionHydro_file)
+    entiteHydro_path = file.path(resources_path,
+                                 entiteHydro_dir,
+                                 entiteHydro_file)
+    river_path = file.path(resources_path,
+                           river_dir,
+                           river_file)
     
     # France
-    france = st_read(fr_shppath)
+    france = st_read(france_path)
     france = st_union(france)
     france = st_simplify(france,
                          preserveTopology=TRUE,
@@ -463,35 +473,35 @@ load_shapefile = function (resources_path, Code,
     france = st_transform(france, 2154)
     
     # Hydrological basin
-    basin = st_read(bs_shppath)
-    basin = st_simplify(basin,
+    basinHydro = st_read(basinHydro_path)
+    basinHydro = st_simplify(basinHydro,
                         preserveTopology=TRUE,
                         dTolerance=toleranceRel/2)
-    basin = st_transform(basin, 2154)
+    basinHydro = st_transform(basinHydro, 2154)
     
     # Hydrological sub-basin
-    subBasin = st_read(sbs_shppath)
-    subBasin = st_simplify(subBasin,
+    regionHydro = st_read(regionHydro_path)
+    regionHydro = st_simplify(regionHydro,
                            preserveTopology=TRUE,
                            dTolerance=toleranceRel/2)
-    subBasin = st_transform(subBasin, 2154)
+    regionHydro = st_transform(regionHydro, 2154)
 
     # Hydrological code bassin
-    codeBasin_list = lapply(cbs_shppath, read_sf)
-    codeBasin_list = lapply(codeBasin_list, st_transform, 2154)
-    codeBasin = do.call(rbind, codeBasin_list)
-    codeBasin = codeBasin[codeBasin$Code %in% Code,]
-    codeBasin = st_simplify(codeBasin,
+    entiteHydro_list = lapply(entiteHydro_path, read_sf)
+    entiteHydro_list = lapply(entiteHydro_list, st_transform, 2154)
+    entiteHydro = do.call(rbind, entiteHydro_list)
+    entiteHydro = entiteHydro[entiteHydro$Code %in% Code,]
+    entiteHydro = st_simplify(entiteHydro,
                             preserveTopology=TRUE,
                             dTolerance=toleranceRel/3)
     
-    codeBasin = st_transform(codeBasin, 2154)
+    entiteHydro = st_transform(entiteHydro, 2154)
     
 
     # If the river shapefile needs to be load
     if (!("none" %in% river_selection)) {
         # Hydrographic network
-        river = st_read(rv_shppath)
+        river = st_read(river_path)
 
         if ('all' %in% river_selection) {
             river = river[river$Classe == 1,]
@@ -508,9 +518,9 @@ load_shapefile = function (resources_path, Code,
     }
 
     return (list(france=france,
-                 basin=basin,
-                 subBasin=subBasin,
-                 codeBasin=codeBasin,
+                 basinHydro=basinHydro,
+                 regionHydro=regionHydro,
+                 entiteHydro=entiteHydro,
                  river=river))
 }
 

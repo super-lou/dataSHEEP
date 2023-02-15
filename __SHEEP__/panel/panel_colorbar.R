@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-leg_colorbar = function (min, max, Palette,
+panel_colorbar = function (min, max, Palette,
                          colorStep=256, include=FALSE,
                          label=NULL, asFrac=FALSE,
                          reverse=FALSE,

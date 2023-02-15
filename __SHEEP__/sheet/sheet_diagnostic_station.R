@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-page_diagnostic_datasheet = function (data,
+sheet_diagnostic_station = function (data,
                                       meta,
                                       dataEXind,
                                       metaEXind,
@@ -36,51 +36,22 @@ page_diagnostic_datasheet = function (data,
         
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
-    leg_width = 11
-
-    
     info_height = 3
     chronicle_height = 3
     QA_height = 3
     medQJ_height = 7
     FDC_height = 7
-    Ind_height = 15
+    criteria_height = 15
 
     foot_height = 1.25
     
-    # legColor_height = 29.7 - info_height - chronicle_height - medQJ_height - Ind_height - foot_height - page_margin["l"] - page_margin["r"]
-    # legColor_height = 3
-    
-    
-    # void_height = legColor_height
-    
     medQJ_width = 10
     FDC_width = 10
-    # legColor_width = 5
-
-    # void_width = 21 - legColor_width - page_margin["l"] - page_margin["r"]
-    
 
     
-    cm_height = 22
-    cm_width = 21 - page_margin["l"] - page_margin["r"]
-    
-    cb_height = 1.25
-    ssg_height = 1.25
-    si_height = 1
-    tl_height = cb_height + si_height + ssg_height
-    
-    
-
-    cm_margin = margin(t=1.2, r=0, b=2, l=0.5, "cm")
-    tl_shift = c(x=3, y=0)
-    cb_shift = c(x=2.5, y=0)
-    ssg_shift = c(x=2.5, y=0)
-    si_shift = c(x=2.5, y=0.2)
-
     NAME = matrix(c(
-        "info", "chronicle", "QA", "medQJ", "Ind", "foot",
-        "info", "chronicle", "QA", "FDC", "Ind", "foot"),
+        "info", "chronicle", "QA", "medQJ", "criteria", "foot",
+        "info", "chronicle", "QA", "FDC", "criteria", "foot"),
     ncol=2)
     WIP = FALSE
 
@@ -109,12 +80,12 @@ page_diagnostic_datasheet = function (data,
 
         STOCK = tibble()
         
-        info = panel_info(data_obs,
-                          meta,
-                          Shapefiles=Shapefiles,
-                          codeLight=code,
-                          to_do='all',
-                          zone_to_show='France')
+        info = panel_station_info(data_obs,
+                                  meta,
+                                  Shapefiles=Shapefiles,
+                                  codeLight=code,
+                                  to_do='all',
+                                  zone_to_show='France')
         STOCK = add_plot(STOCK,
                          plot=info,
                          name="info",
@@ -237,7 +208,7 @@ page_diagnostic_datasheet = function (data,
                          height=FDC_height,
                          width=FDC_width)
 
-        Ind = panel_indicator_distribution(
+        criteria = panel_diagnostic_criteria(
             dataEXind,
             metaEXind,
             meta,
@@ -253,9 +224,9 @@ page_diagnostic_datasheet = function (data,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
         STOCK = add_plot(STOCK,
-                         plot=Ind,
-                         name="Ind",
-                         height=Ind_height)
+                         plot=criteria,
+                         name="criteria",
+                         height=criteria_height)
 
         # STOCK = add_plot(STOCK,
         #                  plot=void(),
@@ -291,7 +262,7 @@ page_diagnostic_datasheet = function (data,
 
         print(paper_size)
 
-        filename = paste0("diagnostic_datasheet_", code, ".pdf")
+        filename = paste0("fiche_station_diagnostic_", code, ".pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

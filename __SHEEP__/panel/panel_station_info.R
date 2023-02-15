@@ -22,7 +22,7 @@
 
 #' @title Info panel
 #' @export
-panel_info = function(data, meta,
+panel_station_info = function(data, meta,
                       Shapefiles=NULL,
                       codeLight=NULL,
                       to_do='all',
@@ -44,8 +44,7 @@ panel_info = function(data, meta,
 
     if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
-        map =  panel_mini_map(data,
-                              meta,
+        map =  panel_mini_map(meta,
                               Shapefiles=Shapefiles,
                               codeLight=codeLight)
     # Otherwise
@@ -57,7 +56,7 @@ panel_info = function(data, meta,
     # Gets the metadata about the station
     meta_code = meta[meta$Code == codeLight,]
 
-    if ('name' %in% to_do | 'all' %in% to_do) {
+    if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
         nom = meta_code$nom
         # Corrects some errors about the formatting of title with dash
@@ -73,7 +72,7 @@ panel_info = function(data, meta,
                                            "mm"),
                                hjust=0, vjust=1,
                                gp=gpar(col=INRAEcyan, fontsize=14))
-    } else if ('code' %in% to_do) {
+    } else if ('short_title' %in% to_do) {
         # Name of the datasheet
         text1 = paste(
             "<b>", codeLight, '</b>',
@@ -90,7 +89,7 @@ panel_info = function(data, meta,
     }
 
     # Subitle info
-    if ('loc' %in% to_do | 'all' %in% to_do) {
+    if ('subtitle' %in% to_do | 'all' %in% to_do) {
         text2 = paste(
             "<b>",
             "Gestionnaire : ", meta_code$gestionnaire, "<br>",

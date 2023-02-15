@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-page_correlation_matrix = function (dataEX, metaEX,
+sheet_correlation_matrix = function (dataEX, metaEX,
                                     ModelGroup=NULL,
                                     icon_path="", logo_path="",
                                     df_page=NULL,
@@ -129,7 +129,7 @@ page_correlation_matrix = function (dataEX, metaEX,
                          name="void",
                          width=void_width)
         
-        cb = leg_colorbar(-1, 1, Palette=Palette_rainbow(),
+        cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
                           colorStep=6, include=TRUE,
                           asFrac=TRUE,
                           reverse=TRUE,
@@ -146,7 +146,7 @@ page_correlation_matrix = function (dataEX, metaEX,
                          height=cb_height,
                          width=leg_width)
 
-        ssg = leg_shape_size_gradient(shape="rect",
+        ssg = panel_shape_size_gradient(shape="rect",
                                       Size=c(0.1, 0.15, 0.2, 0.25),
                                       color=IPCCgrey50,
                                       labelArrow="Plus corrélé",
@@ -169,7 +169,7 @@ page_correlation_matrix = function (dataEX, metaEX,
                          width=leg_width)
 
         if (nModel == 1) {
-            si = leg_shape_info(Shape="rect",
+            si = panel_shape_info(Shape="rect",
                                 Size=0.2,
                                 Color=IPCCgrey50,
                                 Label=c(
@@ -219,7 +219,7 @@ page_correlation_matrix = function (dataEX, metaEX,
 
         print(paper_size)
 
-        filename = paste0("correlation_", Model4Save, ".pdf")
+        filename = paste0("matrice_correlation_", Model4Save, ".pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

@@ -23,7 +23,7 @@
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
-summary_panel = function (df_page, foot_note, foot_height,
+sheet_summary = function (df_page, foot_note, foot_height,
                           logo_path,
                           outdirTmp_pdf, outdirTmp_png) {
     

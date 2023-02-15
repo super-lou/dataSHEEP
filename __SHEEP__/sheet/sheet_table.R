@@ -26,7 +26,7 @@
 # difference of means between specific periods.
 #' @title Table panel
 #' @export
-page_table = function (list_df2plot, meta, trend_period,
+sheet_table = function (list_df2plot, meta, trend_period,
                         mean_period, colorForce=FALSE, exQprob=0.01,
                         slice=NULL,
                         title=NULL, paper_size='A3',

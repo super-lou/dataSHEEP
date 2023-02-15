@@ -19,24 +19,25 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-panel_indicator_distribution = function (dataEXind,
-                                         metaEXind,
-                                         meta,
-                                         Colors,
-                                         codeLight,
-                                         icon_path,
-                                         Warnings=NULL,
-                                         prob=0.1,
-                                         title="",
-                                         alpha=0.7,
-                                         alpha_spread=0.3,
-                                         dTitle=0,
-                                         add_name=FALSE,
-                                         margin_add=margin(t=0, r=0,
-                                                           b=0, l=0,
-                                                           "mm")) {
+panel_diagnostic_criteria = function (dataEXind,
+                                      metaEXind,
+                                      meta,
+                                      Colors,
+                                      codeLight,
+                                      isRegion=FALSE,
+                                      icon_path="",
+                                      Warnings=NULL,
+                                      prob=0.1,
+                                      title="",
+                                      alpha=0.7,
+                                      alpha_spread=0.3,
+                                      dTitle=0,
+                                      add_name=FALSE,
+                                      margin_add=margin(t=0, r=0,
+                                                        b=0, l=0,
+                                                        "mm")) {
 
-## 1. PARAMETERS _____________________________________________________
+    ## 1. PARAMETERS _____________________________________________________
     dl_grid=0.12
     dr_grid=0.12
 
@@ -286,8 +287,6 @@ panel_indicator_distribution = function (dataEXind,
     }
     VarTEX = paste0("\\textbf{", VarTEX, "}")
 
-    meta_code = meta[meta$Code == codeLight,]
-
     Code = levels(factor(dataEXind$Code))
     letterCode = substr(Code, "1", "1")
     letterCodeLight = substr(codeLight, "1", "1")
@@ -483,103 +482,105 @@ panel_indicator_distribution = function (dataEXind,
             }
         }
 
-        
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_code =
-                dataEXind_model[dataEXind_model$Code == codeLight,]
+        if (!isRegion) {
             
-            if (nrow(dataEXind_model_code) != 0) {
-                above = (dataEXind_model_code[[var]]+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (dataEXind_model_code[[var]]+shift)*norm
-
-                if (!above & !below) {
-                    Ind = Ind +
-                        annotate("point",
-                                 x=((i-1) + 0.5 -
-                                    (nModel/2)*dx_bar+dx_bar/2 +
-                                    (j-1)*dx_bar + space)*ech_x,
-                                 y=(dataEXind_model_code[[var]]+shift)*norm,
-                                 color="white",
-                                 size=2.4,
-                                 stroke=0)
-                }
-            }
-        }
-        
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_code =
-                dataEXind_model[dataEXind_model$Code == codeLight,]
-            
-            if (nrow(dataEXind_model_code) != 0) {
-                above = (dataEXind_model_code[[var]]+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (dataEXind_model_code[[var]]+shift)*norm
-
-                if (!above & !below) {
-                    Ind = Ind +
-                        annotate("point",
-                                 x=((i-1) + 0.5 -
-                                    (nModel/2)*dx_bar+dx_bar/2 +
-                                    (j-1)*dx_bar + space)*ech_x,
-                                 y=(dataEXind_model_code[[var]]+shift)*norm,
-                                 color=
-                                     Colors[names(Colors) == model],
-                                 alpha=alpha,
-                                 size=1.5,
-                                 stroke=0)
-                }
-            }
-        }
-
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_code =
-                dataEXind_model[dataEXind_model$Code == codeLight,]
-            
-            if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                dataEXind_model_code =
+                    dataEXind_model[dataEXind_model$Code == codeLight,]
                 
-                above = (dataEXind_model_code[[var]]+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (dataEXind_model_code[[var]]+shift)*norm
-                
-                if (above | below) {
-                    x = ((i-1) + 0.5 -
-                         (nModel/2)*dx_bar+dx_bar/2 +
-                         (j-1)*dx_bar + space)*ech_x
-                    
-                    if (above) {
-                        y = ymax_grid +
-                            dy_arrow*norm
-                        yend = ymax_grid +
-                            dy_arrow*norm +
-                             dl_arrow
-                    } else if (below) {
-                        y = ymin_grid -
-                            dy_arrow*norm
-                        yend = ymin_grid -
-                            dy_arrow*norm -
-                            dl_arrow
+                if (nrow(dataEXind_model_code) != 0) {
+                    above = (dataEXind_model_code[[var]]+shift)*norm >
+                        ymax_grid
+                    below = ymin_grid >
+                        (dataEXind_model_code[[var]]+shift)*norm
+
+                    if (!above & !below) {
+                        Ind = Ind +
+                            annotate("point",
+                                     x=((i-1) + 0.5 -
+                                        (nModel/2)*dx_bar+dx_bar/2 +
+                                        (j-1)*dx_bar + space)*ech_x,
+                                     y=(dataEXind_model_code[[var]]+shift)*norm,
+                                     color="white",
+                                     size=2.4,
+                                     stroke=0)
                     }
-                    Ind = Ind +
-                        annotate("segment",
-                                 x=x, xend=x,
-                                 y=y, yend=yend,
-                                 color=
-                                     Colors[names(Colors) == model],
-                                 alpha=alpha,
-                                 linewidth=0.3,
-                                 arrow=arrow(length=unit(dx_arrow,
-                                                         "mm")),
-                                 lineend="round")
+                }
+            }
+            
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                dataEXind_model_code =
+                    dataEXind_model[dataEXind_model$Code == codeLight,]
+                
+                if (nrow(dataEXind_model_code) != 0) {
+                    above = (dataEXind_model_code[[var]]+shift)*norm >
+                        ymax_grid
+                    below = ymin_grid >
+                        (dataEXind_model_code[[var]]+shift)*norm
+
+                    if (!above & !below) {
+                        Ind = Ind +
+                            annotate("point",
+                                     x=((i-1) + 0.5 -
+                                        (nModel/2)*dx_bar+dx_bar/2 +
+                                        (j-1)*dx_bar + space)*ech_x,
+                                     y=(dataEXind_model_code[[var]]+shift)*norm,
+                                     color=
+                                         Colors[names(Colors) == model],
+                                     alpha=alpha,
+                                     size=1.5,
+                                     stroke=0)
+                    }
+                }
+            }
+
+            for (j in 1:nModel) {
+                model = Model[j]
+                dataEXind_model = dataEXind[dataEXind$Model == model,]
+                dataEXind_model_code =
+                    dataEXind_model[dataEXind_model$Code == codeLight,]
+                
+                if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
+                    
+                    above = (dataEXind_model_code[[var]]+shift)*norm >
+                        ymax_grid
+                    below = ymin_grid >
+                        (dataEXind_model_code[[var]]+shift)*norm
+                    
+                    if (above | below) {
+                        x = ((i-1) + 0.5 -
+                             (nModel/2)*dx_bar+dx_bar/2 +
+                             (j-1)*dx_bar + space)*ech_x
+                        
+                        if (above) {
+                            y = ymax_grid +
+                                dy_arrow*norm
+                            yend = ymax_grid +
+                                dy_arrow*norm +
+                                dl_arrow
+                        } else if (below) {
+                            y = ymin_grid -
+                                dy_arrow*norm
+                            yend = ymin_grid -
+                                dy_arrow*norm -
+                                dl_arrow
+                        }
+                        Ind = Ind +
+                            annotate("segment",
+                                     x=x, xend=x,
+                                     y=y, yend=yend,
+                                     color=
+                                         Colors[names(Colors) == model],
+                                     alpha=alpha,
+                                     linewidth=0.3,
+                                     arrow=arrow(length=unit(dx_arrow,
+                                                             "mm")),
+                                     lineend="round")
+                    }
                 }
             }
         }
@@ -948,53 +949,55 @@ panel_indicator_distribution = function (dataEXind,
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.5)
 
-    Warnings_code = Warnings[Warnings$Code == codeLight,]
-    nWar_lim = 6
-    nWar = nrow(Warnings_code)
-    nLine = 0
-    nLim = 100
-    for (i in 1:nWar) {
-        if (i > nWar_lim) {
-            break
-        }
-        
-        Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
-        Label = unlist(strsplit(Label, "\n"))
-        
-        Ind = Ind +
-            annotate("line",
-                 x=c(x_title + dx_interp +
-                     dl_interp_text_line,
-                     x_title + dx_interp +
-                     dl_interp_text_line + 
-                     w_interp_text_line),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_interp_text +
-                                    (i-1)*dy_interp_line +
-                                    nLine*dy_interp_nline), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.25)
-        for (j in 1:length(Label)) {
+    if (!isRegion) {
+        Warnings_code = Warnings[Warnings$Code == codeLight,]
+        nWar_lim = 6
+        nWar = nrow(Warnings_code)
+        nLine = 0
+        nLim = 100
+        for (i in 1:nWar) {
+            if (i > nWar_lim) {
+                break
+            }
+            
+            Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
+            Label = unlist(strsplit(Label, "\n"))
+            
             Ind = Ind +
-                annotate("richtext",
-                         x=x_title + dx_interp +
+                annotate("line",
+                         x=c(x_title + dx_interp +
+                             dl_interp_text_line,
+                             x_title + dx_interp +
                              dl_interp_text_line + 
-                             w_interp_text_line +
-                             dr_interp_text_line,
-                         y=ymin_grid - (dy_gap +
-                                        dy_mod +
-                                        dy_leg +
-                                        dy_interp_text +
-                                        (i-1)*dy_interp_line +
-                                        (nLine+(j-1))*dy_interp_nline),
-                         label=Label[j],
-                         fill=NA, label.color=NA,
-                         color=IPCCgrey50,
-                         hjust=0, vjust=0.55, size=2.4)
+                             w_interp_text_line),
+                         y=rep(ymin_grid - (dy_gap +
+                                            dy_mod +
+                                            dy_leg +
+                                            dy_interp_text +
+                                            (i-1)*dy_interp_line +
+                                            nLine*dy_interp_nline), 2),
+                         color=IPCCgrey85,
+                         linewidth=0.25)
+            for (j in 1:length(Label)) {
+                Ind = Ind +
+                    annotate("richtext",
+                             x=x_title + dx_interp +
+                                 dl_interp_text_line + 
+                                 w_interp_text_line +
+                                 dr_interp_text_line,
+                             y=ymin_grid - (dy_gap +
+                                            dy_mod +
+                                            dy_leg +
+                                            dy_interp_text +
+                                            (i-1)*dy_interp_line +
+                                            (nLine+(j-1))*dy_interp_nline),
+                             label=Label[j],
+                             fill=NA, label.color=NA,
+                             color=IPCCgrey50,
+                             hjust=0, vjust=0.55, size=2.4)
+            }
+            nLine = nLine + length(Label)-1
         }
-        nLine = nLine + length(Label)-1
     }
 
 

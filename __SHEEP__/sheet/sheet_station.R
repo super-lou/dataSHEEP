@@ -26,7 +26,7 @@
 # every plots.
 #' @title Datasheet panel
 #' @export
-datasheet_ASHES = function (list_df2plot, meta, trend_period,
+sheet_station = function (list_df2plot, meta, trend_period,
                             mean_period, linetype_per, axis_xlim,
                             colorForce, exXprob, info_header, time_header,
                             foot_note, structure,
@@ -108,16 +108,16 @@ datasheet_ASHES = function (list_df2plot, meta, trend_period,
             }
             
             # Gets the info plot
-            Hinfo = panel_info(list_df2plot, 
-                               meta,
-                               trend_period=trend_period,
-                               mean_period=mean_period,
-                               period=period,
-                               shapefile_list=shapefile_list,
-                               codeLight=code,
-                               data_code=info_header_code,
-                               to_do=to_do,
-                               zone_to_show=zone_to_show)
+            Hinfo = panel_station_info(list_df2plot, 
+                                       meta,
+                                       trend_period=trend_period,
+                                       mean_period=mean_period,
+                                       period=period,
+                                       shapefile_list=shapefile_list,
+                                       codeLight=code,
+                                       data_code=info_header_code,
+                                       to_do=to_do,
+                                       zone_to_show=zone_to_show)
             
             # Stores it
             df_P = add_plot(df_P,

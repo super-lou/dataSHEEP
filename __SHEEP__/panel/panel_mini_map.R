@@ -24,14 +24,16 @@
 # Generates a map plot of the tendancy of a hydrological variable
 #' @title Mini map panel
 #' @export
-panel_mini_map = function (data, meta, Shapefiles,
-                           codeLight=NULL, verbose=FALSE) {
+panel_mini_map = function (meta, Shapefiles,
+                           codeLight=NULL,
+                           regionLight=NULL,
+                           verbose=FALSE) {
     
     # Extract shapefiles
     france = Shapefiles$france
-    basin = Shapefiles$basin
-    subBasin = Shapefiles$subBasin
-    codeBasin = Shapefiles$codeBasin
+    basinHydro = Shapefiles$basinHydro
+    regionHydro = Shapefiles$regionHydro
+    entiteHydro = Shapefiles$entiteHydro
     river = Shapefiles$river
 
     # Stores the coordonate system 
@@ -54,7 +56,7 @@ panel_mini_map = function (data, meta, Shapefiles,
 
     map = map +
         # Plot the hydrological basin
-        geom_sf(data=basin,
+        geom_sf(data=basinHydro,
                 color=IPCCgrey85,
                 fill=NA,
                 size=0.25)
@@ -80,7 +82,6 @@ panel_mini_map = function (data, meta, Shapefiles,
 
     # Plot the white back of boundaries
     map = map +
-        
         geom_sf(data=france,
                 color="white",
                 fill=NA,
@@ -126,37 +127,38 @@ panel_mini_map = function (data, meta, Shapefiles,
                      vjust=0, hjust=0.5, label=x/1E3,
                      color=IPCCgrey40, size=size)
     }
-    
-    Code = levels(factor(meta$Code))
-    L93X = meta$L93X_m_BH[match(meta$Code, Code)]           
-    L93Y = meta$L93Y_m_BH[match(meta$Code, Code)]
-    
-    # Creates a tibble to stores all the data to plot
-    plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=Code)
-    
-    # Extract data of all stations not to highlight
-    plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
-    # Extract data of the station to highlight
-    plot_map_code = plot_map[plot_map$Code == codeLight,]
-    # Plots only the localisation
-    
-    map = map +
-        geom_sf(data=codeBasin[codeBasin$Code == codeLight,],
-                color="white",
-                fill=NA,
-                linewidth=1) +
-        geom_sf(data=codeBasin[codeBasin$Code == codeLight,],
-                color=INRAEdarkcyan,
-                fill=NA,
-                linewidth=0.3)
 
-    map = map +
-        geom_point(data=plot_map_code,
-                   aes(x=L93X, y=L93Y),
-                   shape=21, size=1.4, stroke=0.3,
-                   color="white",
-                   fill=INRAEcyan)
+    if (!is.null(codeLight)) {
+        Code = levels(factor(meta$Code))
+        L93X = meta$L93X_m_BH[match(meta$Code, Code)]           
+        L93Y = meta$L93Y_m_BH[match(meta$Code, Code)]
+        
+        # Creates a tibble to stores all the data to plot
+        plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=Code)
+        
+        # Extract data of all stations not to highlight
+        plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
+        # Extract data of the station to highlight
+        plot_map_code = plot_map[plot_map$Code == codeLight,]
+        # Plots only the localisation
+        
+        map = map +
+            geom_sf(data=entiteHydro[entiteHydro$Code == codeLight,],
+                    color="white",
+                    fill=NA,
+                    linewidth=1) +
+            geom_sf(data=entiteHydro[entiteHydro$Code == codeLight,],
+                    color=INRAEdarkcyan,
+                    fill=NA,
+                    linewidth=0.3)
 
+        map = map +
+            geom_point(data=plot_map_code,
+                       aes(x=L93X, y=L93Y),
+                       shape=21, size=1.4, stroke=0.3,
+                       color="white",
+                       fill=INRAEcyan)
+    }
 
     map = map +
         # Allows to crop shapefile without graphical problem

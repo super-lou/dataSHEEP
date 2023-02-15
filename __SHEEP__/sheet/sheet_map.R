@@ -24,7 +24,7 @@
 # Generates a map plot of the tendancy of a hydrological variable
 #' @title Map panel
 #' @export
-page_map = function (list_df2plot, meta, shapefile_list,
+sheet_map = function (list_df2plot, meta, shapefile_list,
                       idPer_trend=1, trend_period, mean_period,
                       colorForce=FALSE, exQprob=0.01, codeLight=NULL,
                       mapType='trend', margin=NULL, showSea=TRUE,  

@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-leg_shape_size_gradient = function (shape="rect",
+panel_shape_size_gradient = function (shape="rect",
                                     Size=c(0.4, 0.6, 0.8, 1),
                                     color=IPCCgrey50,
                                     labelArrow=NULL,

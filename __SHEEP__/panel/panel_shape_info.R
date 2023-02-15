@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-leg_shape_info = function (Shape="rect",
+panel_shape_info = function (Shape="rect",
                            Size=1,
                            Color=IPCCgrey50,
                            Label="A",
