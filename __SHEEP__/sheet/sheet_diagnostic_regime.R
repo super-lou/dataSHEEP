@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-sheet_diagnostic_region = function (meta,
+sheet_diagnostic_regime = function (meta,
                                     dataEXind,
                                     metaEXind,
                                     dataEXserie,
@@ -57,28 +57,29 @@ sheet_diagnostic_region = function (meta,
     Code = levels(factor(dataEXind$Code))
     nCode = length(Code)
 
-    Region = levels(factor(substr(Code, 1, 1)))
-    nRegion = length(Region)
 
-    Region = "K"
-    nRegion = 1
+    Regime = levels(factor(meta$typologie_regimeHydro))
+    nRegime = length(Regime)
+
+    Regime = 1
+    nRegime = 1
     
-    for (i in 1:nRegion) {
-        region = Region[i]
-        Code_region = Code[substr(Code, 1, 1) == region]
+    for (i in 1:nRegime) {
+        regime = Regime[i]
+        Code_regime = meta$Code[meta$typologie_regimeHydro == regime]
 
-        dataEXind_region = dataEXind[dataEXind$Code %in% Code_region,]
+        dataEXind_regime = dataEXind[dataEXind$Code %in% Code_regime,]
         
-        dataEXserie_region = list()
+        dataEXserie_regime = list()
         for (j in 1:length(dataEXserie)) {
-            dataEXserie_region = append(
-                dataEXserie_region,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_region,]))
+            dataEXserie_regime = append(
+                dataEXserie_regime,
+                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_regime,]))
         }
-        names(dataEXserie_region) = names(dataEXserie)
+        names(dataEXserie_regime) = names(dataEXserie)
 
         medKGEracine =
-            dplyr::summarise(dplyr::group_by(dataEXind_region,
+            dplyr::summarise(dplyr::group_by(dataEXind_regime,
                                              Code),
                              value=median(KGEracine,
                                           na.rm=TRUE),
@@ -98,9 +99,9 @@ sheet_diagnostic_region = function (meta,
 
         STOCK = tibble()
         
-        info = panel_info_region(meta,
+        info = panel_info_regime(meta,
                                  Shapefiles=Shapefiles,
-                                 regionLight=region,
+                                 regimeLight=regime,
                                  to_do='all')
         STOCK = add_plot(STOCK,
                          plot=info,
@@ -168,7 +169,7 @@ sheet_diagnostic_region = function (meta,
             metaEXind,
             meta,
             Colors,
-            codeLight=region,
+            codeLight=regime,
             isRegion=TRUE,
             icon_path=icon_path,
             Warnings=Warnings,

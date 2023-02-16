@@ -480,12 +480,12 @@ load_shapefile = function (resources_path, Code,
     basinHydro = st_transform(basinHydro, 2154)
     
     # Hydrological sub-basin
-    regionHydro = st_read(regionHydro_path)
+    regionHydro = st_read(regionHydro_path)    
     regionHydro = st_simplify(regionHydro,
                            preserveTopology=TRUE,
                            dTolerance=toleranceRel/2)
     regionHydro = st_transform(regionHydro, 2154)
-
+    
     # Hydrological code bassin
     entiteHydro_list = lapply(entiteHydro_path, read_sf)
     entiteHydro_list = lapply(entiteHydro_list, st_transform, 2154)

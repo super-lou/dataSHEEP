@@ -80,7 +80,7 @@ sheet_diagnostic_station = function (data,
 
         STOCK = tibble()
         
-        info = panel_station_info(data_obs,
+        info = panel_info_station(data_obs,
                                   meta,
                                   Shapefiles=Shapefiles,
                                   codeLight=code,

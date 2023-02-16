@@ -22,7 +22,7 @@
 
 #' @title Info panel
 #' @export
-panel_region_info = function(meta,
+panel_info_region = function(meta,
                              regionLight=NULL,
                              Shapefiles=NULL,
                              to_do='all') {

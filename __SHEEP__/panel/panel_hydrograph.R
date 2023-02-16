@@ -28,7 +28,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
     res_hydrograph = get_hydrograph(data_code, period=period)
     # Extracts the results
     monthMean = res_hydrograph$QM
-    regime_hydro = res_hydrograph$meta
+    regimeHydro = res_hydrograph$meta
     
     # Vector of month index
     monthNum = 1:12
@@ -52,7 +52,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
             axis.title.y=element_blank()) +
         
         # Adds a title to the y axis
-        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regime_hydro)))
+        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regimeHydro)))
         # Y axis title
         # ylab()
     

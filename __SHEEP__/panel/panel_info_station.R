@@ -22,7 +22,7 @@
 
 #' @title Info panel
 #' @export
-panel_station_info = function(data, meta,
+panel_info_station = function(data, meta,
                       Shapefiles=NULL,
                       codeLight=NULL,
                       to_do='all',

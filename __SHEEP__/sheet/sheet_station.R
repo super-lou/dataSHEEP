@@ -108,7 +108,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
             }
             
             # Gets the info plot
-            Hinfo = panel_station_info(list_df2plot, 
+            Hinfo = panel_info_station(list_df2plot, 
                                        meta,
                                        trend_period=trend_period,
                                        mean_period=mean_period,

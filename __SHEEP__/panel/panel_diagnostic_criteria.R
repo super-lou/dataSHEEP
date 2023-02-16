@@ -281,7 +281,7 @@ panel_diagnostic_criteria = function (dataEXind,
         } else if (grepl("racine", var) & grepl("racine[{]", var)) {
             var = gsub("[}]", "", var)
             var = gsub("racine[{]", "\u221A", var)
-        } 
+        }
         
         VarTEX[i] = var
     }
@@ -467,6 +467,12 @@ panel_diagnostic_criteria = function (dataEXind,
                 
                 Q[Q > ymax_grid] = ymax_grid
                 Q[ymin_grid > Q] = ymin_grid
+
+                if (isRegion) {
+                    alpha_tmp = alpha 
+                } else {
+                    alpha_tmp = alpha_spread
+                }
                 
                 Ind = Ind +
                     annotate("line",
@@ -476,7 +482,7 @@ panel_diagnostic_criteria = function (dataEXind,
                              y=Q,
                              color=
                                  Colors[names(Colors) == model],
-                             alpha=alpha_spread,
+                             alpha=alpha_tmp,
                              linewidth=1.5,
                              lineend="round")
             }
@@ -666,16 +672,19 @@ panel_diagnostic_criteria = function (dataEXind,
                                 dy_mod),
                  label=title_mod,
                  color=IPCCgrey25,
-                 hjust=0, vjust=0, size=2.5) +
-        annotate("richtext",
-                 x=x_title + dx_mod_subtitle,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod) +
-                     dy_mod_subtitle,
-                 label="(Surface simulée par le modèle en km<sup>2</sup>)",
-                 color=IPCCgrey25,
-                 fill=NA, label.color=NA,
-                 hjust=0, vjust=0.43, size=2.2)
+                 hjust=0, vjust=0, size=2.5)
+    if (!isRegion) {
+        Ind = Ind +
+            annotate("richtext",
+                     x=x_title + dx_mod_subtitle,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod) +
+                         dy_mod_subtitle,
+                     label="(Surface simulée par le modèle en km<sup>2</sup>)",
+                     color=IPCCgrey25,
+                     fill=NA, label.color=NA,
+                     hjust=0, vjust=0.43, size=2.2)
+    }
 
     PX = get_alphabet_in_px(save=TRUE)
     
@@ -723,27 +732,29 @@ panel_diagnostic_criteria = function (dataEXind,
                           dy_mod_name),
                      label=Model[i],
                      color=IPCCgrey25,
-                     hjust=0, vjust=0, size=3.2) +
-            annotate("text",
-                     x=(dx_mod_name + dx_mod_space*(i-1) +
-                        max(dl_mod_line) +
-                        dx_mod_line)*ech_x +
-                       sum(Span[1:i])*ech_text_mod,
-                     y=ymin_grid -
-                         (dy_gap +
-                          dy_mod +
-                          dy_mod_name +
-                          dy_mod_surf),
-                     label="(xxxx)",
-                     color=IPCCgrey25,
-                     hjust=0, vjust=0, size=2.4)
+                     hjust=0, vjust=0, size=3.2)
+        
+        if (!isRegion) {
+            Ind = Ind +
+                annotate("text",
+                         x=(dx_mod_name + dx_mod_space*(i-1) +
+                            max(dl_mod_line) +
+                            dx_mod_line)*ech_x +
+                           sum(Span[1:i])*ech_text_mod,
+                         y=ymin_grid -
+                             (dy_gap +
+                              dy_mod +
+                              dy_mod_name +
+                              dy_mod_surf),
+                         label="(xxxx)",
+                         color=IPCCgrey25,
+                         hjust=0, vjust=0, size=2.4)
+        }
     }
 
 
-## 7. SURFACE LEGEND _________________________________________________
 
-
-## 8. BAR PLOT LEGEND ________________________________________________
+## 7. BAR PLOT LEGEND ________________________________________________
     Ind = Ind +
         annotate("text",
                  x=x_title,
@@ -768,29 +779,34 @@ panel_diagnostic_criteria = function (dataEXind,
                  color=IPCCgrey50,
                  alpha=alpha_spread,
                  linewidth=1.5,
-                 lineend="round") +
-        annotate("point",
-                 x=rep(dx_leg_line, 2),
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 color="white",
-                 size=2.4,
-                 stroke=0) +
-        annotate("point",
-                 x=rep(dx_leg_line, 2),
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 alpha=alpha,
-                 color=IPCCgrey50,
-                 size=1.5,
-                 stroke=0) +
-        
+                 lineend="round")
+    
+    if (!isRegion) {
+        Ind = Ind +
+            annotate("point",
+                     x=rep(dx_leg_line, 2),
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dy_leg_point),
+                     color="white",
+                     size=2.4,
+                     stroke=0) +
+            annotate("point",
+                     x=rep(dx_leg_line, 2),
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dy_leg_point),
+                     alpha=alpha,
+                     color=IPCCgrey50,
+                     size=1.5,
+                     stroke=0)
+    }
+    
+    Ind = Ind +
         annotate("line",
                  x=c(dx_leg_line +
                      dl_leg_line_grad,
@@ -816,36 +832,40 @@ panel_diagnostic_criteria = function (dataEXind,
                               "%</b> des résultats dans la région hydrologique"),
                  fill=NA, label.color=NA,
                  color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2.4) +
-        
+                 hjust=0, vjust=0.6, size=2.4)
+
+    if (!isRegion) {
+        Ind = Ind +
             annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
+                     x=c(dx_leg_line +
+                         dl_leg_line_grad,
+                         dx_leg_line +
+                         dl_leg_line_grad + 
+                         w_leg_line_grad),
+                     y=rep(ymin_grid - (dy_gap +
+                                        dy_mod +
+                                        dy_leg +
+                                        dy_leg_line +
+                                        dy_leg_point), 2),
+                     color=IPCCgrey85,
+                     linewidth=0.25) +
+            annotate("richtext",
+                     x=dx_leg_line +
+                         dl_leg_line_grad +
+                         w_leg_line_grad +
+                         dr_leg_line_grad,
+                     y=ymin_grid - (dy_gap +
                                     dy_mod +
                                     dy_leg +
                                     dy_leg_line +
-                                    dy_leg_point), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.25) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dy_leg_point),
-                 label="<b>Valeur</b> du critère à la station",
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2.4) +
-        
+                                    dy_leg_point),
+                     label="<b>Valeur</b> du critère à la station",
+                     fill=NA, label.color=NA,
+                     color=IPCCgrey50,
+                     hjust=0, vjust=0.6, size=2.4)
+    }
+
+    Ind = Ind +
         annotate("line",
                  x=c(dx_leg_line +
                      dl_leg_line_grad,
@@ -873,83 +893,118 @@ panel_diagnostic_criteria = function (dataEXind,
                               "%</b> des résultats dans la région hydrologique"),
                  fill=NA, label.color=NA,
                  color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2.4) +
-        
-        annotate("segment",
-                 x=dx_leg_line,
-                 xend=dx_leg_line,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dl_leg_line +
-                                dy_leg_arrow -
-                                dy_leg_arrow_gap/2),
-                 yend=ymin_grid - (dy_gap +
-                                   dy_mod +
-                                   dy_leg +
-                                   dy_leg_line +
-                                   dl_leg_line +
-                                   dy_leg_arrow -
-                                   dy_leg_arrow_gap/2 -
-                                   dl_arrow),
-                 color=IPCCgrey50,
-                 alpha=alpha,
-                 linewidth=0.3,
-                 arrow=arrow(length=unit(dx_arrow,
-                                         "mm")),
-                 lineend="round") +
-        annotate("segment",
-                 x=dx_leg_line,
-                 xend=dx_leg_line,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dl_leg_line +
-                                dy_leg_arrow +
-                                dy_leg_arrow_gap/2),
-                 yend=ymin_grid - (dy_gap +
-                                   dy_mod +
-                                   dy_leg +
-                                   dy_leg_line +
-                                   dl_leg_line +
-                                   dy_leg_arrow +
-                                   dy_leg_arrow_gap/2 +
-                                   dl_arrow),
-                 color=IPCCgrey50,
-                 alpha=alpha,
-                 linewidth=0.3,
-                 arrow=arrow(length=unit(dx_arrow,
-                                         "mm")),
-                 lineend="round") +
-        annotate("richtext",
-                 x=dx_leg_line + 
-                     dx_leg_arrow_text,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dl_leg_line +
-                                dy_leg_arrow),
-                 label=paste0("Valeur <b>hors limite</b>"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
                  hjust=0, vjust=0.6, size=2.4)
-    
-
-## 9. INTERPRETATION BLOC ____________________________________________
-    Ind = Ind +
-        annotate("text",
-                 x=x_title + dx_interp,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg),
-                 label="AVERTISSEMENT",
-                 color=IPCCgrey25,
-                 hjust=0, vjust=0, size=2.5)
 
     if (!isRegion) {
+        Ind = Ind + 
+            annotate("segment",
+                     x=dx_leg_line,
+                     xend=dx_leg_line,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dl_leg_line +
+                                    dy_leg_arrow -
+                                    dy_leg_arrow_gap/2),
+                     yend=ymin_grid - (dy_gap +
+                                       dy_mod +
+                                       dy_leg +
+                                       dy_leg_line +
+                                       dl_leg_line +
+                                       dy_leg_arrow -
+                                       dy_leg_arrow_gap/2 -
+                                       dl_arrow),
+                     color=IPCCgrey50,
+                     alpha=alpha,
+                     linewidth=0.3,
+                     arrow=arrow(length=unit(dx_arrow,
+                                             "mm")),
+                     lineend="round") +
+            annotate("segment",
+                     x=dx_leg_line,
+                     xend=dx_leg_line,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dl_leg_line +
+                                    dy_leg_arrow +
+                                    dy_leg_arrow_gap/2),
+                     yend=ymin_grid - (dy_gap +
+                                       dy_mod +
+                                       dy_leg +
+                                       dy_leg_line +
+                                       dl_leg_line +
+                                       dy_leg_arrow +
+                                       dy_leg_arrow_gap/2 +
+                                       dl_arrow),
+                     color=IPCCgrey50,
+                     alpha=alpha,
+                     linewidth=0.3,
+                     arrow=arrow(length=unit(dx_arrow,
+                                             "mm")),
+                     lineend="round") +
+            annotate("richtext",
+                     x=dx_leg_line + 
+                         dx_leg_arrow_text,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg +
+                                    dy_leg_line +
+                                    dl_leg_line +
+                                    dy_leg_arrow),
+                     label=paste0("Valeur <b>hors limite</b>"),
+                     fill=NA, label.color=NA,
+                     color=IPCCgrey50,
+                     hjust=0, vjust=0.6, size=2.4)
+    }        
+
+## 8. INTERPRETATION BLOC ____________________________________________
+    if (isRegion) {
+        Ind = Ind +
+            annotate("text",
+                     x=x_title + dx_interp,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg),
+                     label="COMPLÉMENT",
+                     color=IPCCgrey25,
+                     hjust=0, vjust=0, size=2.5)
+
+        
+        nLim = 90
+        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75% et 25 %, et minimum du KGE\u221A)"
+        
+        Label = guess_newline(Label, nLim=nLim)
+        Label = unlist(strsplit(Label, "\n"))
+            
+        for (j in 1:length(Label)) {
+            Ind = Ind +
+                annotate("richtext",
+                         x=x_title + dx_interp,
+                         y=ymin_grid - (dy_gap +
+                                        dy_mod +
+                                        dy_leg +
+                                        dy_interp_text +
+                                        (j-1)*dy_interp_nline),
+                         label=Label[j],
+                         fill=NA, label.color=NA,
+                         color=IPCCgrey50,
+                         hjust=0, vjust=0.55, size=2.4)
+        }
+        
+    } else {
+        Ind = Ind +
+            annotate("text",
+                     x=x_title + dx_interp,
+                     y=ymin_grid - (dy_gap +
+                                    dy_mod +
+                                    dy_leg),
+                     label="AVERTISSEMENT",
+                     color=IPCCgrey25,
+                     hjust=0, vjust=0, size=2.5)
+
         Warnings_code = Warnings[Warnings$Code == codeLight,]
         nWar_lim = 6
         nWar = nrow(Warnings_code)
@@ -1001,7 +1056,7 @@ panel_diagnostic_criteria = function (dataEXind,
     }
 
 
-## 10. END OF GRAPH __________________________________________________
+## 9. END OF GRAPH __________________________________________________
     y_limits=
         c(ymin_grid - (dy_gap +
                        dy_leg +

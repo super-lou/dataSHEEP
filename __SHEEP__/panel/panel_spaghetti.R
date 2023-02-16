@@ -221,13 +221,30 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               linewidth=0.2,
                               lineend="round") 
     }
-
     
     # Y axis title
+    if (grepl("racine", title) & !grepl("racine[{]", title)) {
+        title = gsub("racine", "\u221A", title)
+    } else if (grepl("racine", title) & grepl("racine[{]", title)) {
+        title = gsub("[}]", "", title)
+        title = gsub("racine[{]", "\u221A", title)
+    }
+    
     unit = gsub(" ", "\\\\,", unit)
-    ylabel = paste0(title, "\\,", "($", unit, "$)")
-    yTeXlabel = TeX(ylabel)
-
+    if (grepl("[_]", title)) {
+        title = gsub("[_]", "$_{$", title)
+        title = paste0(title, "}")
+    }
+    if (grepl("\\unit", title)) {
+        title = gsub("\\\\unit",
+                     paste0("($", unit, "$)"),
+                     title)
+    } else {
+        title = paste0(title, "\\,", "($", unit, "$)")
+    }
+        
+    yTeXlabel = TeX(title)
+    
     if (isTitle) {
         p = p +
             ggtitle(yTeXlabel)

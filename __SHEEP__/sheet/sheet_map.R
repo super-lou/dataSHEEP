@@ -98,7 +98,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
         nRegime = length(regimeColorSample)
         regimeColor = c()
         for (code in Code) {
-            regime = meta$regime_hydro[meta$Code == code]
+            regime = meta$regimeHydro[meta$Code == code]
             color = regimeColorSample[regime]
             regimeColor = c(regimeColor, color)
         }

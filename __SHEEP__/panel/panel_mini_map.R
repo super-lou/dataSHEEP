@@ -160,6 +160,18 @@ panel_mini_map = function (meta, Shapefiles,
                        fill=INRAEcyan)
     }
 
+    if (!is.null(regionLight)) {
+        map = map +
+            geom_sf(data=regionHydro[regionHydro$CdRegionHy == regionLight,],
+                    color="white",
+                    fill=NA,
+                    linewidth=1) +
+            geom_sf(data=regionHydro[regionHydro$CdRegionHy == regionLight,],
+                    color=INRAEdarkcyan,
+                    fill=NA,
+                    linewidth=0.3)
+    }
+
     map = map +
         # Allows to crop shapefile without graphical problem
         coord_sf(xlim=xlim, ylim=ylim,
