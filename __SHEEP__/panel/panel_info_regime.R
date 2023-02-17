@@ -22,16 +22,37 @@
 
 #' @title Info panel
 #' @export
-panel_info_region = function(meta,
-                             regionLight=NULL,
+panel_info_regime = function(data,
+                             meta,
+                             regimeLight=NULL,
                              Shapefiles=NULL,
                              to_do='all') {
 
+
+    
+    
+    data_code = data[data$Code == codeLight,]
+
+    # If there is a data serie for the given code
+    if (!is.null(data_code)) {
+        # Computes the hydrograph
+        hyd = panel_hydrograph(data_code,
+                               margin=margin(t=2, r=0, b=0, l=5,
+                                             unit="mm"))
+    # Otherwise
+    } else {
+        # Puts it blank
+        hyd = void()
+    }
+
+
+
+    
     if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
         map =  panel_mini_map(meta,
                               Shapefiles=Shapefiles,
-                              regionLight=regionLight)
+                              regimeLight=regimeLight)
         # Otherwise
     } else {
         # Puts it blank
@@ -40,12 +61,12 @@ panel_info_region = function(meta,
 
     
     # Gets the metadata about the station
-    meta_region = meta[substr(meta$Code, 1, 1) == regionLight,]
+    meta_regime = meta[meta$typologie_regimeHydro == regimeLight,]
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        text1 = paste0("<b>", meta_region$region_hydro[1], "</b>",
-                       " - ", regionLight)
+        text1 = paste0("<b>", meta_regime$regimeHydro[1], "</b>",
+                       " - ", regimeLight)
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(text1,
                                x=0, y=1,
@@ -59,7 +80,7 @@ panel_info_region = function(meta,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste0("<b>", length(meta_region$Code),
+        text2 = paste0("<b>", length(meta_regime$Code),
                        " stations de référence", "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1,
@@ -75,13 +96,13 @@ panel_info_region = function(meta,
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste0(
             "Superficie minimale : ",
-            min(meta_region$surface_km2_BH), " km<sup>2</sup><br>",
+            min(meta_regime$surface_km2_BH), " km<sup>2</sup><br>",
             "Superficie maximale : ",
-            max(meta_region$surface_km2_BH), " km<sup>2</sup><br>",
+            max(meta_regime$surface_km2_BH), " km<sup>2</sup><br>",
             "Altitude minimale : ",
-            min(meta_region$altitude_m_BH), " m<br>",
+            min(meta_regime$altitude_m_BH), " m<br>",
             "Altitude maximale : ",
-            max(meta_region$altitude_m_BH), " m")
+            max(meta_regime$altitude_m_BH), " m")
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
