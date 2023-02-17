@@ -93,13 +93,13 @@ panel_info_region = function(meta,
     }
 
     # Makes a list of all plots
-    P = list(gtext1, gtext2, gtext3, map, void())
+    P = list(gtext1, gtext2, gtext3, void(), map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 5, 4,
-                  2, 2, 5, 4,
-                  3, 3, 5, 4,
-                  3, 3, 5, 4),
+    LM = matrix(c(1, 1, 4, 5,
+                  2, 2, 4, 5,
+                  3, 3, 4, 5,
+                  3, 3, 4, 5),
                 nrow=4, 
                 byrow=TRUE)
     # And sets the relative height of each plot

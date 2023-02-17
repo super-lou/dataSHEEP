@@ -27,6 +27,7 @@
 panel_mini_map = function (meta, Shapefiles,
                            codeLight=NULL,
                            regionLight=NULL,
+                           regimeCodeLight=NULL,
                            verbose=FALSE) {
     
     # Extract shapefiles
@@ -170,6 +171,23 @@ panel_mini_map = function (meta, Shapefiles,
                     color=INRAEdarkcyan,
                     fill=NA,
                     linewidth=0.3)
+    }
+
+    if (!is.null(regimeCodeLight)) {
+        matchCode = match(meta$Code, regimeCodeLight)
+        matchCode = matchCode[!is.na(matchCode)]
+        L93X = meta$L93X_m_BH[matchCode]           
+        L93Y = meta$L93Y_m_BH[matchCode]
+        
+        # Creates a tibble to stores all the data to plot
+        plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=regimeCodeLight)
+
+        map = map +
+            geom_point(data=plot_map,
+                       aes(x=L93X, y=L93Y),
+                       shape=21, size=1, stroke=0.3,
+                       color="white",
+                       fill=INRAEdarkcyan)
     }
 
     map = map +

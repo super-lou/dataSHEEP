@@ -23,8 +23,8 @@ panel_diagnostic_criteria = function (dataEXind,
                                       metaEXind,
                                       meta,
                                       Colors,
-                                      codeLight,
-                                      isRegion=FALSE,
+                                      codeLight=NULL,
+                                      groupCode=NULL,
                                       icon_path="",
                                       Warnings=NULL,
                                       prob=0.1,
@@ -287,10 +287,7 @@ panel_diagnostic_criteria = function (dataEXind,
     }
     VarTEX = paste0("\\textbf{", VarTEX, "}")
 
-    Code = levels(factor(dataEXind$Code))
-    letterCode = substr(Code, "1", "1")
-    letterCodeLight = substr(codeLight, "1", "1")
-    regionCode = Code[letterCode == letterCodeLight]
+    Code = levels(factor(dataEXind$Code))    
     id_save = ""
     space = 0
     Spaces = c()
@@ -434,7 +431,7 @@ panel_diagnostic_criteria = function (dataEXind,
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
             dataEXind_model_region =
-                dataEXind_model[dataEXind_model$Code %in% regionCode,]
+                dataEXind_model[dataEXind_model$Code %in% groupCode,]
             
             if (nrow(dataEXind_model_region) != 0) {
                 Q = (quantile(dataEXind_model_region[[var]],
@@ -459,7 +456,7 @@ panel_diagnostic_criteria = function (dataEXind,
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
             dataEXind_model_region =
-                dataEXind_model[dataEXind_model$Code %in% regionCode,]
+                dataEXind_model[dataEXind_model$Code %in% groupCode,]
             
             if (nrow(dataEXind_model_region) != 0) {
                 Q = (quantile(dataEXind_model_region[[var]],
@@ -468,7 +465,7 @@ panel_diagnostic_criteria = function (dataEXind,
                 Q[Q > ymax_grid] = ymax_grid
                 Q[ymin_grid > Q] = ymin_grid
 
-                if (isRegion) {
+                if (is.null(codeLight)) {
                     alpha_tmp = alpha 
                 } else {
                     alpha_tmp = alpha_spread
@@ -488,7 +485,7 @@ panel_diagnostic_criteria = function (dataEXind,
             }
         }
 
-        if (!isRegion) {
+        if (!is.null(codeLight)) {
             
             for (j in 1:nModel) {
                 model = Model[j]
@@ -673,7 +670,7 @@ panel_diagnostic_criteria = function (dataEXind,
                  label=title_mod,
                  color=IPCCgrey25,
                  hjust=0, vjust=0, size=2.5)
-    if (!isRegion) {
+    if (!is.null(codeLight)) {
         Ind = Ind +
             annotate("richtext",
                      x=x_title + dx_mod_subtitle,
@@ -734,7 +731,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=3.2)
         
-        if (!isRegion) {
+        if (!is.null(codeLight)) {
             Ind = Ind +
                 annotate("text",
                          x=(dx_mod_name + dx_mod_space*(i-1) +
@@ -781,7 +778,7 @@ panel_diagnostic_criteria = function (dataEXind,
                  linewidth=1.5,
                  lineend="round")
     
-    if (!isRegion) {
+    if (!is.null(codeLight)) {
         Ind = Ind +
             annotate("point",
                      x=rep(dx_leg_line, 2),
@@ -834,7 +831,7 @@ panel_diagnostic_criteria = function (dataEXind,
                  color=IPCCgrey50,
                  hjust=0, vjust=0.6, size=2.4)
 
-    if (!isRegion) {
+    if (!is.null(codeLight)) {
         Ind = Ind +
             annotate("line",
                      x=c(dx_leg_line +
@@ -895,7 +892,7 @@ panel_diagnostic_criteria = function (dataEXind,
                  color=IPCCgrey50,
                  hjust=0, vjust=0.6, size=2.4)
 
-    if (!isRegion) {
+    if (!is.null(codeLight)) {
         Ind = Ind + 
             annotate("segment",
                      x=dx_leg_line,
@@ -961,7 +958,7 @@ panel_diagnostic_criteria = function (dataEXind,
     }        
 
 ## 8. INTERPRETATION BLOC ____________________________________________
-    if (isRegion) {
+    if (is.null(codeLight)) {
         Ind = Ind +
             annotate("text",
                      x=x_title + dx_interp,

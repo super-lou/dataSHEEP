@@ -51,6 +51,9 @@ panel_spaghetti = function (data_code, Colors=NULL,
     
     if ("Model" %in% names(data_code)) {
 
+        Model = levels(factor(data_code$Model))
+        nModel = length(Model)
+        
         select_good = function (X) {
             Xrle = rle(X)
             value = Xrle$values[Xrle$lengths == max(Xrle$lengths)]
@@ -60,20 +63,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
             return (value)
         }
         
-        Model = levels(factor(data_code$Model))
-        nModel = length(Model)
-        
-        # data_code_obs =
-        #     dplyr::distinct(dplyr::select(data_code,
-        #                                   c(Code, Date, Q_obs)))
         data_code_obs =
             dplyr::summarise(dplyr::group_by(data_code, Date),
                              Q=select_good(Q_obs),
                              .groups="drop")
-        
-        # data_code_obs = dplyr::rename(data_code_obs, Q=Q_obs)
-
-        # print(data_code_obs, n=Inf)
 
         maxQ_obs = max(data_code_obs$Q, na.rm=TRUE)
         minQ_obs = min(data_code_obs$Q, na.rm=TRUE)

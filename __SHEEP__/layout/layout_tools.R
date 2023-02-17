@@ -676,6 +676,11 @@ X2px = function (X, PX) {
 }
 
 
-
-
-
+select_good = function (X) {
+    Xrle = rle(X)
+    value = Xrle$values[Xrle$lengths == max(Xrle$lengths)]
+    if (length(value) > 1) {
+        value = mean(value, na.rm=TRUE)
+    }
+    return (value)
+}

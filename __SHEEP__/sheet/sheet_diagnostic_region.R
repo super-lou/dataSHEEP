@@ -60,8 +60,8 @@ sheet_diagnostic_region = function (meta,
     Region = levels(factor(substr(Code, 1, 1)))
     nRegion = length(Region)
 
-    Region = "K"
-    nRegion = 1
+    # Region = "K"
+    # nRegion = 1
     
     for (i in 1:nRegion) {
         region = Region[i]
@@ -97,7 +97,7 @@ sheet_diagnostic_region = function (meta,
         names(Code_KGEprobs) = KGEprobs
 
         STOCK = tibble()
-        
+
         info = panel_info_region(meta,
                                  Shapefiles=Shapefiles,
                                  regionLight=region,
@@ -168,8 +168,7 @@ sheet_diagnostic_region = function (meta,
             metaEXind,
             meta,
             Colors,
-            codeLight=region,
-            isRegion=TRUE,
+            groupCode=Code_region,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",

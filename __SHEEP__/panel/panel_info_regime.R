@@ -22,21 +22,17 @@
 
 #' @title Info panel
 #' @export
-panel_info_regime = function(data,
-                             meta,
+panel_info_regime = function(QM_code,
+                             meta=NULL,
                              regimeLight=NULL,
+                             Code_regime=NULL,
                              Shapefiles=NULL,
                              to_do='all') {
 
-
-    
-    
-    data_code = data[data$Code == codeLight,]
-
     # If there is a data serie for the given code
-    if (!is.null(data_code)) {
+    if (!is.null(QM_code)) {
         # Computes the hydrograph
-        hyd = panel_hydrograph(data_code,
+        hyd = panel_hydrograph(QM_code,
                                margin=margin(t=2, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
@@ -45,14 +41,13 @@ panel_info_regime = function(data,
         hyd = void()
     }
 
-
-
+    meta_regime = meta[meta$Code %in% Code_regime,]
     
     if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
-        map =  panel_mini_map(meta,
+        map =  panel_mini_map(meta_regime,
                               Shapefiles=Shapefiles,
-                              regimeLight=regimeLight)
+                              regimeCodeLight=Code_regime)
         # Otherwise
     } else {
         # Puts it blank
@@ -60,13 +55,12 @@ panel_info_regime = function(data,
     }
 
     
-    # Gets the metadata about the station
-    meta_regime = meta[meta$typologie_regimeHydro == regimeLight,]
+    # # Gets the metadata about the station
+    # meta_regime = meta[meta$typologie_regimeHydro == regimeLight,]
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        text1 = paste0("<b>", meta_regime$regimeHydro[1], "</b>",
-                       " - ", regimeLight)
+        text1 = paste0("<b>", regimeLight, "</b>")
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(text1,
                                x=0, y=1,
@@ -92,17 +86,21 @@ panel_info_regime = function(data,
         gtext2 = void()
     }
 
+    # print(meta_regime$Code[is.na(meta_regime$surface_km2_BH)])
+
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste0(
             "Superficie minimale : ",
-            min(meta_regime$surface_km2_BH), " km<sup>2</sup><br>",
+            min(meta_regime$surface_km2_BH, na.rm=TRUE),
+            " km<sup>2</sup><br>",
             "Superficie maximale : ",
-            max(meta_regime$surface_km2_BH), " km<sup>2</sup><br>",
+            max(meta_regime$surface_km2_BH, na.rm=TRUE),
+            " km<sup>2</sup><br>",
             "Altitude minimale : ",
-            min(meta_regime$altitude_m_BH), " m<br>",
+            min(meta_regime$altitude_m_BH, na.rm=TRUE), " m<br>",
             "Altitude maximale : ",
-            max(meta_regime$altitude_m_BH), " m")
+            max(meta_regime$altitude_m_BH, na.rm=TRUE), " m")
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -114,13 +112,13 @@ panel_info_regime = function(data,
     }
 
     # Makes a list of all plots
-    P = list(gtext1, gtext2, gtext3, map, void())
+    P = list(gtext1, gtext2, gtext3, hyd, map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 5, 4,
-                  2, 2, 5, 4,
-                  3, 3, 5, 4,
-                  3, 3, 5, 4),
+    LM = matrix(c(1, 1, 4, 5,
+                  2, 2, 4, 5,
+                  3, 3, 4, 5,
+                  3, 3, 4, 5),
                 nrow=4, 
                 byrow=TRUE)
     # And sets the relative height of each plot

@@ -22,13 +22,12 @@
 
 #' @title Hydrograph panel
 #' @export
-panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
+panel_hydrograph = function (QM_code, period=NULL, margin=NULL) {
 
-    # Computes the hydrograph
-    res_hydrograph = get_hydrograph(data_code, period=period)
-    # Extracts the results
-    monthMean = res_hydrograph$QM
-    regimeHydro = res_hydrograph$meta
+    regimeHydro = find_regimeHydro(QM_code)
+    id_regimeHydro = regimeHydro$id
+    typology_regimeHydro = regimeHydro$typology
+    regimeHydro = paste0(typology_regimeHydro, " ", id_regimeHydro)
     
     # Vector of month index
     monthNum = 1:12
@@ -70,7 +69,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
 
     plot = plot +
         # Plots the bar
-        geom_bar(aes(x=monthNum, y=monthMean), 
+        geom_bar(aes(x=monthNum, y=QM_code), 
                  stat='identity',
                  fill=IPCCgrey67,
                  width=0.75, size=0.2) +
@@ -80,7 +79,7 @@ panel_hydrograph = function (data_code, period=NULL, margin=NULL) {
                            limits=c(0, max(monthNum)+0.5),
                            expand=c(0, 0)) + 
         # Y axis
-        scale_y_continuous(limits=c(0, max(monthMean)),
+        scale_y_continuous(limits=c(0, max(QM_code)),
                            n.breaks=4,
                            expand=c(0, 0))
     # Returns the plot

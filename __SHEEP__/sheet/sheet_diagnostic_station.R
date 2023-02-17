@@ -21,18 +21,18 @@
 
 
 sheet_diagnostic_station = function (data,
-                                      meta,
-                                      dataEXind,
-                                      metaEXind,
-                                      dataEXserie,
-                                      Colors,
-                                      ModelGroup=NULL,
-                                      icon_path="",
-                                      Warnings=NULL,
-                                      logo_path="",
-                                      df_page=NULL,
-                                      Shapefiles=NULL,
-                                      figdir="") {
+                                     meta,
+                                     dataEXind,
+                                     metaEXind,
+                                     dataEXserie,
+                                     Colors,
+                                     ModelGroup=NULL,
+                                     icon_path="",
+                                     Warnings=NULL,
+                                     logo_path="",
+                                     df_page=NULL,
+                                     Shapefiles=NULL,
+                                     figdir="") {
         
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
@@ -54,11 +54,15 @@ sheet_diagnostic_station = function (data,
         "info", "chronicle", "QA", "FDC", "criteria", "foot"),
     ncol=2)
     WIP = FALSE
-
-
-    data_obs = dplyr::distinct(dplyr::select(data,
-                                             c(Code, Date, Q_obs)))
-    data_obs = dplyr::rename(data_obs, Q=Q_obs)
+    
+    data_obs =
+        dplyr::summarise(dplyr::group_by(data, Code, Date),
+                         Q=select_good(Q_obs),
+                         .groups="drop")
+    dataEXserieQM_obs =
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Month),
+                         QM=select_good(QM_obs),
+                         .groups="drop")
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -68,7 +72,11 @@ sheet_diagnostic_station = function (data,
     
     for (i in 1:nCode) {
         code = Code[i]
+        
         data_code = data[data$Code == code,]
+        data_obs_code = data_obs[data_obs$Code == code,]
+        dataEXserieQM_obs_code =
+            dataEXserieQM_obs[dataEXserieQM_obs$Code == code,]
 
         dataEXserie_code = list()
         for (j in 1:length(dataEXserie)) {
@@ -80,7 +88,8 @@ sheet_diagnostic_station = function (data,
 
         STOCK = tibble()
         
-        info = panel_info_station(data_obs,
+        info = panel_info_station(data_obs_code,
+                                  dataEXserieQM_obs_code$QM,
                                   meta,
                                   Shapefiles=Shapefiles,
                                   codeLight=code,
@@ -208,12 +217,16 @@ sheet_diagnostic_station = function (data,
                          height=FDC_height,
                          width=FDC_width)
 
+
+        Code_region = Code[substr(Code, 1, 1) == substr(code, 1, 1)]
+        
         criteria = panel_diagnostic_criteria(
             dataEXind,
             metaEXind,
             meta,
             Colors,
             codeLight=code,
+            groupCode=Code_region,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",

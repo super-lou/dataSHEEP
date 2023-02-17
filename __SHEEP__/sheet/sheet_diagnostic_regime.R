@@ -57,18 +57,32 @@ sheet_diagnostic_regime = function (meta,
     Code = levels(factor(dataEXind$Code))
     nCode = length(Code)
 
+    dataEXserieQM_obs =
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Month),
+                         QM=select_good(QM_obs),
+                         .groups="drop")
 
-    Regime = levels(factor(meta$typologie_regimeHydro))
+    regimeHydro =
+        dplyr::summarise(dplyr::group_by(dataEXserieQM_obs,
+                                         Code),
+                         as_tibble(find_regimeHydro(QM)),
+                         .groups="drop")
+    regimeHydro$str = paste0(regimeHydro$typology,
+                             " - ", regimeHydro$id) 
+    
+    Regime = levels(factor(regimeHydro$str))
     nRegime = length(Regime)
 
-    Regime = 1
-    nRegime = 1
+    # Regime = "Pluvial - 5"
+    # nRegime = 1
     
     for (i in 1:nRegime) {
         regime = Regime[i]
-        Code_regime = meta$Code[meta$typologie_regimeHydro == regime]
+        Code_regime = regimeHydro$Code[regimeHydro$str == regime]
 
         dataEXind_regime = dataEXind[dataEXind$Code %in% Code_regime,]
+        dataEXserieQM_obs_regime =
+            dataEXserieQM_obs[dataEXserieQM_obs$Code %in% Code_regime,]
         
         dataEXserie_regime = list()
         for (j in 1:length(dataEXserie)) {
@@ -98,10 +112,18 @@ sheet_diagnostic_regime = function (meta,
         names(Code_KGEprobs) = KGEprobs
 
         STOCK = tibble()
+
+        dataEXserieQM_obs_regime_med =
+            dplyr::summarise(dplyr::group_by(dataEXserieQM_obs_regime,
+                                             Month),
+                             QM=median(QM, na.rm=TRUE),
+                             .groups="drop")
         
-        info = panel_info_regime(meta,
-                                 Shapefiles=Shapefiles,
+        info = panel_info_regime(dataEXserieQM_obs_regime_med$QM,
+                                 meta,
                                  regimeLight=regime,
+                                 Code_regime=Code_regime,
+                                 Shapefiles=Shapefiles,
                                  to_do='all')
         STOCK = add_plot(STOCK,
                          plot=info,
@@ -169,8 +191,7 @@ sheet_diagnostic_regime = function (meta,
             metaEXind,
             meta,
             Colors,
-            codeLight=regime,
-            isRegion=TRUE,
+            groupCode=Code_regime,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",
@@ -213,7 +234,9 @@ sheet_diagnostic_regime = function (meta,
 
         print(paper_size)
 
-        filename = paste0("fiche_region_diagnostic_", region, ".pdf")
+        regime = gsub("[ ][-][ ]", "_", regime)
+        
+        filename = paste0("fiche_regime_diagnostic_", regime, ".pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

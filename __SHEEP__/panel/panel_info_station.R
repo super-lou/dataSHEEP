@@ -22,18 +22,18 @@
 
 #' @title Info panel
 #' @export
-panel_info_station = function(data, meta,
-                      Shapefiles=NULL,
-                      codeLight=NULL,
-                      to_do='all',
-                      zone_to_show='France') {
-
-    data_code = data[data$Code == codeLight,]
-
+panel_info_station = function(data_code,
+                              QM_code=NULL,
+                              meta=NULL,
+                              Shapefiles=NULL,
+                              codeLight=NULL,
+                              to_do='all',
+                              zone_to_show='France') {
+    
     # If there is a data serie for the given code
-    if (!is.null(data_code)) {
+    if (!is.null(QM_code)) {
         # Computes the hydrograph
-        hyd = panel_hydrograph(data_code,
+        hyd = panel_hydrograph(QM_code,
                                margin=margin(t=2, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
