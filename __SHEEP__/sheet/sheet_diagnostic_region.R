@@ -209,9 +209,7 @@ sheet_diagnostic_region = function (meta,
         plot = res$plot
         paper_size = res$paper_size
 
-        print(paper_size)
-
-        filename = paste0("fiche_region_diagnostic_", region, ".pdf")
+        filename = paste0(region, "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

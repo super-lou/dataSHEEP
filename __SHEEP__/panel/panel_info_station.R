@@ -24,6 +24,7 @@
 #' @export
 panel_info_station = function(data_code,
                               QM_code=NULL,
+                              regimeLight="",
                               meta=NULL,
                               Shapefiles=NULL,
                               codeLight=NULL,
@@ -34,6 +35,7 @@ panel_info_station = function(data_code,
     if (!is.null(QM_code)) {
         # Computes the hydrograph
         hyd = panel_hydrograph(QM_code,
+                               regimeLight,
                                margin=margin(t=2, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise
@@ -108,15 +110,30 @@ panel_info_station = function(data_code,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        text3 = paste(
-            # "<b>",
-            "Superficie : ", meta_code$surface_km2_BH,
-            " km<sup>2</sup><br>",
-            "Altitude : ", meta_code$altitude_m_BH, " m<br>",
+        if (is.na(meta_code$surface_km2_BH)) {
+            if (is.na(meta_code$surface_km2_IN)) {
+                surface = "inconnue"
+            } else {
+                surface = paste0(meta_code$surface_km2_IN, " km<sup>2</sup>")
+            }
+        } else {
+            surface = paste0(meta_code$surface_km2_BH, " km<sup>2</sup>")
+        }
+        if (is.na(meta_code$altitude_m_BH)) {
+            if (is.na(meta_code$altitude_m_IN)) {
+                altitude = "inconnue"
+            } else {
+                altitude = paste0(meta_code$altitude_m_IN, " m")
+            }
+        } else {
+            altitude = paste0(meta_code$altitude_m_BH, " m")
+        }
+
+        text3 = paste0(
+            "Superficie : ", surface, "<br>",
+            "Altitude : ", altitude, "<br>",
             "X = ", meta_code$L93X_m_BH, "  m (Lambert93)<br>",
-            "Y = ", meta_code$L93Y_m_BH, "  m (Lambert93)",
-            # "</b>",
-            sep='')
+            "Y = ", meta_code$L93Y_m_BH, "  m (Lambert93)")
         gtext3 = richtext_grob(text3,
                                x=0, y=0.96,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -135,15 +152,12 @@ panel_info_station = function(data_code,
         debut = format(min(data_code$Date), "%d/%m/%Y")
         fin = format(max(data_code$Date), "%d/%m/%Y")
 
-        text4 = paste(
-            # "<b>",
+        text4 = paste0(
             "Date de début : ", debut, "<br>",
             "Date de fin : ", fin, "<br>",
             "Disponibilité : ", duration, " ans", "<br>",
             "Taux de lacunes : ", signif(meta_code$tLac100, 2),
-            " %",
-            # "</b>",
-            sep='')
+            " %")
         gtext4 = richtext_grob(text4,
                                x=0, y=0.96,
                                margin=unit(c(t=0, r=0, b=0, l=0),

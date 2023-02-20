@@ -62,13 +62,14 @@ sheet_diagnostic_regime = function (meta,
                          QM=select_good(QM_obs),
                          .groups="drop")
 
-    regimeHydro =
-        dplyr::summarise(dplyr::group_by(dataEXserieQM_obs,
-                                         Code),
-                         as_tibble(find_regimeHydro(QM)),
-                         .groups="drop")
-    regimeHydro$str = paste0(regimeHydro$typology,
-                             " - ", regimeHydro$id) 
+    dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+                                                         Code, Date),
+                                         PAs=median(PAs, na.rm=TRUE),
+                                         PAl=median(PAl, na.rm=TRUE),
+                                         PA=median(PA, na.rm=TRUE),
+                                         .groups="drop")
+
+    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
     
     Regime = levels(factor(regimeHydro$str))
     nRegime = length(Regime)
@@ -120,8 +121,8 @@ sheet_diagnostic_regime = function (meta,
                              .groups="drop")
         
         info = panel_info_regime(dataEXserieQM_obs_regime_med$QM,
-                                 meta,
                                  regimeLight=regime,
+                                 meta=meta,
                                  Code_regime=Code_regime,
                                  Shapefiles=Shapefiles,
                                  to_do='all')
@@ -232,11 +233,9 @@ sheet_diagnostic_regime = function (meta,
         plot = res$plot
         paper_size = res$paper_size
 
-        print(paper_size)
 
         regime = gsub("[ ][-][ ]", "_", regime)
-        
-        filename = paste0("fiche_regime_diagnostic_", regime, ".pdf")
+        filename = paste0(regime, "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

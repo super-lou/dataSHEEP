@@ -64,6 +64,15 @@ sheet_diagnostic_station = function (data,
                          QM=select_good(QM_obs),
                          .groups="drop")
 
+    dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+                                                         Code, Date),
+                                         PAs=median(PAs, na.rm=TRUE),
+                                         PAl=median(PAl, na.rm=TRUE),
+                                         PA=median(PA, na.rm=TRUE),
+                                         .groups="drop")
+
+    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
+
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
                    
@@ -90,7 +99,8 @@ sheet_diagnostic_station = function (data,
         
         info = panel_info_station(data_obs_code,
                                   dataEXserieQM_obs_code$QM,
-                                  meta,
+                                  regimeLight=regimeHydro$str[regimeHydro$Code == code],
+                                  meta=meta,
                                   Shapefiles=Shapefiles,
                                   codeLight=code,
                                   to_do='all',
@@ -241,13 +251,6 @@ sheet_diagnostic_station = function (data,
                          name="criteria",
                          height=criteria_height)
 
-        # STOCK = add_plot(STOCK,
-        #                  plot=void(),
-        #                  name="void",
-        #                  height=void_height,
-        #                  width=void_width)
-        
-
         footName = paste0('Fiche station de diagnostic')
         if (is.null(df_page)) {
             n_page = i
@@ -273,14 +276,12 @@ sheet_diagnostic_station = function (data,
         plot = res$plot
         paper_size = res$paper_size
 
-        print(paper_size)
-
-        filename = paste0("fiche_station_diagnostic_", code, ".pdf")
+        filename = paste0(code, "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
-        
+
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,

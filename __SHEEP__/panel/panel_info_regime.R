@@ -23,8 +23,8 @@
 #' @title Info panel
 #' @export
 panel_info_regime = function(QM_code,
+                             regimeLight="",
                              meta=NULL,
-                             regimeLight=NULL,
                              Code_regime=NULL,
                              Shapefiles=NULL,
                              to_do='all') {
@@ -33,6 +33,7 @@ panel_info_regime = function(QM_code,
     if (!is.null(QM_code)) {
         # Computes the hydrograph
         hyd = panel_hydrograph(QM_code,
+                               regimeLight,
                                margin=margin(t=2, r=0, b=0, l=5,
                                              unit="mm"))
     # Otherwise

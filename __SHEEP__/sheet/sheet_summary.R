@@ -23,17 +23,12 @@
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
-sheet_summary = function (df_page, foot_note, foot_height,
-                          logo_path,
-                          outdirTmp_pdf, outdirTmp_png) {
+sheet_summary = function (df_page, title="title", subtitle="" logo_path=NULL, figdir="") {
+
+    foot_height = 1.25
     
-    text_title = paste(
-        "<b>Analyse de Stationnarité Hydrologique</b>",
-        sep='')
-    
-    text_subtitle = paste(
-        "Bassin Adour-Garonnne",
-        sep='')
+    text_title = paste0("<b>", title, "</b>")
+    text_subtitle = subtitle
 
     Sec_name = rle(df_page$section)$values
     nSec = length(Sec_name)
@@ -145,7 +140,7 @@ sheet_summary = function (df_page, foot_note, foot_height,
     
     
     # If there is a foot note
-    if (foot_note) {
+    if (is.null(logo_path)) {
         footName = 'sommaire'
         foot = panel_foot(footName,
                           1, foot_height, logo_path)
@@ -207,12 +202,7 @@ sheet_summary = function (df_page, foot_note, foot_height,
     
     # Saves the plot
     ggsave(plot=plot,
-           path=outdirTmp_pdf,
-           filename=paste('sommaire', '.pdf', sep=''),
+           path=figdir,
+           filename=paste0('sommaire', '.pdf'),
            width=width, height=height, units='cm', dpi=100)
-    
-    ggsave(plot=plot,
-           path=outdirTmp_png,
-           filename=paste('sommaire', '.png', sep=''),
-           width=width, height=height, units='cm', dpi=400)
 } 

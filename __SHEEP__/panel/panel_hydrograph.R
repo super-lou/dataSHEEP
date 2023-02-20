@@ -22,12 +22,12 @@
 
 #' @title Hydrograph panel
 #' @export
-panel_hydrograph = function (QM_code, period=NULL, margin=NULL) {
+panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin=NULL) {
 
-    regimeHydro = find_regimeHydro(QM_code)
-    id_regimeHydro = regimeHydro$id
-    typology_regimeHydro = regimeHydro$typology
-    regimeHydro = paste0(typology_regimeHydro, " ", id_regimeHydro)
+    # regimeHydro = find_regimeHydro(QM_code)
+    # id_regimeHydro = regimeHydro$id
+    # typology_regimeHydro = regimeHydro$typology
+    # regimeHydro = paste0(typology_regimeHydro, " ", id_regimeHydro)
     
     # Vector of month index
     monthNum = 1:12
@@ -51,7 +51,7 @@ panel_hydrograph = function (QM_code, period=NULL, margin=NULL) {
             axis.title.y=element_blank()) +
         
         # Adds a title to the y axis
-        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regimeHydro)))
+        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regimeLight)))
         # Y axis title
         # ylab()
     
