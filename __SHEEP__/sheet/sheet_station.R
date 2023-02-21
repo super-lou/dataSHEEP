@@ -577,7 +577,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                 tibble(section=section,
                        subsection=subsection,
                        n=n_page))
-        }        
+        }   
     }
     return (df_page)
 }

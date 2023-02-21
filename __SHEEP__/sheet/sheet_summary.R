@@ -23,7 +23,7 @@
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
-sheet_summary = function (df_page, title="title", subtitle="" logo_path=NULL, figdir="") {
+sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path=NULL, figdir="") {
 
     foot_height = 1.25
     
@@ -140,7 +140,7 @@ sheet_summary = function (df_page, title="title", subtitle="" logo_path=NULL, fi
     
     
     # If there is a foot note
-    if (is.null(logo_path)) {
+    if (!is.null(logo_path)) {
         footName = 'sommaire'
         foot = panel_foot(footName,
                           1, foot_height, logo_path)
@@ -196,6 +196,10 @@ sheet_summary = function (df_page, title="title", subtitle="" logo_path=NULL, fi
     widthLM[Wcut ==  id_page1 | Wcut ==  id_page2] = page_width
     widthLM[Wcut == 99] = margin_size
 
+    print(LM)
+    print(heightLM)
+    print(widthLM)
+    
     # Arranges the graphical object
     plot = grid.arrange(grobs=P, layout_matrix=LM,
                         heights=heightLM, widths=widthLM)

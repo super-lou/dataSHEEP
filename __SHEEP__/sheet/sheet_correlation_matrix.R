@@ -199,7 +199,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
             if (nrow(df_page) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + page
+                n_page = df_page$n[nrow(df_page)] + 1
             }
         }
         foot = panel_foot(footName, n_page,
@@ -233,4 +233,5 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                         dpi=300,
                         device=cairo_pdf)
     }
+    return (df_page)
 }

@@ -84,7 +84,8 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0, isXlabel=FALSE) {
     } else {
         axis.title.x = element_blank()
     }
-    
+
+    library(ggh4x)
     theme =
         theme(
             # White background

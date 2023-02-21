@@ -74,8 +74,8 @@ sheet_diagnostic_regime = function (meta,
     Regime = levels(factor(regimeHydro$str))
     nRegime = length(Regime)
 
-    # Regime = "Pluvial - 5"
-    # nRegime = 1
+    Regime = "Pluvial - 5"
+    nRegime = 1
     
     for (i in 1:nRegime) {
         regime = Regime[i]
@@ -208,15 +208,20 @@ sheet_diagnostic_regime = function (meta,
                          height=criteria_height)
 
 
-        footName = paste0('Fiche région de diagnostic')
+        footName = 'Fiche région de diagnostic'
         if (is.null(df_page)) {
             n_page = i
         } else {
             if (nrow(df_page) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + page
+                n_page = df_page$n[nrow(df_page)] + 1
             }
+            df_page = bind_rows(
+                df_page,
+                tibble(section=footName,
+                       subsection=regime,
+                       n=n_page))
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
@@ -249,4 +254,5 @@ sheet_diagnostic_regime = function (meta,
                         dpi=300,
                         device=cairo_pdf)
     }
+    return (df_page)
 }
