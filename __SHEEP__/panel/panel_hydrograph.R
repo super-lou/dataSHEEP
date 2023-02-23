@@ -22,12 +22,34 @@
 
 #' @title Hydrograph panel
 #' @export
-panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin=NULL) {
+panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin_add=margin(t=0, r=0, b=0, l=0, unit="mm")) {
 
-    # regimeHydro = find_regimeHydro(QM_code)
-    # id_regimeHydro = regimeHydro$id
-    # typology_regimeHydro = regimeHydro$typology
-    # regimeHydro = paste0(typology_regimeHydro, " ", id_regimeHydro)
+
+    title = ggplot() + theme_void() +
+        theme(plot.margin=margin(margin_add[1], margin_add[2],
+                                 margin_add[3], 0,
+                                 unit=attr(margin_add, "unit")))
+
+    title = title +
+        annotate("text",
+                 x=0,
+                 y=1,
+                 label=TeX("QM ($m^{3}.s^{-1}$)"),
+                 size=3, hjust=0, vjust=1,
+                 color=IPCCgrey40) +
+        annotate("text",
+                 x=0,
+                 y=0,
+                 label=regimeLight,
+                 size=2.5, hjust=0, vjust=0,
+                 color=IPCCgrey40)
+
+    title = title +
+        scale_x_continuous(limits=c(0, 1),
+                           expand=c(0, 0)) +
+        scale_y_continuous(limits=c(0, 1),
+                           expand=c(0, 0))
+    
     
     # Vector of month index
     monthNum = 1:12
@@ -36,7 +58,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin=NULL) {
                   "J", "A", "S", "O", "N", "D")
 
     # Open a new plot with the personalise theme
-    plot = ggplot() + theme_IPCC() +
+    hyd = ggplot() + theme_IPCC() +
         # Theme modification
         theme(
             panel.background=element_rect(fill="white"),
@@ -48,31 +70,20 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin=NULL) {
             axis.line.y=element_line(color=IPCCgrey85, size=0.3),
             plot.title=element_text(size=8, vjust=-1, 
                                     hjust=-0.01, color=IPCCgrey40),
-            axis.title.y=element_blank()) +
-        
-        # Adds a title to the y axis
-        ggtitle(bquote('QM'~'('*m^{3}*'.'*s^{-1}*')'~~.(regimeLight)))
-        # Y axis title
-        # ylab()
+            axis.title.y=element_blank())
     
-    # If there is no margins specified
-    if (is.null(margin)) {
-        # Sets all margins to 0
-        plot = plot + 
-            theme(plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"))
-    # Otherwise
-    } else {
-        # Sets margins to the given ones
-        plot = plot + 
-            theme(plot.margin=margin)
-    }
+    hyd = hyd + 
+        theme(plot.margin=margin(0, margin_add[2],
+                                 margin_add[3], margin_add[4],
+                                 unit=attr(margin_add, "unit")))
 
-    plot = plot +
+    hyd = hyd +
         # Plots the bar
         geom_bar(aes(x=monthNum, y=QM_code), 
                  stat='identity',
                  fill=IPCCgrey67,
                  width=0.75, size=0.2) +
+
         # X axis
         scale_x_continuous(breaks=monthNum,
                            labels=monthName,
@@ -82,6 +93,18 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin=NULL) {
         scale_y_continuous(limits=c(0, max(QM_code)),
                            n.breaks=4,
                            expand=c(0, 0))
-    # Returns the plot
+
+
+    STOCK = add_plot(dplyr::tibble(),
+                     plot=title,
+                     name="title",
+                     height=1)
+    STOCK = add_plot(STOCK,
+                     plot=hyd,
+                     name="hyd",
+                     height=3.6)
+    
+    plot = merge_panel(STOCK, direction="V")
+    
     return (plot)
 } 

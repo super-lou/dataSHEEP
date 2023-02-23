@@ -57,7 +57,8 @@ INRAElightblue = "#9ed6e3"
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0, isXlabel=FALSE) {
+theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0,
+                       isLabelX=FALSE, isLabelY=FALSE) {
 
     if (isBack) {
         panel.background=element_rect(fill=IPCCgrey97)
@@ -69,20 +70,24 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0, isXlabel=FALSE) {
         plot.title=element_text(size=9,
                                 vjust=0, hjust=dTitle,
                                 color=IPCCgrey25)
-        axis.title.y=element_blank()
     } else {
         plot.title=element_blank()
-        axis.title.y=element_text(size=9,
-                                  vjust=1.2, hjust=0.5,
-                                  color=IPCCgrey25)
     }
 
-    if (isXlabel) {
+    if (isLabelX) {
         axis.title.x = element_text(size=7.5,
                                     vjust=1, hjust=0.5,
                                     color=IPCCgrey40)
     } else {
         axis.title.x = element_blank()
+    }
+    
+    if (isLabelY) {
+        axis.title.y=element_text(size=9,
+                                  vjust=1.2, hjust=0.5,
+                                  color=IPCCgrey25)
+    } else {
+        axis.title.y=element_blank()
     }
 
     library(ggh4x)

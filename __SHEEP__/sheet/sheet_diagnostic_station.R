@@ -77,8 +77,9 @@ sheet_diagnostic_station = function (data,
     nModel = length(Model)
                    
     Code = levels(factor(data$Code))
+    CodeALL = levels(factor(dataEXind$Code))
     nCode = length(Code)
-    
+
     for (i in 1:nCode) {
         code = Code[i]
         
@@ -97,14 +98,15 @@ sheet_diagnostic_station = function (data,
 
         STOCK = tibble()
         
-        info = panel_info_station(data_obs_code,
-                                  dataEXserieQM_obs_code$QM,
-                                  regimeLight=regimeHydro$str[regimeHydro$Code == code],
-                                  meta=meta,
-                                  Shapefiles=Shapefiles,
-                                  codeLight=code,
-                                  to_do='all',
-                                  zone_to_show='France')
+        info = panel_info_station(
+            data_obs_code,
+            dataEXserieQM_obs_code$QM,
+            regimeLight=regimeHydro$detail[regimeHydro$Code == code],
+            meta=meta,
+            Shapefiles=Shapefiles,
+            codeLight=code,
+            to_do='all',
+            zone_to_show='France')
         STOCK = add_plot(STOCK,
                          plot=info,
                          name="info",
@@ -118,13 +120,14 @@ sheet_diagnostic_station = function (data,
                                     missRect=TRUE,
                                     isBack=FALSE,
                                     isTitle=TRUE,
-                                    dTitle=-0.04,
                                     sizeYticks=6,
                                     date_labels="%Y",
                                     breaks="5 years",
                                     minor_breaks="1 years",
+                                    limits_ymin=0,
                                     isBackObsAbove=FALSE,
                                     grid=TRUE,
+                                    ratio_title=0.2,
                                     margin_add=
                                         margin(t=1, r=0, b=-2, l=0, "mm"),
                                     first=FALSE,
@@ -147,13 +150,13 @@ sheet_diagnostic_station = function (data,
                              missRect=FALSE,
                              isBack=FALSE,
                              isTitle=TRUE,
-                             dTitle=-0.03,
                              sizeYticks=6,
                              date_labels="%Y",
                              breaks="5 years",
                              minor_breaks="1 years",
                              isBackObsAbove=TRUE,
                              grid=TRUE,
+                             ratio_title=0.2,
                              margin_add=
                                  margin(t=-2, r=0, b=0, l=0, "mm"),
                              first=FALSE,
@@ -164,6 +167,7 @@ sheet_diagnostic_station = function (data,
                          height=QA_height)
 
         dataMOD = dataEXserie_code[["median{QJ}"]]
+        # dataMOD = dataEXserie_code[["median{QJ}C5"]]
         dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                origin=as.Date("1972-01-01"))
         dataMOD = dplyr::rename(dataMOD,
@@ -178,13 +182,14 @@ sheet_diagnostic_station = function (data,
                                 missRect=FALSE,
                                 isBack=FALSE,
                                 isTitle=TRUE,
-                                dTitle=-0.3,
                                 date_labels="%d %b",
                                 breaks="3 months",
                                 minor_breaks="1 months",
                                 Xlabel="",
+                                limits_ymin=0,
                                 isBackObsAbove=TRUE,
                                 grid=TRUE,
+                                ratio_title=0.1,
                                 margin_add=
                                     margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
@@ -209,14 +214,15 @@ sheet_diagnostic_station = function (data,
                               missRect=FALSE,
                               isTitle=TRUE,
                               isBack=FALSE,
-                              dTitle=-0.24,
                               breaks=0.2,
                               minor_breaks=0.1,
                               break_round=1,
                               isNormLaw=TRUE,
                               Xlabel="Probabilité de dépassement",
+                              limits_ymin=0,
                               isBackObsAbove=TRUE,
                               grid=TRUE,
+                              ratio_title=0.1,
                               margin_add=
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
@@ -228,8 +234,8 @@ sheet_diagnostic_station = function (data,
                          width=FDC_width)
 
 
-        Code_region = Code[substr(Code, 1, 1) == substr(code, 1, 1)]
-        
+        Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
+
         criteria = panel_diagnostic_criteria(
             dataEXind,
             metaEXind,
@@ -240,8 +246,9 @@ sheet_diagnostic_station = function (data,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",
-            alpha=0.85,
-            alpha_spread=0.25,
+            alpha_marker=0.85,
+            Alpha=0.25,
+            Probs=0.1,
             dTitle=0,
             add_name=TRUE,
             margin_add=

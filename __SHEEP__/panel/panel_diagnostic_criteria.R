@@ -27,16 +27,23 @@ panel_diagnostic_criteria = function (dataEXind,
                                       groupCode=NULL,
                                       icon_path="",
                                       Warnings=NULL,
-                                      prob=0.1,
+                                      alpha_marker=0.85,
+                                      Probs=0.1,
+                                      Alpha=0.7,
                                       title="",
-                                      alpha=0.7,
-                                      alpha_spread=0.3,
                                       dTitle=0,
                                       add_name=FALSE,
                                       margin_add=margin(t=0, r=0,
                                                         b=0, l=0,
                                                         "mm")) {
 
+    Alpha = sort(c(Alpha, alpha_marker))
+    alpha_marker = max(Alpha)
+    Alpha = Alpha[Alpha != alpha_marker]
+    Probs = sort(Probs)
+
+    NP = length(Probs)
+    
     ## 1. PARAMETERS _____________________________________________________
     dl_grid=0.12
     dr_grid=0.12
@@ -68,11 +75,13 @@ panel_diagnostic_criteria = function (dataEXind,
     dx_mod_space = 0.7
     dy_mod_line = 0.18
     dx_mod_line = 0.12
-    dl_mod_line = c(0.3, 0.15)
     dy_mod_surf = 0.3
-    alpha_mod_line = c(alpha_spread, alpha) 
-    ech_text_mod = 0.41
+    alpha_mod_line = c(Alpha, alpha_marker)
+    dl_mod_line = seq(0.3,
+                      0.15,
+                      length.out=length(alpha_mod_line)) #c(0.3, 0.15)
 
+    ech_text_mod = 0.41
 
     dy_leg = 1.8
     dh_leg = 3
@@ -80,6 +89,7 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_leg_line = 0.25
     dl_leg_line = 0.85
     dy_leg_point = 0.4
+    w_leg_line = 0.06#0.14
     dl_leg_line_grad = 0.2
     dr_leg_line_grad = 0.1
     w_leg_line_grad = 0.3
@@ -211,7 +221,10 @@ panel_diagnostic_criteria = function (dataEXind,
 
     dataEXind = dplyr::select(dataEXind, vars2keep)
 
-    Model = levels(factor(dataEXind$Model))
+
+    CodeIN = c(codeLight, groupCode)
+    
+    Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
     nModel = length(Model)
 
     dataEXind_tmp = dataEXind
@@ -430,12 +443,13 @@ panel_diagnostic_criteria = function (dataEXind,
         for (j in 1:nModel) {
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_region =
+            dataEXind_model_group =
                 dataEXind_model[dataEXind_model$Code %in% groupCode,]
-            
-            if (nrow(dataEXind_model_region) != 0) {
-                Q = (quantile(dataEXind_model_region[[var]],
-                              c(prob, 1-prob), na.rm=TRUE)+shift)*norm
+
+            if (nrow(dataEXind_model_group) != 0) {
+                Q = (quantile(dataEXind_model_group[[var]],
+                              c(min(Probs), 1-min(Probs)),
+                              na.rm=TRUE)+shift)*norm
                 
                 Q[Q > ymax_grid] = ymax_grid
                 Q[ymin_grid > Q] = ymin_grid
@@ -455,135 +469,214 @@ panel_diagnostic_criteria = function (dataEXind,
         for (j in 1:nModel) {
             model = Model[j]
             dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_region =
+            dataEXind_model_group =
                 dataEXind_model[dataEXind_model$Code %in% groupCode,]
             
-            if (nrow(dataEXind_model_region) != 0) {
-                Q = (quantile(dataEXind_model_region[[var]],
-                              c(prob, 1-prob), na.rm=TRUE)+shift)*norm
-                
-                Q[Q > ymax_grid] = ymax_grid
-                Q[ymin_grid > Q] = ymin_grid
-
-                if (is.null(codeLight)) {
-                    alpha_tmp = alpha 
-                } else {
-                    alpha_tmp = alpha_spread
+            if (nrow(dataEXind_model_group) != 0) {
+                for (k in 1:NP) {
+                    Q = (quantile(dataEXind_model_group[[var]],
+                                  c(Probs[k], 1-Probs[k]),
+                                  na.rm=TRUE)+shift)*norm
+                    
+                    Q[Q > ymax_grid] = ymax_grid
+                    Q[ymin_grid > Q] = ymin_grid
+                    
+                    Ind = Ind +
+                        annotate("line",
+                                 x=rep((i-1) + 0.5 -
+                                       (nModel/2)*dx_bar+dx_bar/2 +
+                                       (j-1)*dx_bar + space, 2)*ech_x,
+                                 y=Q,
+                                 color=
+                                     Colors[names(Colors) == model],
+                                 alpha=Alpha[k],
+                                 linewidth=1.5,
+                                 lineend="round")
                 }
-                
-                Ind = Ind +
-                    annotate("line",
-                             x=rep((i-1) + 0.5 -
-                                   (nModel/2)*dx_bar+dx_bar/2 +
-                                   (j-1)*dx_bar + space, 2)*ech_x,
-                             y=Q,
-                             color=
-                                 Colors[names(Colors) == model],
-                             alpha=alpha_tmp,
-                             linewidth=1.5,
-                             lineend="round")
             }
         }
+        
 
-        if (!is.null(codeLight)) {
-            
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
+        
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+
+            if (!is.null(codeLight)) {
                 dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
-                
-                if (nrow(dataEXind_model_code) != 0) {
-                    above = (dataEXind_model_code[[var]]+shift)*norm >
-                        ymax_grid
-                    below = ymin_grid >
-                        (dataEXind_model_code[[var]]+shift)*norm
+                    dataEXind_model[dataEXind_model$Code ==
+                                    codeLight,]
+                value = dataEXind_model_code[[var]]
+            } else {
+                dataEXind_model_group =
+                    dataEXind_model[dataEXind_model$Code %in%
+                                    groupCode,]
+                value = median(dataEXind_model_group[[var]],
+                               na.rm=TRUE)
+            }
+            
+            if (!is.null(value) & !identical(value, numeric(0))) {
+                above = (value+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (value+shift)*norm
 
-                    if (!above & !below) {
+                if (!above & !below) {
+                    if (!is.null(codeLight)) {
                         Ind = Ind +
                             annotate("point",
                                      x=((i-1) + 0.5 -
-                                        (nModel/2)*dx_bar+dx_bar/2 +
-                                        (j-1)*dx_bar + space)*ech_x,
-                                     y=(dataEXind_model_code[[var]]+shift)*norm,
+                                        (nModel/2)*dx_bar +
+                                        dx_bar/2 +
+                                        (j-1)*dx_bar +
+                                        space)*ech_x,
+                                     y=(value+shift)*norm,
                                      color="white",
                                      size=2.4,
                                      stroke=0)
+                    } else {
+                        Ind = Ind +
+                            annotate("line",
+                                     x=c(((i-1) + 0.5 -
+                                          (nModel/2)*dx_bar +
+                                          dx_bar/2 +
+                                          (j-1)*dx_bar +
+                                          space)*ech_x -
+                                         w_leg_line/2,
+                                     ((i-1) + 0.5 -
+                                      (nModel/2)*dx_bar +
+                                      dx_bar/2 +
+                                      (j-1)*dx_bar +
+                                      space)*ech_x +
+                                     w_leg_line/2),
+                                     y=rep(value +
+                                           shift, 2)*norm,
+                                     color="white",
+                                     linewidth=1.7,
+                                     lineend="round")
                     }
                 }
             }
-            
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
-                
-                if (nrow(dataEXind_model_code) != 0) {
-                    above = (dataEXind_model_code[[var]]+shift)*norm >
-                        ymax_grid
-                    below = ymin_grid >
-                        (dataEXind_model_code[[var]]+shift)*norm
+        }
+        
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
 
-                    if (!above & !below) {
+            if (!is.null(codeLight)) {
+                dataEXind_model_code =
+                    dataEXind_model[dataEXind_model$Code ==
+                                    codeLight,]
+                value = dataEXind_model_code[[var]]
+            } else {
+                dataEXind_model_group =
+                    dataEXind_model[dataEXind_model$Code %in%
+                                    groupCode,]
+                value = median(dataEXind_model_group[[var]],
+                               na.rm=TRUE)
+            }
+            
+            if (!is.null(value) & !identical(value, numeric(0))) {
+                above = (value+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (value+shift)*norm
+
+                if (!above & !below) {
+                    if (!is.null(codeLight)) {
                         Ind = Ind +
                             annotate("point",
                                      x=((i-1) + 0.5 -
-                                        (nModel/2)*dx_bar+dx_bar/2 +
-                                        (j-1)*dx_bar + space)*ech_x,
-                                     y=(dataEXind_model_code[[var]]+shift)*norm,
+                                        (nModel/2)*dx_bar +
+                                        dx_bar/2 +
+                                        (j-1)*dx_bar +
+                                        space)*ech_x,
+                                     y=(value+shift)*norm,
                                      color=
                                          Colors[names(Colors) == model],
-                                     alpha=alpha,
+                                     alpha=alpha_marker,
                                      size=1.5,
                                      stroke=0)
+                    } else {
+                        Ind = Ind +
+                            annotate("line",
+                                     x=c(((i-1) + 0.5 -
+                                          (nModel/2)*dx_bar +
+                                          dx_bar/2 +
+                                          (j-1)*dx_bar +
+                                          space)*ech_x -
+                                         w_leg_line/2,
+                                     ((i-1) + 0.5 -
+                                      (nModel/2)*dx_bar +
+                                      dx_bar/2 +
+                                      (j-1)*dx_bar +
+                                      space)*ech_x +
+                                     w_leg_line/2),
+                                     y=rep(value +
+                                           shift, 2)*norm,
+                                     alpha=alpha_marker,
+                                     color=Colors[names(Colors) ==
+                                                  model],
+                                     linewidth=0.9,
+                                     lineend="round")
                     }
                 }
             }
+        }
 
-            for (j in 1:nModel) {
-                model = Model[j]
-                dataEXind_model = dataEXind[dataEXind$Model == model,]
+        for (j in 1:nModel) {
+            model = Model[j]
+            dataEXind_model = dataEXind[dataEXind$Model == model,]
+
+            if (!is.null(codeLight)) {
                 dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code == codeLight,]
+                    dataEXind_model[dataEXind_model$Code ==
+                                    codeLight,]
+                value = dataEXind_model_code[[var]]
+            } else {
+                dataEXind_model_group =
+                    dataEXind_model[dataEXind_model$Code %in%
+                                    groupCode,]
+                value = median(dataEXind_model_group[[var]],
+                               na.rm=TRUE)
+            }
+            
+            if (!is.null(value) & !identical(value, numeric(0))) {
                 
-                if (nrow(dataEXind_model_code) != 0 & !is.null(dataEXind_model_code[[var]])) {
+                above = (value+shift)*norm >
+                    ymax_grid
+                below = ymin_grid >
+                    (value+shift)*norm
+                
+                if (above | below) {
+                    x = ((i-1) + 0.5 -
+                         (nModel/2)*dx_bar+dx_bar/2 +
+                         (j-1)*dx_bar + space)*ech_x
                     
-                    above = (dataEXind_model_code[[var]]+shift)*norm >
-                        ymax_grid
-                    below = ymin_grid >
-                        (dataEXind_model_code[[var]]+shift)*norm
-                    
-                    if (above | below) {
-                        x = ((i-1) + 0.5 -
-                             (nModel/2)*dx_bar+dx_bar/2 +
-                             (j-1)*dx_bar + space)*ech_x
-                        
-                        if (above) {
-                            y = ymax_grid +
-                                dy_arrow*norm
-                            yend = ymax_grid +
-                                dy_arrow*norm +
-                                dl_arrow
-                        } else if (below) {
-                            y = ymin_grid -
-                                dy_arrow*norm
-                            yend = ymin_grid -
-                                dy_arrow*norm -
-                                dl_arrow
-                        }
-                        Ind = Ind +
-                            annotate("segment",
-                                     x=x, xend=x,
-                                     y=y, yend=yend,
-                                     color=
-                                         Colors[names(Colors) == model],
-                                     alpha=alpha,
-                                     linewidth=0.3,
-                                     arrow=arrow(length=unit(dx_arrow,
-                                                             "mm")),
-                                     lineend="round")
+                    if (above) {
+                        y = ymax_grid +
+                            dy_arrow*norm
+                        yend = ymax_grid +
+                            dy_arrow*norm +
+                            dl_arrow
+                    } else if (below) {
+                        y = ymin_grid -
+                            dy_arrow*norm
+                        yend = ymin_grid -
+                            dy_arrow*norm -
+                            dl_arrow
                     }
+                    Ind = Ind +
+                        annotate("segment",
+                                 x=x, xend=x,
+                                 y=y, yend=yend,
+                                 color=
+                                     Colors[names(Colors) == model],
+                                 alpha=alpha_marker,
+                                 linewidth=0.3,
+                                 arrow=arrow(length=unit(dx_arrow,
+                                                         "mm")),
+                                 lineend="round")
                 }
             }
         }
@@ -755,83 +848,101 @@ panel_diagnostic_criteria = function (dataEXind,
     Ind = Ind +
         annotate("text",
                  x=x_title,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg),
+                 y=ymin_grid -
+                     (dy_gap +
+                      dy_mod +
+                      dy_leg),
                  label="LÉGENDE",
                  color=IPCCgrey25,
-                 hjust=0, vjust=0, size=2.5) +
-        
-        annotate("line",
-                 x=rep(dx_leg_line, 2),
-                 y=c(ymin_grid - (dy_gap +
-                                  dy_mod +
-                                  dy_leg +
-                                  dy_leg_line),
-                     ymin_grid - (dy_gap +
-                                  dy_mod +
-                                  dy_leg +
-                                  dy_leg_line +
-                                  dl_leg_line)),
-                 color=IPCCgrey50,
-                 alpha=alpha_spread,
-                 linewidth=1.5,
-                 lineend="round")
+                 hjust=0, vjust=0, size=2.5)
+
+    for (k in 1:NP) {
+        Ind = Ind +
+            annotate("line",
+                     x=rep(dx_leg_line, 2),
+                     y=c(ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          (k-1)*dl_leg_line/3),
+                         ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          dl_leg_line +
+                          (NP-k)*dl_leg_line/3)),
+                     color=IPCCgrey85,
+                     alpha=Alpha[k],
+                     linewidth=1.5,
+                     lineend="round")
+    }
     
     if (!is.null(codeLight)) {
         Ind = Ind +
             annotate("point",
                      x=rep(dx_leg_line, 2),
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dy_leg_point),
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          dy_leg_point +
+                          (NP-1)*dl_leg_line/3),
                      color="white",
                      size=2.4,
                      stroke=0) +
             annotate("point",
                      x=rep(dx_leg_line, 2),
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dy_leg_point),
-                     alpha=alpha,
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          dy_leg_point +
+                          (NP-1)*dl_leg_line/3),
+                     alpha=alpha_marker,
                      color=IPCCgrey50,
                      size=1.5,
                      stroke=0)
+    } else {
+        Ind = Ind +
+            annotate("line",
+                     x=c(dx_leg_line - w_leg_line/2,
+                         dx_leg_line + w_leg_line/2),
+                     y=rep(ymin_grid -
+                           (dy_gap +
+                            dy_mod +
+                            dy_leg +
+                            dy_leg_line +
+                            dy_leg_point +
+                            (NP-1)*dl_leg_line/3), 2),
+                     color="white",
+                     linewidth=1.7,
+                     lineend="round") +
+            annotate("line",
+                     x=c(dx_leg_line - w_leg_line/2,
+                         dx_leg_line + w_leg_line/2),
+                     y=rep(ymin_grid -
+                           (dy_gap +
+                            dy_mod +
+                            dy_leg +
+                            dy_leg_line +
+                            dy_leg_point +
+                            (NP-1)*dl_leg_line/3), 2),
+                     alpha=alpha_marker,
+                     color=IPCCgrey50,
+                     linewidth=0.9,
+                     lineend="round")
     }
-    
-    Ind = Ind +
-        annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.25) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line),
-                 label=paste0("<b>Quantile à ", (1-prob)*100,
-                              "%</b> des résultats dans la région hydrologique"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2.4)
 
-    if (!is.null(codeLight)) {
+    for (k in 1:NP) {
+        if (k == 1) {
+            end = " des résultats dans la région hydrologique"
+        } else {
+            end = ""
+        }
         Ind = Ind +
             annotate("line",
                      x=c(dx_leg_line +
@@ -839,11 +950,12 @@ panel_diagnostic_criteria = function (dataEXind,
                          dx_leg_line +
                          dl_leg_line_grad + 
                          w_leg_line_grad),
-                     y=rep(ymin_grid - (dy_gap +
-                                        dy_mod +
-                                        dy_leg +
-                                        dy_leg_line +
-                                        dy_leg_point), 2),
+                     y=rep(ymin_grid -
+                           (dy_gap +
+                            dy_mod +
+                            dy_leg +
+                            dy_leg_line +
+                            (k-1)*dl_leg_line/3), 2),
                      color=IPCCgrey85,
                      linewidth=0.25) +
             annotate("richtext",
@@ -851,111 +963,162 @@ panel_diagnostic_criteria = function (dataEXind,
                          dl_leg_line_grad +
                          w_leg_line_grad +
                          dr_leg_line_grad,
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dy_leg_point),
-                     label="<b>Valeur</b> du critère à la station",
-                     fill=NA, label.color=NA,
-                     color=IPCCgrey50,
-                     hjust=0, vjust=0.6, size=2.4)
-    }
-
-    Ind = Ind +
-        annotate("line",
-                 x=c(dx_leg_line +
-                     dl_leg_line_grad,
-                     dx_leg_line +
-                     dl_leg_line_grad + 
-                     w_leg_line_grad),
-                 y=rep(ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dl_leg_line), 2),
-                 color=IPCCgrey85,
-                 linewidth=0.25) +
-        annotate("richtext",
-                 x=dx_leg_line +
-                     dl_leg_line_grad +
-                     w_leg_line_grad +
-                     dr_leg_line_grad,
-                 y=ymin_grid - (dy_gap +
-                                dy_mod +
-                                dy_leg +
-                                dy_leg_line +
-                                dl_leg_line),
-                 label=paste0("<b>Quantile à ", prob*100,
-                              "%</b> des résultats dans la région hydrologique"),
-                 fill=NA, label.color=NA,
-                 color=IPCCgrey50,
-                 hjust=0, vjust=0.6, size=2.4)
-
-    if (!is.null(codeLight)) {
-        Ind = Ind + 
-            annotate("segment",
-                     x=dx_leg_line,
-                     xend=dx_leg_line,
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dl_leg_line +
-                                    dy_leg_arrow -
-                                    dy_leg_arrow_gap/2),
-                     yend=ymin_grid - (dy_gap +
-                                       dy_mod +
-                                       dy_leg +
-                                       dy_leg_line +
-                                       dl_leg_line +
-                                       dy_leg_arrow -
-                                       dy_leg_arrow_gap/2 -
-                                       dl_arrow),
-                     color=IPCCgrey50,
-                     alpha=alpha,
-                     linewidth=0.3,
-                     arrow=arrow(length=unit(dx_arrow,
-                                             "mm")),
-                     lineend="round") +
-            annotate("segment",
-                     x=dx_leg_line,
-                     xend=dx_leg_line,
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dl_leg_line +
-                                    dy_leg_arrow +
-                                    dy_leg_arrow_gap/2),
-                     yend=ymin_grid - (dy_gap +
-                                       dy_mod +
-                                       dy_leg +
-                                       dy_leg_line +
-                                       dl_leg_line +
-                                       dy_leg_arrow +
-                                       dy_leg_arrow_gap/2 +
-                                       dl_arrow),
-                     color=IPCCgrey50,
-                     alpha=alpha,
-                     linewidth=0.3,
-                     arrow=arrow(length=unit(dx_arrow,
-                                             "mm")),
-                     lineend="round") +
-            annotate("richtext",
-                     x=dx_leg_line + 
-                         dx_leg_arrow_text,
-                     y=ymin_grid - (dy_gap +
-                                    dy_mod +
-                                    dy_leg +
-                                    dy_leg_line +
-                                    dl_leg_line +
-                                    dy_leg_arrow),
-                     label=paste0("Valeur <b>hors limite</b>"),
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          (k-1)*dl_leg_line/3),
+                     label=paste0("<b>Quantile à ",
+                     (1-Probs[k])*100,
+                     "%</b>", end),
                      fill=NA, label.color=NA,
                      color=IPCCgrey50,
                      hjust=0, vjust=0.6, size=2.4)
     }        
+
+    if (!is.null(codeLight)) {
+        label = "<b>Valeur</b> du critère à la station"
+    } else {
+        label = "<b>Médiane</b> du critère dans le groupe de station"
+    }
+        Ind = Ind +
+            annotate("line",
+                     x=c(dx_leg_line +
+                         dl_leg_line_grad,
+                         dx_leg_line +
+                         dl_leg_line_grad + 
+                         w_leg_line_grad),
+                     y=rep(ymin_grid -
+                           (dy_gap +
+                            dy_mod +
+                            dy_leg +
+                            dy_leg_line +
+                            dy_leg_point +
+                            (NP-1)*dl_leg_line/3), 2),
+                     color=IPCCgrey85,
+                     linewidth=0.25) +
+            annotate("richtext",
+                     x=dx_leg_line +
+                         dl_leg_line_grad +
+                         w_leg_line_grad +
+                         dr_leg_line_grad,
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          dy_leg_point +
+                          (NP-1)*dl_leg_line/3),
+                     label=label,
+                     fill=NA, label.color=NA,
+                     color=IPCCgrey50,
+                     hjust=0, vjust=0.6, size=2.4)
+
+    for (k in 1:NP) {
+        if (k == 1) {
+            end = " des résultats dans la région hydrologique"
+        } else {
+            end = ""
+        }
+        Ind = Ind +
+            annotate("line",
+                     x=c(dx_leg_line +
+                         dl_leg_line_grad,
+                         dx_leg_line +
+                         dl_leg_line_grad + 
+                         w_leg_line_grad),
+                     y=rep(ymin_grid -
+                           (dy_gap +
+                            dy_mod +
+                            dy_leg +
+                            dy_leg_line +
+                            dl_leg_line +
+                            (NP-k)*dl_leg_line/3), 2),
+                     color=IPCCgrey85,
+                     linewidth=0.25) +
+            annotate("richtext",
+                     x=dx_leg_line +
+                         dl_leg_line_grad +
+                         w_leg_line_grad +
+                         dr_leg_line_grad,
+                     y=ymin_grid -
+                         (dy_gap +
+                          dy_mod +
+                          dy_leg +
+                          dy_leg_line +
+                          dl_leg_line +
+                          (NP-k)*dl_leg_line/3),
+                     label=paste0("<b>Quantile à ", Probs[k]*100,
+                                  "%</b>", end),
+                     fill=NA, label.color=NA,
+                     color=IPCCgrey50,
+                     hjust=0, vjust=0.6, size=2.4)
+    }
+    
+    Ind = Ind + 
+        annotate("segment",
+                 x=dx_leg_line,
+                 xend=dx_leg_line,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow -
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_mod +
+                                   dy_leg +
+                                   dy_leg_line +
+                                   dl_leg_line +
+                                   dy_leg_arrow -
+                                   dy_leg_arrow_gap/2 -
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha_marker,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("segment",
+                 x=dx_leg_line,
+                 xend=dx_leg_line,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow +
+                                dy_leg_arrow_gap/2),
+                 yend=ymin_grid - (dy_gap +
+                                   dy_mod +
+                                   dy_leg +
+                                   dy_leg_line +
+                                   dl_leg_line +
+                                   dy_leg_arrow +
+                                   dy_leg_arrow_gap/2 +
+                                   dl_arrow),
+                 color=IPCCgrey50,
+                 alpha=alpha_marker,
+                 linewidth=0.3,
+                 arrow=arrow(length=unit(dx_arrow,
+                                         "mm")),
+                 lineend="round") +
+        annotate("richtext",
+                 x=dx_leg_line + 
+                     dx_leg_arrow_text,
+                 y=ymin_grid - (dy_gap +
+                                dy_mod +
+                                dy_leg +
+                                dy_leg_line +
+                                dl_leg_line +
+                                dy_leg_arrow),
+                 label=paste0("Valeur <b>hors limite</b>"),
+                 fill=NA, label.color=NA,
+                 color=IPCCgrey50,
+                 hjust=0, vjust=0.6, size=2.4)
+
 
 ## 8. INTERPRETATION BLOC ____________________________________________
     if (is.null(codeLight)) {

@@ -32,7 +32,7 @@ panel_shape_info = function (Shape="rect",
                            width=10,
                            shift=c(x=0, y=0),
                            fontface="plain",
-                           add_margin=margin(0, 0, 0, 0),
+                           margin_add=margin(0, 0, 0, 0),
                            WIP=FALSE) {
 
     N = max(c(length(Shape), length(Size),
@@ -70,7 +70,7 @@ panel_shape_info = function (Shape="rect",
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=add_margin)
+              plot.margin=margin_add)
 
     if (WIP) {
         plot = plot + theme_WIP()

@@ -60,8 +60,8 @@ sheet_diagnostic_region = function (meta,
     Region = levels(factor(substr(Code, 1, 1)))
     nRegion = length(Region)
 
-    # Region = "K"
-    # nRegion = 1
+    Region = "K"
+    nRegion = 1
     
     for (i in 1:nRegion) {
         region = Region[i]
@@ -131,6 +131,7 @@ sheet_diagnostic_region = function (meta,
             }
             
             dataMOD = dataEXserie_code[["median{QJ}"]]
+            # dataMOD = dataEXserie_code[["median{QJ}C5"]]
             dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                    origin=as.Date("1972-01-01"))
             dataMOD = dplyr::rename(dataMOD,
@@ -150,6 +151,7 @@ sheet_diagnostic_region = function (meta,
                                     breaks="3 months",
                                     minor_breaks="1 months",
                                     Xlabel="",
+                                    limits_ymin=0,
                                     isBackObsAbove=TRUE,
                                     grid=TRUE,
                                     margin_add=margin_add,
@@ -172,8 +174,9 @@ sheet_diagnostic_region = function (meta,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",
-            alpha=0.85,
-            alpha_spread=0.25,
+            alpha_marker=0.85,
+            Alpha=0.5,
+            Probs=0.1,
             dTitle=0,
             add_name=TRUE,
             margin_add=

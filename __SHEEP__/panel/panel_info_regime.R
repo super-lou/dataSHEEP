@@ -34,8 +34,8 @@ panel_info_regime = function(QM_code,
         # Computes the hydrograph
         hyd = panel_hydrograph(QM_code,
                                regimeLight,
-                               margin=margin(t=2, r=0, b=0, l=5,
-                                             unit="mm"))
+                               margin_add=margin(t=2, r=0, b=0, l=5,
+                                                 unit="mm"))
     # Otherwise
     } else {
         # Puts it blank
@@ -61,7 +61,7 @@ panel_info_regime = function(QM_code,
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        text1 = paste0("<b>", regimeLight, "</b>")
+        text1 = paste0("<b>", gsub(" [-]", "</b> -", regimeLight))
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(text1,
                                x=0, y=1,

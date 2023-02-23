@@ -28,7 +28,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             alpha=0.7,
                             isSqrt=FALSE, missRect=FALSE,
                             isBack=TRUE,
-                            isTitle=TRUE, dTitle=0,
+                            isTitle=TRUE,
                             sizeYticks=9,
                             date_labels="%Y",
                             breaks="10 years",
@@ -37,11 +37,57 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             break_round=-1,
                             isNormLaw=FALSE,
                             Xlabel=NULL,
+                            limits_ymin=NA,
                             isBackObsAbove=TRUE,
                             axis_xlim=NULL, grid=TRUE,
+                            ratio_title=1/5,
                             margin_add=margin(t=0, r=0, b=0, l=0, "mm"),
                             first=FALSE, last=FALSE) {
 
+
+    if (grepl("racine", title) & !grepl("racine[{]", title)) {
+        title = gsub("racine", "\u221A", title)
+    } else if (grepl("racine", title) & grepl("racine[{]", title)) {
+        title = gsub("[}]", "", title)
+        title = gsub("racine[{]", "\u221A", title)
+    }
+    
+    unit = gsub(" ", "\\\\,", unit)
+    if (grepl("[_]", title)) {
+        title = gsub("[_]", "$_{$", title)
+        title = paste0(title, "}")
+    }
+    if (grepl("\\unit", title)) {
+        title = gsub("\\\\unit",
+                     paste0("($", unit, "$)"),
+                     title)
+    } else {
+        title = paste0(title, "\\,", "($", unit, "$)")
+    }
+    
+    label = TeX(title)
+    
+    title = ggplot() + theme_void() +
+        theme(plot.margin=margin(margin_add[1], margin_add[2],
+                                 margin_add[3], 0,
+                                 unit=attr(margin_add, "unit")))
+
+    title = title +
+        annotate("text",
+                 x=0,
+                 y=1,
+                 label=label,
+                 size=3, hjust=0, vjust=1,
+                 color=IPCCgrey25)
+
+    title = title +
+        scale_x_continuous(limits=c(0, 1),
+                           expand=c(0, 0)) +
+        scale_y_continuous(limits=c(0, 1),
+                           expand=c(0, 0))
+
+    
+   
     isDate = inherits(data_code$Date, 'Date')
 
     if (isNormLaw) {
@@ -90,10 +136,9 @@ panel_spaghetti = function (data_code, Colors=NULL,
         limits = axis_xlim
     }
 
-    
     # Open new plot
-    p = ggplot() + coord_cartesian(clip="off") + 
-        theme_IPCC(isBack, isTitle, dTitle=dTitle, isXlabel=!is.null(Xlabel)) +
+    spag = ggplot() + coord_cartesian(clip="off") + 
+        theme_IPCC(isBack, isLabelX=!is.null(Xlabel)) +
         # theme_WIP() + 
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
@@ -101,7 +146,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     ### Grid ###
     if (!grid) {
-        p = p +
+        spag = spag +
             theme(panel.grid.major.y=element_blank())
     }
 
@@ -128,7 +173,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         }
         
         # Plot the missing data period
-        p = p +
+        spag = spag +
             annotate("rect",
                      xmin=xmin, 
                      ymin=0, 
@@ -140,7 +185,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     # zeroline
-    p = p +
+    spag = spag +
         ggplot2::annotate("line",
                           x=limits,
                           y=c(0, 0),
@@ -150,7 +195,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     
     ### Data ###
     if (!isBackObsAbove) {
-        p = p +
+        spag = spag +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
@@ -164,7 +209,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
             model = Model[i]
             data_model_code = data_code[data_code$Model == model,] 
             # Plot the data as line
-            p = p +
+            spag = spag +
                 ggplot2::annotate("line",
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
@@ -180,7 +225,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
             model = Model[i]
             data_model_code = data_code[data_code$Model == model,] 
             # Plot the data as line
-            p = p +
+            spag = spag +
                 ggplot2::annotate("line",
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
@@ -192,7 +237,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (isBackObsAbove) {
-        p = p +
+        spag = spag +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
@@ -206,7 +251,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               linewidth=0.55,
                               lineend="round")
     } else {
-        p = p +
+        spag = spag +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
@@ -214,40 +259,9 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               linewidth=0.2,
                               lineend="round") 
     }
-    
-    # Y axis title
-    if (grepl("racine", title) & !grepl("racine[{]", title)) {
-        title = gsub("racine", "\u221A", title)
-    } else if (grepl("racine", title) & grepl("racine[{]", title)) {
-        title = gsub("[}]", "", title)
-        title = gsub("racine[{]", "\u221A", title)
-    }
-    
-    unit = gsub(" ", "\\\\,", unit)
-    if (grepl("[_]", title)) {
-        title = gsub("[_]", "$_{$", title)
-        title = paste0(title, "}")
-    }
-    if (grepl("\\unit", title)) {
-        title = gsub("\\\\unit",
-                     paste0("($", unit, "$)"),
-                     title)
-    } else {
-        title = paste0(title, "\\,", "($", unit, "$)")
-    }
-        
-    yTeXlabel = TeX(title)
-    
-    if (isTitle) {
-        p = p +
-            ggtitle(yTeXlabel)
-    } else {
-        p = p +
-            ylab(yTeXlabel)
-    }
 
     if (!is.null(Xlabel)) {
-        p = p +
+        spag = spag +
             xlab(Xlabel)
     }
 
@@ -301,7 +315,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     if (isNormLaw) {
         
-        p = p +
+        spag = spag +
             annotation_custom(
                 ggplotGrob(ggplot() + theme_void() +
                            annotate("segment",
@@ -338,7 +352,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                 ymin=-2, ymax=2)
 
         
-        p = p +
+        spag = spag +
             scale_x_continuous(
                 trans=scales::probability_trans("norm"),
                 breaks=get_breaks,
@@ -350,7 +364,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         
     } else {
         if (isDate) {
-            p = p +
+            spag = spag +
                 scale_x_date(
                     breaks=get_breaks,
                     minor_breaks=get_minor_breaks,
@@ -360,7 +374,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                     position=position, 
                     expand=c(0, 0))
         } else {
-            p = p +
+            spag = spag +
                 scale_x_continuous(
                     breaks=get_breaks,
                     minor_breaks=get_minor_breaks,
@@ -386,75 +400,67 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (isSqrt) {
-        p = p + scale_y_sqrt(limits=c(0, NA),
+        spag = spag + scale_y_sqrt(limits=c(limits_ymin, NA),
                              n.breaks=4,
                              labels=labels,
                              expand=expansion(mult=c(0, 0.1)))
         
     } else {
-        p = p +
-            scale_y_continuous(limits=c(0, NA),
+        spag = spag +
+            scale_y_continuous(limits=c(limits_ymin, NA),
                                n.breaks=5,
                                labels=labels,
                                expand=expansion(mult=c(0, 0.1)))
-    }
+    }    
 
     # Margins
     tt = 2.5
     t = 2
     tb = 3
     b = 2
-    
-    if (last == "all") {
-        pLastTRUE = p
-        pLastFALSE = p
-        if (first) {
-            pLastFALSE = pLastFALSE +
-                theme(plot.margin=
-                          margin(t=tt, r=0, b=tb, l=0, unit="mm")+
-                          margin_add)
-            pLastTRUE = pLastTRUE +
-                theme(plot.margin=
-                          margin(t=tt, r=0, b=0, l=0, unit="mm")+
-                          margin_add)
-        } else {
-            pLastFALSE = pLastFALSE + 
-                theme(plot.margin=
-                          margin(t=t, r=0, b=b, l=0, unit="mm")+
-                          margin_add,
-                      axis.text.x=element_blank())
-            pLastTRUE = pLastTRUE +
-                theme(plot.margin=
-                          margin(t=t, r=0, b=0, l=0, unit="mm")+
-                          margin_add)
-        }
 
-        res = list(lastTRUE=pLastTRUE, lastFALSE=pLastFALSE)
-        return(res)
-        
-    } else {
-        if (first & !last) {
-            p = p +
-                theme(plot.margin=
-                          margin(t=tt, r=0, b=tb, l=0, unit="mm")+
-                          margin_add)
-        } else if (!first & last) {
-            p = p + 
-                theme(plot.margin=
-                          margin(t=t, r=0, b=0, l=0, unit="mm")+
-                          margin_add)
-        } else if (first & last) {
-            p = p + 
-                theme(plot.margin=
-                          margin(t=tt, r=0, b=0, l=0, unit="mm")+
-                          margin_add)
-        } else if (!first & !last){
-            p = p + 
-                theme(plot.margin=
-                          margin(t=t, r=0, b=b, l=0, unit="mm")+
-                          margin_add,
-                      axis.text.x=element_blank())
-        }
-        return(p)
+    if (first & !last) {
+        spag = spag +
+            theme(plot.margin=
+                      margin(t=tt, r=0, b=tb, l=0, unit="mm")+
+                      margin_add)
+    } else if (!first & last) {
+        spag = spag + 
+            theme(plot.margin=
+                      margin(t=t, r=0, b=0, l=0, unit="mm")+
+                      margin_add)
+    } else if (first & last) {
+        spag = spag + 
+            theme(plot.margin=
+                      margin(t=tt, r=0, b=0, l=0, unit="mm")+
+                      margin_add)
+    } else if (!first & !last){
+        spag = spag + 
+            theme(plot.margin=
+                      margin(t=t, r=0, b=b, l=0, unit="mm")+
+                      margin_add,
+                  axis.text.x=element_blank())
     }
+
+
+    if (isTitle) {
+        height_title = ratio_title
+    } else {
+        height_title = 0
+    }
+    height_spag = 1
+
+    STOCK = add_plot(dplyr::tibble(),
+                     plot=title,
+                     name="title",
+                     height=height_title)
+    STOCK = add_plot(STOCK,
+                     plot=spag,
+                     name="spag",
+                     height=height_spag)
+    
+    plot = merge_panel(STOCK, direction="V")
+
+    
+    return (plot)
 } 
