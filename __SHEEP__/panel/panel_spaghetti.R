@@ -37,11 +37,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             break_round=-1,
                             isNormLaw=FALSE,
                             Xlabel=NULL,
+                            isZeroLine=TRUE,
                             limits_ymin=NA,
                             isBackObsAbove=TRUE,
                             axis_xlim=NULL, grid=TRUE,
                             ratio_title=1/5,
-                            margin_add=margin(t=0, r=0, b=0, l=0, "mm"),
+                            margin_title=margin(t=0, r=0, b=0, l=0, "mm"),
+                            margin_spag=margin(t=0, r=0, b=0, l=0, "mm"),
                             first=FALSE, last=FALSE) {
 
 
@@ -68,9 +70,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     label = TeX(title)
     
     title = ggplot() + theme_void() +
-        theme(plot.margin=margin(margin_add[1], margin_add[2],
-                                 margin_add[3], 0,
-                                 unit=attr(margin_add, "unit")))
+        theme(plot.margin=margin_title)
 
     title = title +
         annotate("text",
@@ -176,7 +176,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         spag = spag +
             annotate("rect",
                      xmin=xmin, 
-                     ymin=0, 
+                     ymin=limits_ymin, 
                      xmax=xmax, 
                      ymax=Inf,
                      linetype=0,
@@ -185,13 +185,15 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     # zeroline
-    spag = spag +
-        ggplot2::annotate("line",
-                          x=limits,
-                          y=c(0, 0),
-                          color=IPCCgrey60,
-                          size=0.5,
-                          lineend="round")
+    if (isZeroLine) {
+        spag = spag +
+            ggplot2::annotate("line",
+                              x=limits,
+                              y=c(0, 0),
+                              color=IPCCgrey60,
+                              size=0.5,
+                              lineend="round")
+    }
     
     ### Data ###
     if (!isBackObsAbove) {
@@ -401,9 +403,9 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     if (isSqrt) {
         spag = spag + scale_y_sqrt(limits=c(limits_ymin, NA),
-                             n.breaks=4,
-                             labels=labels,
-                             expand=expansion(mult=c(0, 0.1)))
+                                   n.breaks=4,
+                                   labels=labels,
+                                   expand=expansion(mult=c(0, 0.1)))
         
     } else {
         spag = spag +
@@ -423,22 +425,22 @@ panel_spaghetti = function (data_code, Colors=NULL,
         spag = spag +
             theme(plot.margin=
                       margin(t=tt, r=0, b=tb, l=0, unit="mm")+
-                      margin_add)
+                      margin_spag)
     } else if (!first & last) {
         spag = spag + 
             theme(plot.margin=
                       margin(t=t, r=0, b=0, l=0, unit="mm")+
-                      margin_add)
+                      margin_spag)
     } else if (first & last) {
         spag = spag + 
             theme(plot.margin=
                       margin(t=tt, r=0, b=0, l=0, unit="mm")+
-                      margin_add)
+                      margin_spag)
     } else if (!first & !last){
         spag = spag + 
             theme(plot.margin=
                       margin(t=t, r=0, b=b, l=0, unit="mm")+
-                      margin_add,
+                      margin_spag,
                   axis.text.x=element_blank())
     }
 

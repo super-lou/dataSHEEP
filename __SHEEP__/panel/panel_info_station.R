@@ -36,7 +36,10 @@ panel_info_station = function(data_code,
         # Computes the hydrograph
         hyd = panel_hydrograph(QM_code,
                                regimeLight,
-                               margin_add=margin(t=2, r=0, b=0, l=5,
+                               ratio_title=1/2.5,
+                               margin_title=margin(t=2, r=0, b=0, l=10,
+                                                   unit="mm"),
+                               margin_hyd=margin(t=1, r=0, b=0, l=5,
                                                  unit="mm"))
     # Otherwise
     } else {

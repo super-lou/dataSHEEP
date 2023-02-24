@@ -22,13 +22,16 @@
 
 #' @title Hydrograph panel
 #' @export
-panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin_add=margin(t=0, r=0, b=0, l=0, unit="mm")) {
+panel_hydrograph = function (QM_code, regimeLight, period=NULL,
+                             ratio_title=1/4,
+                             margin_title=margin(t=0, r=0,
+                                                 b=0, l=0, unit="mm"),
+                             margin_hyd=margin(t=0, r=0,
+                                               b=0, l=0, unit="mm")) {
 
 
     title = ggplot() + theme_void() +
-        theme(plot.margin=margin(margin_add[1], margin_add[2],
-                                 margin_add[3], 0,
-                                 unit=attr(margin_add, "unit")))
+        theme(plot.margin=margin_title)
 
     title = title +
         annotate("text",
@@ -73,9 +76,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin_add=margi
             axis.title.y=element_blank())
     
     hyd = hyd + 
-        theme(plot.margin=margin(0, margin_add[2],
-                                 margin_add[3], margin_add[4],
-                                 unit=attr(margin_add, "unit")))
+        theme(plot.margin=margin_hyd)
 
     hyd = hyd +
         # Plots the bar
@@ -93,16 +94,18 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL, margin_add=margi
         scale_y_continuous(limits=c(0, max(QM_code)),
                            n.breaks=4,
                            expand=c(0, 0))
-
+    
+    height_title = ratio_title
+    height_hyd = 1
 
     STOCK = add_plot(dplyr::tibble(),
                      plot=title,
                      name="title",
-                     height=1)
+                     height=height_title)
     STOCK = add_plot(STOCK,
                      plot=hyd,
                      name="hyd",
-                     height=3.6)
+                     height=height_hyd)
     
     plot = merge_panel(STOCK, direction="V")
     

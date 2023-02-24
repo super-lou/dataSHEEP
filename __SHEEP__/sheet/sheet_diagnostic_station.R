@@ -127,9 +127,11 @@ sheet_diagnostic_station = function (data,
                                     limits_ymin=0,
                                     isBackObsAbove=FALSE,
                                     grid=TRUE,
-                                    ratio_title=0.2,
-                                    margin_add=
-                                        margin(t=1, r=0, b=-2, l=0, "mm"),
+                                    ratio_title=1/4,
+                                    margin_title=
+                                        margin(t=2, r=0, b=0, l=0, "mm"),
+                                    margin_spag=
+                                        margin(t=0, r=0, b=0, l=0, "mm"),
                                     first=FALSE,
                                     last=FALSE)
         STOCK = add_plot(STOCK,
@@ -141,38 +143,47 @@ sheet_diagnostic_station = function (data,
         dataMOD = dplyr::rename(dataMOD,
                                 Q_obs="QA_obs",
                                 Q_sim="QA_sim")
-        QA = panel_spaghetti(dataMOD,
-                             Colors,
-                             title="(b) Débit annuel",
-                             unit="m^{3}.s^{-1}",
-                             alpha=0.85,
-                             isSqrt=TRUE,
-                             missRect=FALSE,
-                             isBack=FALSE,
-                             isTitle=TRUE,
-                             sizeYticks=6,
-                             date_labels="%Y",
-                             breaks="5 years",
-                             minor_breaks="1 years",
-                             isBackObsAbove=TRUE,
-                             grid=TRUE,
-                             ratio_title=0.2,
-                             margin_add=
-                                 margin(t=-2, r=0, b=0, l=0, "mm"),
-                             first=FALSE,
-                             last=TRUE)
+        QA = panel_spaghetti(
+            dataMOD,
+            Colors,
+            title="(b) Débit annuel",
+            unit="m^{3}.s^{-1}",
+            alpha=0.85,
+            isSqrt=FALSE,
+            missRect=FALSE,
+            isBack=FALSE,
+            isTitle=TRUE,
+            sizeYticks=6,
+            date_labels="%Y",
+            breaks="5 years",
+            minor_breaks="1 years",
+            isBackObsAbove=TRUE,
+            grid=TRUE,
+            ratio_title=1/7,
+            margin_title=
+                margin(t=0, r=0, b=0, l=0, "mm"),
+            margin_spag=
+                margin(t=0, r=0, b=2, l=0, "mm"),
+            first=FALSE,
+            last=TRUE)
         STOCK = add_plot(STOCK,
                          plot=QA,
                          name="QA",
                          height=QA_height)
 
-        dataMOD = dataEXserie_code[["median{QJ}"]]
-        # dataMOD = dataEXserie_code[["median{QJ}C5"]]
+        
+        dataMOD = dataEXserie_code[["median{QJ}C5"]]
+        
+        ###
+        dataMOD_tmp = dataEXserie_code[["median{QJ}"]]
+        dataMOD$Yearday = dataMOD_tmp$Yearday
+        ###
+
         dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                origin=as.Date("1972-01-01"))
         dataMOD = dplyr::rename(dataMOD,
-                                Q_obs="median{QJ}_obs",
-                                Q_sim="median{QJ}_sim")
+                                Q_obs="median{QJ}C5_obs",
+                                Q_sim="median{QJ}C5_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
                                 title="(c) Débit journalier médian inter-annuel",
@@ -189,8 +200,10 @@ sheet_diagnostic_station = function (data,
                                 limits_ymin=0,
                                 isBackObsAbove=TRUE,
                                 grid=TRUE,
-                                ratio_title=0.1,
-                                margin_add=
+                                ratio_title=1/15,
+                                margin_title=
+                                    margin(t=0, r=7, b=0, l=0, "mm"),
+                                margin_spag=
                                     margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
@@ -222,8 +235,10 @@ sheet_diagnostic_station = function (data,
                               limits_ymin=0,
                               isBackObsAbove=TRUE,
                               grid=TRUE,
-                              ratio_title=0.1,
-                              margin_add=
+                              ratio_title=1/15,
+                              margin_title=
+                                  margin(t=0, r=0, b=0, l=3.5, "mm"),
+                              margin_spag=
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
                               last=TRUE)
