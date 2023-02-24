@@ -70,16 +70,16 @@ sheet_diagnostic_regime = function (meta,
                                          .groups="drop")
 
     regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
-    
-    Regime = levels(factor(regimeHydro$str))
+
+    Regime = levels(factor(regimeHydro$detail))
     nRegime = length(Regime)
 
-    Regime = "Pluvial - 03"
-    nRegime = 1
+    # Regime = Regime[3]
+    # nRegime = 1
     
     for (i in 1:nRegime) {
         regime = Regime[i]
-        Code_regime = regimeHydro$Code[regimeHydro$str == regime]
+        Code_regime = regimeHydro$Code[regimeHydro$detail == regime]
 
         dataEXind_regime = dataEXind[dataEXind$Code %in% Code_regime,]
         dataEXserieQM_obs_regime =
@@ -170,7 +170,6 @@ sheet_diagnostic_regime = function (meta,
                                     missRect=FALSE,
                                     isBack=FALSE,
                                     isTitle=TRUE,
-                                    dTitle=-1,
                                     date_labels="%d %b",
                                     breaks="3 months",
                                     minor_breaks="1 months",
@@ -178,7 +177,11 @@ sheet_diagnostic_regime = function (meta,
                                     limits_ymin=0,
                                     isBackObsAbove=TRUE,
                                     grid=TRUE,
-                                    margin_add=margin_add,
+                                    ratio_title=1/15,
+                                    margin_title=
+                                        margin(t=0, r=7, b=0, l=0, "mm"),
+                                    margin_spag=
+                                        margin(t=0, r=3.5, b=0, l=0, "mm"),
                                     first=FALSE,
                                     last=TRUE)
             STOCK = add_plot(STOCK,

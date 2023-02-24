@@ -29,6 +29,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             isSqrt=FALSE, missRect=FALSE,
                             isBack=TRUE,
                             isTitle=TRUE,
+                            isLegend=FALSE,
                             sizeYticks=9,
                             date_labels="%Y",
                             breaks="10 years",
@@ -79,6 +80,40 @@ panel_spaghetti = function (data_code, Colors=NULL,
                  label=label,
                  size=3, hjust=0, vjust=1,
                  color=IPCCgrey25)
+
+    if (isLegend) {
+        title = title +
+            annotate("line",
+                     x=c(0.25, 0.27),
+                     y=rep(0.25, 2),
+                     color=IPCCgrey25,
+                     linewidth=0.7,
+                     lineend="round") +
+            annotate("text",
+                     x=0.277,
+                     y=0.5,
+                     label="Observations",
+                     size=2.5, hjust=0, vjust=1,
+                     color=IPCCgrey50)
+        
+        if (missRect) {
+            title = title +
+                annotate("rect",
+                         xmin=0.37, 
+                         ymin=0, 
+                         xmax=0.375, 
+                         ymax=0.55,
+                         linetype=0,
+                         fill=INRAElightcyan,
+                         alpha=0.4) +
+                annotate("text",
+                         x=0.38,
+                         y=0.5,
+                         label="Lacune",
+                         size=2.5, hjust=0, vjust=1,
+                         color=IPCCgrey50)
+        }
+    }
 
     title = title +
         scale_x_continuous(limits=c(0, 1),
@@ -321,28 +356,28 @@ panel_spaghetti = function (data_code, Colors=NULL,
             annotation_custom(
                 ggplotGrob(ggplot() + theme_void() +
                            annotate("segment",
-                                    x=0.7, xend=0.75,
-                                    y=-1, yend=-1,
+                                    x=0.72, xend=0.77,
+                                    y=-1.45, yend=-1.45,
                                     color=IPCCgrey50,
                                     linewidth=0.3,
                                     arrow=arrow(length=unit(1, "mm")),
                                     lineend="round") +
                            annotate("text",
-                                    x=0.76, y=-1,
-                                    label="1   basses eaux",
+                                    x=0.78, y=-1.45,
+                                    label="  basses eaux",
                                     color=IPCCgrey50,
                                     size=2.7,
                                     vjust=0.51, hjust=0) +
                            annotate("segment",
-                                    x=0.3, xend=0.25,
-                                    y=-1, yend=-1,
+                                    x=0.28, xend=0.23,
+                                    y=-1.45, yend=-1.45,
                                     color=IPCCgrey50,
                                     linewidth=0.3,
                                     arrow=arrow(length=unit(1, "mm")),
                                     lineend="round") +
                            annotate("text",
-                                    x=0.24, y=-1,
-                                    label="hautes eaux   0",
+                                    x=0.22, y=-1.45,
+                                    label="hautes eaux  ",
                                     color=IPCCgrey50,
                                     size=2.7,
                                     vjust=0.51, hjust=1) +
@@ -351,14 +386,21 @@ panel_spaghetti = function (data_code, Colors=NULL,
                            scale_y_continuous(limits=c(-2, 2),
                                               expand=c(0, 0))),
                 xmin=-Inf, xmax=Inf,
-                ymin=-2, ymax=2)
+                ymin=-3, ymax=3)
 
-        
+        low_major = c(1e-3, 1e-2, 1e-1, 0.5)
+        up_major = rev(1-low_major)
+        major_breaks = c(low_major, up_major)
+        major_breaks = major_breaks[!duplicated(major_breaks)]
+        minor_breaks = RcppRoll::roll_mean(major_breaks, n=2)
+            
         spag = spag +
             scale_x_continuous(
                 trans=scales::probability_trans("norm"),
-                breaks=get_breaks,
-                minor_breaks=get_minor_breaks,
+                # breaks=get_breaks,
+                breaks=major_breaks,
+                # minor_breaks=get_minor_breaks,
+                minor_breaks=minor_breaks,
                 guide='axis_minor',
                 limits=limits,
                 position=position, 
@@ -403,7 +445,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     if (isSqrt) {
         spag = spag + scale_y_sqrt(limits=c(limits_ymin, NA),
-                                   n.breaks=4,
+                                   n.breaks=5,
                                    labels=labels,
                                    expand=expansion(mult=c(0, 0.1)))
         
