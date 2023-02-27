@@ -1161,7 +1161,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      y=ymin_grid - (dy_gap +
                                     dy_mod +
                                     dy_leg),
-                     label="AVERTISSEMENT",
+                     label="AVERTISSEMENTS",
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
 
