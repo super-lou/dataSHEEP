@@ -19,9 +19,9 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-
-# IPCCgrey97 = "#f9f8f7" # lighter plot background
-IPCCgrey97 = "#f6f7f7" # lighter plot background
+IPCCgrey99 = "#f8f9f9" # lighter lighter plot background
+IPCCgrey97b = "#f9f8f7" # lighter hot plot background
+IPCCgrey97 = "#f6f7f7" # lighter blue plot background
 IPCCgrey95 = "#f4f2f1" # plot background
 IPCCgrey92 = "#e9eceb" # 
 IPCCgrey90 = "#e3e2e0" # minor tick

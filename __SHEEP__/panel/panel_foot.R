@@ -46,31 +46,31 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
         img = readPNG(path)
         
         if (logo == 'PR') {
-            grob = rasterGrob(img,
+            grob = grid::rasterGrob(img,
                               x=0,
                               hjust=0,
                               width=unit(0.8*foot_height, "cm"))
             width = 0.2
         } else if (logo == 'FR') { 
-            grob = rasterGrob(img,
+            grob = grid::rasterGrob(img,
                               x=0,
                               hjust=0,
                               width=unit(1*foot_height, "cm"))
             width = 0.2
         } else if (logo == 'INRAE') {
-            grob = rasterGrob(img,
+            grob = grid::rasterGrob(img,
                               y=0.565,
                               vjust=0.5,
                               width=unit(1.08*foot_height, "cm"))
             width = 0.25
         } else if (logo == 'AEAG') {
-            grob = rasterGrob(img,
+            grob = grid::rasterGrob(img,
                               y=0.49,
                               vjust=0.5,
                               width=unit(0.7*foot_height, "cm"))
             width = 0.2
         } else if (logo == 'Explore2') {
-            grob = rasterGrob(img,
+            grob = grid::rasterGrob(img,
                               x=0,
                               vjust=0.7,
                               hjust=0.5,

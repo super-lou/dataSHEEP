@@ -45,22 +45,17 @@ panel_diagnostic_criteria = function (dataEXind,
     NP = length(Probs)
     
     ## 1. PARAMETERS _____________________________________________________
-    dl_grid=0.12
-    dr_grid=0.12
+    dl_grid=0.10
+    dr_grid=0.10
 
     dspace_label = 0.12
-    dspace_grid = 0.14
+    dspace_grid = 0.11
 
     dx_rect = 0.12
     dy_rect = 0.05
-    
     dx_label = -0.1
-    
-    dx_bar = 0.09
+    dx_bar = 0.08
         
-    dx_cross_back = 0.05
-    dx_cross = 0.035
-
     dy_arrow = 0.045
     dl_arrow = 0.2
 
@@ -72,18 +67,18 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_mod_subtitle = 0.05
     dx_mod_name = 0
     dy_mod_name = 0.5
-    dx_mod_space = 0.7
+    dx_mod_space = 0.71
     dy_mod_line = 0.18
-    dx_mod_line = 0.12
+    dx_mod_line = 0.09
     dy_mod_surf = 0.3
     alpha_mod_line = c(Alpha, alpha_marker)
     dl_mod_line = seq(0.3,
                       0.15,
                       length.out=length(alpha_mod_line)) #c(0.3, 0.15)
 
-    ech_text_mod = 0.41
+    ech_text_mod = 0.36
 
-    dy_leg = 1.8
+    dy_leg = 1.5
     dh_leg = 3
     dx_leg_line = 0.3
     dy_leg_line = 0.25
@@ -98,7 +93,7 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_leg_arrow_gap = 0.1
     dx_leg_arrow_text = 0.1
     
-    dx_interp = 10
+    dx_interp = 9.9
     dl_interp_text_line = 0.05
     dr_interp_text_line = 0.05
     w_interp_text_line = 0.2
@@ -110,28 +105,36 @@ panel_diagnostic_criteria = function (dataEXind,
     dx_arrow = 0.8
     ech_bar = 5.5
 
-    major_tick_val = list("KGE"=c(0.5, 1),
-                          "(^epsilon)|(^alpha)"=c(0.5, 1, 2),
-                          "default"=c(-1, 0, 1))
+    perfect_tick_val = list("KGE"=c(1),
+                            "^Biais$"=c(0),
+                            "(^epsilon)|(^alpha)"=c(1),
+                            "default"=c(0))
+    
+    major_tick_val = list("KGE"=c(0.5),
+                          "^Biais$"=c(-0.2, 0.2),
+                          "(^epsilon)|(^alpha)"=c(0.5, 2),
+                          "default"=c(-1, 1))
+    
     minor_tick_val =
         list("KGE"=c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
+             "^Biais$"=c(-0.5, -0.4, -0.3, -0.1, 0.1, 0.3, 0.4, 0.5),
              "(^epsilon)|(^alpha)"=c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
-             # "(^epsilon)|(^alpha)"=c(0, 0.25, 0.75, 1.25, 1.5, 1.75),
              "default"=c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
 
 
     norm_tick_info = c()
     shift_tick_info = c()
     for (i in 1:length(major_tick_val)) {
+        perfect_tick = perfect_tick_val[[i]]
         major_tick = major_tick_val[[i]]
         name = names(major_tick_val)[i]
         minor_tick = minor_tick_val[[i]]
         norm_tick_info = c(norm_tick_info,
-                           1 / (max(c(major_tick, minor_tick)) -
-                                min(c(major_tick, minor_tick))))
+                           1 / (max(c(perfect_tick, major_tick, minor_tick)) -
+                                min(c(perfect_tick, major_tick, minor_tick))))
         names(norm_tick_info)[i] = name
         shift_tick_info = c(shift_tick_info,
-                            -min(c(major_tick, minor_tick)))
+                            -min(c(perfect_tick, major_tick, minor_tick)))
         names(shift_tick_info)[i] = name
         
     }
@@ -329,13 +332,14 @@ panel_diagnostic_criteria = function (dataEXind,
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
         
-        id = sapply(names(major_tick_val), grepl, x=varRAW)
+        id = sapply(names(perfect_tick_val), grepl, x=varRAW)
         if (all(!id)) {
             id = "default"
         } else {
-            id = names(major_tick_val)[id]
+            id = names(perfect_tick_val)[id]
         }
-        
+
+        perfect_tick = perfect_tick_val[[id]]
         major_tick = major_tick_val[[id]]
         minor_tick = minor_tick_val[[id]]
         norm = norm_tick_info[id]
@@ -344,15 +348,35 @@ panel_diagnostic_criteria = function (dataEXind,
         if (id != id_save) {
 
             space = space + dspace_label
-
+            
             Ind = Ind +
                 annotate("rect",
                          xmin=(i-1+dl_grid+space)*ech_x,
-                         xmax=(i-1-dx_label+space-dspace_label - dx_rect)*ech_x,
-                         ymin=ymin_grid - dy_rect*ech_bar,
+                         xmax=(i-dr_grid+space)*ech_x,
+                         ymin=(max(c(major_tick,
+                                     perfect_tick))+shift)*norm,
                          ymax=ymax_grid + dy_rect*ech_bar,
-                         fill=IPCCgrey97,
+                         fill=IPCCgrey99,
+                         size=0) +
+                annotate("rect",
+                         xmin=(i-1+dl_grid+space)*ech_x,
+                         xmax=(i-dr_grid+space)*ech_x,
+                         ymin=ymin_grid - dy_rect*ech_bar,
+                         ymax=(min(c(major_tick,
+                                   perfect_tick))+shift)*norm,
+                         fill=IPCCgrey99,
                          size=0)
+
+            for (t in perfect_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1+dl_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey60,
+                             size=0.4,
+                             lineend="round")
+            }
             
             for (t in major_tick) {
                 Ind = Ind +
@@ -360,18 +384,11 @@ panel_diagnostic_criteria = function (dataEXind,
                              x=c(i-1+dl_grid+space,
                                  i-dr_grid+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
-                             color=IPCCgrey67,
+                             color=IPCCgrey60,
                              size=0.2,
-                             lineend="round") +
-                    annotate("text",
-                             x=(i-1-dx_label+space)*ech_x,
-                             y=(t+shift)*norm,
-                             label=t,
-                             hjust=1,
-                             vjust=0.52,
-                             color=IPCCgrey40,
-                             size=2.5)
+                             lineend="round")
             }
+            
             for (t in minor_tick) {
                 Ind = Ind +
                     annotate("line",
@@ -380,27 +397,94 @@ panel_diagnostic_criteria = function (dataEXind,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey85,
                              size=0.2,
-                             lineend="round") +
+                             lineend="round")
+            }
+
+            Ind = Ind +
+                annotate("rect",
+                         xmin=(i-1+dl_grid+space)*ech_x,
+                         xmax=(i-1-dx_label+space-dspace_label -
+                               dx_rect)*ech_x,
+                         ymin=ymin_grid - dy_rect*ech_bar,
+                         ymax=ymax_grid + dy_rect*ech_bar,
+                         fill=IPCCgrey95,
+                         size=0)
+
+            for (t in perfect_tick) {
+                Ind = Ind +
+                    annotate("text",
+                             x=(i-1-dx_label+space)*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             fontface="bold",
+                             hjust=1,
+                             vjust=0.57,
+                             color=IPCCgrey40,
+                             size=2.2)
+            }
+            
+            for (t in major_tick) {
+                Ind = Ind +
+                    annotate("text",
+                             x=(i-1-dx_label+space)*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             hjust=1,
+                             vjust=0.55,
+                             color=IPCCgrey40,
+                             size=2.2)
+            }
+            
+            for (t in minor_tick) {
+                Ind = Ind +
                     annotate("text",
                              x=(i-1-dx_label+space)*ech_x,
                              y=(t+shift)*norm,
                              label=t,
                              hjust=1,
                              vjust=0.49,
-                             color=IPCCgrey75,
-                             size=2.1)
+                             color=IPCCgrey67,
+                             size=2)
             }
-        } else {
-
-            space = space - dspace_grid
             
+        } else {
+            space = space - dspace_grid
+
+            Ind = Ind +
+                annotate("rect",
+                         xmin=(i-1-dr_grid+space)*ech_x,
+                         xmax=(i-dr_grid+space)*ech_x,
+                         ymin=(max(c(major_tick,
+                                     perfect_tick))+shift)*norm,
+                         ymax=ymax_grid + dy_rect*ech_bar,
+                         fill=IPCCgrey99,
+                         size=0) +
+                annotate("rect",
+                         xmin=(i-1-dr_grid+space)*ech_x,
+                         xmax=(i-dr_grid+space)*ech_x,
+                         ymin=ymin_grid - dy_rect*ech_bar,
+                         ymax=(min(c(major_tick,
+                                     perfect_tick))+shift)*norm,
+                         fill=IPCCgrey99,
+                         size=0)
+            
+            for (t in perfect_tick) {
+                Ind = Ind +
+                    annotate("line",
+                             x=c(i-1-dr_grid+space,
+                                 i-dr_grid+space)*ech_x,
+                             y=(c(t, t)+shift)*norm,
+                             color=IPCCgrey60,
+                             size=0.35,
+                             lineend="round")
+            }
             for (t in major_tick) {
                 Ind = Ind +
                     annotate("line",
                              x=c(i-1-dr_grid+space,
                                  i-dr_grid+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
-                             color=IPCCgrey67,
+                             color=IPCCgrey60,
                              size=0.2,
                              lineend="round")
             }
@@ -426,13 +510,14 @@ panel_diagnostic_criteria = function (dataEXind,
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
         
-        id = sapply(names(major_tick_val), grepl, x=varRAW)
+        id = sapply(names(perfect_tick_val), grepl, x=varRAW)
         if (all(!id)) {
             id = "default"
         } else {
-            id = names(major_tick_val)[id]
+            id = names(perfect_tick_val)[id]
         }
-        
+
+        perfect_tick = perfect_tick_val[[id]]
         major_tick = major_tick_val[[id]]
         minor_tick = minor_tick_val[[id]]
         norm = norm_tick_info[id]
@@ -490,7 +575,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                  color=
                                      Colors[names(Colors) == model],
                                  alpha=Alpha[k],
-                                 linewidth=1.5,
+                                 linewidth=1.3,
                                  lineend="round")
                 }
             }
@@ -532,7 +617,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                         space)*ech_x,
                                      y=(value+shift)*norm,
                                      color="white",
-                                     size=2.4,
+                                     size=2.2,
                                      stroke=0)
                     } else {
                         Ind = Ind +
@@ -552,7 +637,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                      y=rep(value +
                                            shift, 2)*norm,
                                      color="white",
-                                     linewidth=1.7,
+                                     linewidth=1.5,
                                      lineend="round")
                     }
                 }
@@ -667,6 +752,14 @@ panel_diagnostic_criteria = function (dataEXind,
                             dl_arrow
                     }
                     Ind = Ind +
+                        annotate("segment",
+                                 x=x, xend=x,
+                                 y=y, yend=yend,
+                                 color="white",
+                                 linewidth=0.8,
+                                 arrow=arrow(length=unit(dx_arrow,
+                                                         "mm")),
+                                 lineend="round") + 
                         annotate("segment",
                                  x=x, xend=x,
                                  y=y, yend=yend,
@@ -822,7 +915,7 @@ panel_diagnostic_criteria = function (dataEXind,
                           dy_mod_name),
                      label=Model[i],
                      color=IPCCgrey25,
-                     hjust=0, vjust=0, size=3.2)
+                     hjust=0, vjust=0, size=2.8)
         
         if (!is.null(codeLight)) {
             Ind = Ind +
@@ -838,7 +931,7 @@ panel_diagnostic_criteria = function (dataEXind,
                               dy_mod_surf),
                          label="(xxxx)",
                          color=IPCCgrey25,
-                         hjust=0, vjust=0, size=2.4)
+                         hjust=0, vjust=0, size=2)
         }
     }
 
@@ -873,7 +966,7 @@ panel_diagnostic_criteria = function (dataEXind,
                           dy_leg_line +
                           dl_leg_line +
                           (NP-k)*dl_leg_line/3)),
-                     color=IPCCgrey85,
+                     color=IPCCgrey50,
                      alpha=Alpha[k],
                      linewidth=1.5,
                      lineend="round")
@@ -1166,17 +1259,18 @@ panel_diagnostic_criteria = function (dataEXind,
                      hjust=0, vjust=0, size=2.5)
 
         Warnings_code = Warnings[Warnings$Code == codeLight,]
-        nWar_lim = 6
+        nWar_lim = 7
         nWar = nrow(Warnings_code)
         nLine = 0
-        nLim = 100
-        for (i in 1:nWar) {
-            if (i > nWar_lim) {
-                break
-            }
-            
+        nLim = 120
+        for (i in 1:nWar_lim) {
+
             Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
             Label = unlist(strsplit(Label, "\n"))
+
+            if (i + nLine + length(Label)-1 > nWar_lim | i > nWar) {
+                break
+            }
             
             Ind = Ind +
                 annotate("line",
