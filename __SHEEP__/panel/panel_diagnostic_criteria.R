@@ -475,7 +475,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                  i-dr_grid+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey60,
-                             size=0.35,
+                             size=0.4,
                              lineend="round")
             }
             for (t in major_tick) {
@@ -599,47 +599,55 @@ panel_diagnostic_criteria = function (dataEXind,
                 value = median(dataEXind_model_group[[var]],
                                na.rm=TRUE)
             }
-            
-            if (!is.null(value) & !identical(value, numeric(0))) {
-                above = (value+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (value+shift)*norm
 
-                if (!above & !below) {
-                    if (!is.null(codeLight)) {
-                        Ind = Ind +
-                            annotate("point",
-                                     x=((i-1) + 0.5 -
-                                        (nModel/2)*dx_bar +
-                                        dx_bar/2 +
-                                        (j-1)*dx_bar +
-                                        space)*ech_x,
-                                     y=(value+shift)*norm,
-                                     color="white",
-                                     size=2.2,
-                                     stroke=0)
-                    } else {
-                        Ind = Ind +
-                            annotate("line",
-                                     x=c(((i-1) + 0.5 -
-                                          (nModel/2)*dx_bar +
-                                          dx_bar/2 +
-                                          (j-1)*dx_bar +
-                                          space)*ech_x -
-                                         w_leg_line/2,
-                                     ((i-1) + 0.5 -
+            if (is.null(value)) {
+                next
+            }
+            if (identical(value, numeric(0))) {
+                next
+            }
+            if (is.na(value)) {
+                next
+            }
+            
+            above = (value+shift)*norm >
+                ymax_grid
+            below = ymin_grid >
+                (value+shift)*norm
+
+            if (!above & !below) {
+                if (!is.null(codeLight)) {
+                    Ind = Ind +
+                        annotate("point",
+                                 x=((i-1) + 0.5 -
+                                    (nModel/2)*dx_bar +
+                                    dx_bar/2 +
+                                    (j-1)*dx_bar +
+                                    space)*ech_x,
+                                 y=(value+shift)*norm,
+                                 color="white",
+                                 size=2.2,
+                                 stroke=0)
+                } else {
+                    Ind = Ind +
+                        annotate("line",
+                                 x=c(((i-1) + 0.5 -
                                       (nModel/2)*dx_bar +
                                       dx_bar/2 +
                                       (j-1)*dx_bar +
-                                      space)*ech_x +
-                                     w_leg_line/2),
-                                     y=rep(value +
-                                           shift, 2)*norm,
-                                     color="white",
-                                     linewidth=1.5,
-                                     lineend="round")
-                    }
+                                      space)*ech_x -
+                                     w_leg_line/2,
+                                 ((i-1) + 0.5 -
+                                  (nModel/2)*dx_bar +
+                                  dx_bar/2 +
+                                  (j-1)*dx_bar +
+                                  space)*ech_x +
+                                 w_leg_line/2),
+                                 y=rep(value +
+                                       shift, 2)*norm,
+                                 color="white",
+                                 linewidth=1.5,
+                                 lineend="round")
                 }
             }
         }
@@ -660,51 +668,59 @@ panel_diagnostic_criteria = function (dataEXind,
                 value = median(dataEXind_model_group[[var]],
                                na.rm=TRUE)
             }
-            
-            if (!is.null(value) & !identical(value, numeric(0))) {
-                above = (value+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (value+shift)*norm
 
-                if (!above & !below) {
-                    if (!is.null(codeLight)) {
-                        Ind = Ind +
-                            annotate("point",
-                                     x=((i-1) + 0.5 -
-                                        (nModel/2)*dx_bar +
-                                        dx_bar/2 +
-                                        (j-1)*dx_bar +
-                                        space)*ech_x,
-                                     y=(value+shift)*norm,
-                                     color=
-                                         Colors[names(Colors) == model],
-                                     alpha=alpha_marker,
-                                     size=1.5,
-                                     stroke=0)
-                    } else {
-                        Ind = Ind +
-                            annotate("line",
-                                     x=c(((i-1) + 0.5 -
-                                          (nModel/2)*dx_bar +
-                                          dx_bar/2 +
-                                          (j-1)*dx_bar +
-                                          space)*ech_x -
-                                         w_leg_line/2,
-                                     ((i-1) + 0.5 -
+            if (is.null(value)) {
+                next
+            }
+            if (identical(value, numeric(0))) {
+                next
+            }
+            if (is.na(value)) {
+                next
+            }
+            
+            above = (value+shift)*norm >
+                ymax_grid
+            below = ymin_grid >
+                (value+shift)*norm
+
+            if (!above & !below) {
+                if (!is.null(codeLight)) {
+                    Ind = Ind +
+                        annotate("point",
+                                 x=((i-1) + 0.5 -
+                                    (nModel/2)*dx_bar +
+                                    dx_bar/2 +
+                                    (j-1)*dx_bar +
+                                    space)*ech_x,
+                                 y=(value+shift)*norm,
+                                 color=
+                                     Colors[names(Colors) == model],
+                                 alpha=alpha_marker,
+                                 size=1.5,
+                                 stroke=0)
+                } else {
+                    Ind = Ind +
+                        annotate("line",
+                                 x=c(((i-1) + 0.5 -
                                       (nModel/2)*dx_bar +
                                       dx_bar/2 +
                                       (j-1)*dx_bar +
-                                      space)*ech_x +
-                                     w_leg_line/2),
-                                     y=rep(value +
-                                           shift, 2)*norm,
-                                     alpha=alpha_marker,
-                                     color=Colors[names(Colors) ==
-                                                  model],
-                                     linewidth=0.9,
-                                     lineend="round")
-                    }
+                                      space)*ech_x -
+                                     w_leg_line/2,
+                                 ((i-1) + 0.5 -
+                                  (nModel/2)*dx_bar +
+                                  dx_bar/2 +
+                                  (j-1)*dx_bar +
+                                  space)*ech_x +
+                                 w_leg_line/2),
+                                 y=rep(value +
+                                       shift, 2)*norm,
+                                 alpha=alpha_marker,
+                                 color=Colors[names(Colors) ==
+                                              model],
+                                 linewidth=0.9,
+                                 lineend="round")
                 }
             }
         }
@@ -725,52 +741,59 @@ panel_diagnostic_criteria = function (dataEXind,
                 value = median(dataEXind_model_group[[var]],
                                na.rm=TRUE)
             }
+
+            if (is.null(value)) {
+                next
+            }
+            if (identical(value, numeric(0))) {
+                next
+            }
+            if (is.na(value)) {
+                next
+            }
             
-            if (!is.null(value) & !identical(value, numeric(0))) {
+            above = (value+shift)*norm >
+                ymax_grid
+            below = ymin_grid >
+                (value+shift)*norm
+            
+            if (above | below) {
+                x = ((i-1) + 0.5 -
+                     (nModel/2)*dx_bar+dx_bar/2 +
+                     (j-1)*dx_bar + space)*ech_x
                 
-                above = (value+shift)*norm >
-                    ymax_grid
-                below = ymin_grid >
-                    (value+shift)*norm
-                
-                if (above | below) {
-                    x = ((i-1) + 0.5 -
-                         (nModel/2)*dx_bar+dx_bar/2 +
-                         (j-1)*dx_bar + space)*ech_x
-                    
-                    if (above) {
-                        y = ymax_grid +
-                            dy_arrow*norm
-                        yend = ymax_grid +
-                            dy_arrow*norm +
-                            dl_arrow
-                    } else if (below) {
-                        y = ymin_grid -
-                            dy_arrow*norm
-                        yend = ymin_grid -
-                            dy_arrow*norm -
-                            dl_arrow
-                    }
-                    Ind = Ind +
-                        annotate("segment",
-                                 x=x, xend=x,
-                                 y=y, yend=yend,
-                                 color="white",
-                                 linewidth=0.8,
-                                 arrow=arrow(length=unit(dx_arrow,
-                                                         "mm")),
-                                 lineend="round") + 
-                        annotate("segment",
-                                 x=x, xend=x,
-                                 y=y, yend=yend,
-                                 color=
-                                     Colors[names(Colors) == model],
-                                 alpha=alpha_marker,
-                                 linewidth=0.3,
-                                 arrow=arrow(length=unit(dx_arrow,
-                                                         "mm")),
-                                 lineend="round")
+                if (above) {
+                    y = ymax_grid +
+                        dy_arrow*norm
+                    yend = ymax_grid +
+                        dy_arrow*norm +
+                        dl_arrow
+                } else if (below) {
+                    y = ymin_grid -
+                        dy_arrow*norm
+                    yend = ymin_grid -
+                        dy_arrow*norm -
+                        dl_arrow
                 }
+                Ind = Ind +
+                    annotate("segment",
+                             x=x, xend=x,
+                             y=y, yend=yend,
+                             color="white",
+                             linewidth=0.8,
+                             arrow=arrow(length=unit(dx_arrow,
+                                                     "mm")),
+                             lineend="round") + 
+                    annotate("segment",
+                             x=x, xend=x,
+                             y=y, yend=yend,
+                             color=
+                                 Colors[names(Colors) == model],
+                             alpha=alpha_marker,
+                             linewidth=0.3,
+                             arrow=arrow(length=unit(dx_arrow,
+                                                     "mm")),
+                             lineend="round")
             }
         }
     }
@@ -1214,6 +1237,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
 
 ## 8. INTERPRETATION BLOC ____________________________________________
+    nLim = 100
     if (is.null(codeLight)) {
         Ind = Ind +
             annotate("text",
@@ -1225,8 +1249,6 @@ panel_diagnostic_criteria = function (dataEXind,
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
 
-        
-        nLim = 90
         Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75% et 25 %, et minimum du KGE\u221A)"
         
         Label = guess_newline(Label, nLim=nLim)
@@ -1262,8 +1284,10 @@ panel_diagnostic_criteria = function (dataEXind,
         nWar_lim = 7
         nWar = nrow(Warnings_code)
         nLine = 0
-        nLim = 120
         for (i in 1:nWar_lim) {
+            if (i > nWar) {
+                break
+            }
 
             Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
             Label = unlist(strsplit(Label, "\n"))
