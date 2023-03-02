@@ -25,6 +25,14 @@
 #' @export
 sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path=NULL, figdir="") {
 
+
+    if (is.null(title)) {
+        title = ""
+    }
+    if (is.null(subtitle)) {
+        subtitle = ""
+    }
+    
     foot_height = 1.25
     
     text_title = paste0("<b>", title, "</b>")
@@ -109,10 +117,10 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
                            gp=gpar(col="#00A3A8", fontsize=20))
 
     gsubtitle = richtext_grob(text_subtitle,
-                           x=0, y=1,
-                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                           hjust=0, vjust=1,
-                           gp=gpar(col="#00A3A8", fontsize=15))
+                              x=0, y=1,
+                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                              hjust=0, vjust=1,
+                              gp=gpar(col="#00A3A8", fontsize=15))
 
     gsum1 = richtext_grob(text_sum1,
                           x=0, y=1,
@@ -203,7 +211,12 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
     # Arranges the graphical object
     plot = grid.arrange(grobs=P, layout_matrix=LM,
                         heights=heightLM, widths=widthLM)
+
+    print(figdir)
     
+    if (!(file.exists(figdir))) {
+        dir.create(figdir, recursive=TRUE)
+    }
     # Saves the plot
     ggsave(plot=plot,
            path=figdir,
