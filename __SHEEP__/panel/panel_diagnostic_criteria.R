@@ -79,6 +79,9 @@ panel_diagnostic_criteria = function (dataEXind,
     ech_text_mod = 0.36
 
     dy_leg = 1.5
+    if (is.null(codeLight)) {
+        dy_leg = dy_leg - dy_mod_surf
+    }
     dh_leg = 3
     dx_leg_line = 0.3
     dy_leg_line = 0.25
@@ -94,6 +97,7 @@ panel_diagnostic_criteria = function (dataEXind,
     dx_leg_arrow_text = 0.1
     
     dx_interp = 9.9
+    dx_interp_text = 0.12
     dl_interp_text_line = 0.05
     dr_interp_text_line = 0.05
     w_interp_text_line = 0.2
@@ -886,7 +890,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      y=ymin_grid - (dy_gap +
                                     dy_mod) +
                          dy_mod_subtitle,
-                     label="(Surface simulée par le modèle en km<sup>2</sup>)",
+                     label="(Surface estimée par le modèle en km<sup>2</sup>)",
                      color=IPCCgrey25,
                      fill=NA, label.color=NA,
                      hjust=0, vjust=0.43, size=2.2)
@@ -1055,7 +1059,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
     for (k in 1:NP) {
         if (k == 1) {
-            end = " des résultats dans la région hydrologique"
+            end = " des résultats dans le groupe de stations"
         } else {
             end = ""
         }
@@ -1096,7 +1100,7 @@ panel_diagnostic_criteria = function (dataEXind,
     if (!is.null(codeLight)) {
         label = "<b>Valeur</b> du critère à la station"
     } else {
-        label = "<b>Médiane</b> du critère dans le groupe de station"
+        label = "<b>Médiane</b> du critère dans le groupe de stations"
     }
         Ind = Ind +
             annotate("line",
@@ -1133,7 +1137,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
     for (k in 1:NP) {
         if (k == 1) {
-            end = " des résultats dans la région hydrologique"
+            end = " des résultats dans le groupe de stations"
         } else {
             end = ""
         }
@@ -1230,14 +1234,14 @@ panel_diagnostic_criteria = function (dataEXind,
                                 dy_leg_line +
                                 dl_leg_line +
                                 dy_leg_arrow),
-                 label=paste0("Valeur <b>hors limite</b>"),
+                 label=paste0("<b>Valeur hors limite</b>"),
                  fill=NA, label.color=NA,
                  color=IPCCgrey50,
                  hjust=0, vjust=0.6, size=2.4)
 
 
 ## 8. INTERPRETATION BLOC ____________________________________________
-    nLim = 100
+    nLim = 99
     if (is.null(codeLight)) {
         Ind = Ind +
             annotate("text",
@@ -1249,7 +1253,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
 
-        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75% et 25 %, et minimum du KGE\u221A)"
+        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75% et 25 %, et minimum du KGE\u221A)."
         
         Label = guess_newline(Label, nLim=nLim)
         Label = unlist(strsplit(Label, "\n"))
@@ -1257,7 +1261,7 @@ panel_diagnostic_criteria = function (dataEXind,
         for (j in 1:length(Label)) {
             Ind = Ind +
                 annotate("richtext",
-                         x=x_title + dx_interp,
+                         x=x_title + dx_interp - dx_interp_text,
                          y=ymin_grid - (dy_gap +
                                         dy_mod +
                                         dy_leg +

@@ -24,6 +24,7 @@
 #' @export
 panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                              ratio_title=1/4,
+                             varAbove=FALSE,
                              margin_title=margin(t=0, r=0,
                                                  b=0, l=0, unit="mm"),
                              margin_hyd=margin(t=0, r=0,
@@ -33,19 +34,31 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
     title = ggplot() + theme_void() +
         theme(plot.margin=margin_title)
 
-    title = title +
-        annotate("text",
-                 x=0,
-                 y=1,
-                 label=TeX("QM ($m^{3}.s^{-1}$)"),
-                 size=3, hjust=0, vjust=1,
-                 color=IPCCgrey40) +
-        annotate("text",
-                 x=0,
-                 y=0,
-                 label=regimeLight,
-                 size=2.5, hjust=0, vjust=0,
-                 color=IPCCgrey40)
+    if (varAbove) {
+        title = title +
+            annotate("text",
+                     x=0,
+                     y=1,
+                     label=TeX("QM ($m^{3}.s^{-1}$)"),
+                     size=3, hjust=0, vjust=1,
+                     color=IPCCgrey40) +
+            annotate("text",
+                     x=0,
+                     y=0,
+                     label=regimeLight,
+                     size=2.5, hjust=0, vjust=0,
+                     color=IPCCgrey40)
+    } else {
+        title = title +
+            annotate("text",
+                     x=0,
+                     y=1,
+                     label=regimeLight,
+                     size=2.5, hjust=0, vjust=1,
+                     color=IPCCgrey40)
+    }
+    
+
 
     title = title +
         scale_x_continuous(limits=c(0, 1),
@@ -78,13 +91,23 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
     hyd = hyd + 
         theme(plot.margin=margin_hyd)
 
+    
     hyd = hyd +
         # Plots the bar
         geom_bar(aes(x=monthNum, y=QM_code), 
                  stat='identity',
                  fill=IPCCgrey67,
-                 width=0.75, size=0.2) +
+                 width=0.75, size=0.2)
 
+    if (!varAbove) {
+        hyd = hyd +
+            theme(axis.title.y=element_text(size=7.2,
+                                            vjust=0, hjust=0.5,
+                                            color=IPCCgrey40)) + 
+            ylab(TeX("QM ($m^{3}.s^{-1}$)"))
+    }
+    
+    hyd = hyd +
         # X axis
         scale_x_continuous(breaks=monthNum,
                            labels=monthName,

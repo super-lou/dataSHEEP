@@ -352,41 +352,41 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     if (isNormLaw) {
         
-        spag = spag +
-            annotation_custom(
-                ggplotGrob(ggplot() + theme_void() +
-                           annotate("segment",
-                                    x=0.72, xend=0.77,
-                                    y=-1.45, yend=-1.45,
-                                    color=IPCCgrey50,
-                                    linewidth=0.3,
-                                    arrow=arrow(length=unit(1, "mm")),
-                                    lineend="round") +
-                           annotate("text",
-                                    x=0.78, y=-1.45,
-                                    label="  basses eaux",
-                                    color=IPCCgrey50,
-                                    size=2.7,
-                                    vjust=0.51, hjust=0) +
-                           annotate("segment",
-                                    x=0.28, xend=0.23,
-                                    y=-1.45, yend=-1.45,
-                                    color=IPCCgrey50,
-                                    linewidth=0.3,
-                                    arrow=arrow(length=unit(1, "mm")),
-                                    lineend="round") +
-                           annotate("text",
-                                    x=0.22, y=-1.45,
-                                    label="hautes eaux  ",
-                                    color=IPCCgrey50,
-                                    size=2.7,
-                                    vjust=0.51, hjust=1) +
-                           scale_x_continuous(limits=c(0, 1),
-                                              expand=c(0, 0)) +
-                           scale_y_continuous(limits=c(-2, 2),
-                                              expand=c(0, 0))),
-                xmin=-Inf, xmax=Inf,
-                ymin=-3, ymax=3)
+        # spag = spag +
+        #     annotation_custom(
+        #         ggplotGrob(ggplot() + theme_void() +
+        #                    annotate("segment",
+        #                             x=0.72, xend=0.77,
+        #                             y=-1.45, yend=-1.45,
+        #                             color=IPCCgrey50,
+        #                             linewidth=0.3,
+        #                             arrow=arrow(length=unit(1, "mm")),
+        #                             lineend="round") +
+        #                    annotate("text",
+        #                             x=0.78, y=-1.45,
+        #                             label="  basses eaux",
+        #                             color=IPCCgrey50,
+        #                             size=2.7,
+        #                             vjust=0.51, hjust=0) +
+        #                    annotate("segment",
+        #                             x=0.28, xend=0.23,
+        #                             y=-1.45, yend=-1.45,
+        #                             color=IPCCgrey50,
+        #                             linewidth=0.3,
+        #                             arrow=arrow(length=unit(1, "mm")),
+        #                             lineend="round") +
+        #                    annotate("text",
+        #                             x=0.22, y=-1.45,
+        #                             label="hautes eaux  ",
+        #                             color=IPCCgrey50,
+        #                             size=2.7,
+        #                             vjust=0.51, hjust=1) +
+        #                    scale_x_continuous(limits=c(0, 1),
+        #                                       expand=c(0, 0)) +
+        #                    scale_y_continuous(limits=c(-2, 2),
+        #                                       expand=c(0, 0))),
+        #         xmin=-Inf, xmax=Inf,
+        #         ymin=-3, ymax=3)
 
         low_major = c(1e-3, 1e-2, 1e-1, 0.5)
         up_major = rev(1-low_major)

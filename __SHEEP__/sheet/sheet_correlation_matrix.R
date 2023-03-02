@@ -24,7 +24,8 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                     ModelGroup=NULL,
                                     icon_path="", logo_path="",
                                     df_page=NULL,
-                                    figdir='') {
+                                    figdir='',
+                                    verbose=FALSE) {
 
     if (is.null(ModelGroup)) {
         Model = levels(factor(dataEX$Model))
@@ -80,7 +81,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
             Model4Save = gsub(" ", "_", Model_names)
         }
         
-        print(Model2Disp)
+        if (verbose) {
+            print(paste0("diagnostic correlation matrix for ",
+                         Model2Disp,
+                         "   ", round(i/nModelGroup*100, 1), "% done"))
+        }
 
         STOCK = tibble()
         var_plotted = c()

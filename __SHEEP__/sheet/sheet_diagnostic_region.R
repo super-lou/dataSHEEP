@@ -25,17 +25,18 @@ sheet_diagnostic_region = function (meta,
                                     metaEXind,
                                     dataEXserie,
                                     Colors,
-                                    ModelGroup=NULL,
                                     icon_path="",
                                     Warnings=NULL,
                                     logo_path="",
                                     df_page=NULL,
                                     Shapefiles=NULL,
-                                    figdir="") {
+                                    figdir="",
+                                    verbose=FALSE) {
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
     info_height = 3
+    void_height = 0.2
     medQJ_height = 7
     criteria_height = 15
 
@@ -45,8 +46,8 @@ sheet_diagnostic_region = function (meta,
 
     
     NAME = matrix(c(
-        "info", "medQJ_1", "medQJ_0.25", "criteria", "foot",
-        "info", "medQJ_0.75", "medQJ_0", "criteria", "foot"),
+        "info", "void", "medQJ_1", "medQJ_0.25", "criteria", "foot",
+        "info", "void", "medQJ_0.75", "medQJ_0", "criteria", "foot"),
     ncol=2)
     WIP = FALSE
 
@@ -59,12 +60,14 @@ sheet_diagnostic_region = function (meta,
 
     Region = levels(factor(substr(Code, 1, 1)))
     nRegion = length(Region)
-
-    Region = "K"
-    nRegion = 1
     
     for (i in 1:nRegion) {
         region = Region[i]
+        if (verbose) {
+            print(paste0("diagnostic region datasheet for ", region,
+                         "   ", round(i/nRegion*100, 1), "% done"))
+        }
+        
         Code_region = Code[substr(Code, 1, 1) == region]
 
         dataEXind_region = dataEXind[dataEXind$Code %in% Code_region,]
@@ -76,7 +79,7 @@ sheet_diagnostic_region = function (meta,
                 list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_region,]))
         }
         names(dataEXserie_region) = names(dataEXserie)
-
+        
         medKGEracine =
             dplyr::summarise(dplyr::group_by(dataEXind_region,
                                              Code),
@@ -94,6 +97,7 @@ sheet_diagnostic_region = function (meta,
             medKGEracine$Code[sapply(KGEq,
                                      id_nearest,
                                      In=medKGEracine$value)]
+        Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
         names(Code_KGEprobs) = KGEprobs
 
         STOCK = tibble()
@@ -112,54 +116,59 @@ sheet_diagnostic_region = function (meta,
             code = Code_KGEprobs[j]
             prob = names(Code_KGEprobs)[j]
             
-            dataEXserie_code = list()
-            for (k in 1:length(dataEXserie)) {
-                dataEXserie_code = append(
-                    dataEXserie_code,
-                    list(dataEXserie[[k]][dataEXserie[[k]]$Code == code,]))
-            }
-            names(dataEXserie_code) = names(dataEXserie)
-
-            title = paste0("(", letters[j],
-                           ") Débit journalier médian inter-annuel ",
-                           "\\unit : ",
-                           "\\textbf{", code, "}")
-            if (j %% 2 == 0) {
-                margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
+            if (is.na(code)) {
+                medQJ = void()
+                
             } else {
-                margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
+                dataEXserie_code = list()
+                for (k in 1:length(dataEXserie)) {
+                    dataEXserie_code = append(
+                        dataEXserie_code,
+                        list(dataEXserie[[k]][dataEXserie[[k]]$Code == code,]))
+                }
+                names(dataEXserie_code) = names(dataEXserie)
+
+                title = paste0("(", letters[j],
+                               ") Débit journalier médian inter-annuel ",
+                               "\\unit : ",
+                               "\\textbf{", code, "}")
+                if (j %% 2 == 0) {
+                    margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
+                } else {
+                    margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
+                }
+                
+                dataMOD = dataEXserie_code[["median{QJ}"]]
+                # dataMOD = dataEXserie_code[["median{QJ}C5"]]
+                dataMOD$Date = as.Date(dataMOD$Yearday-1,
+                                       origin=as.Date("1972-01-01"))
+                dataMOD = dplyr::rename(dataMOD,
+                                        Q_obs="median{QJ}_obs",
+                                        Q_sim="median{QJ}_sim")
+                medQJ = panel_spaghetti(dataMOD,
+                                        Colors,
+                                        title=title,
+                                        unit="m^{3}.s^{-1}",
+                                        alpha=0.85,
+                                        isSqrt=TRUE,
+                                        missRect=FALSE,
+                                        isBack=FALSE,
+                                        isTitle=TRUE,
+                                        date_labels="%d %b",
+                                        breaks="3 months",
+                                        minor_breaks="1 months",
+                                        Xlabel="",
+                                        limits_ymin=0,
+                                        isBackObsAbove=TRUE,
+                                        grid=TRUE,
+                                        ratio_title=1/15,
+                                        margin_title=
+                                            margin(t=0, r=7, b=0, l=0, "mm"),
+                                        margin_spag=
+                                            margin(t=0, r=3.5, b=0, l=0, "mm"),
+                                        first=FALSE,
+                                        last=TRUE)
             }
-            
-            dataMOD = dataEXserie_code[["median{QJ}"]]
-            # dataMOD = dataEXserie_code[["median{QJ}C5"]]
-            dataMOD$Date = as.Date(dataMOD$Yearday-1,
-                                   origin=as.Date("1972-01-01"))
-            dataMOD = dplyr::rename(dataMOD,
-                                    Q_obs="median{QJ}_obs",
-                                    Q_sim="median{QJ}_sim")
-            medQJ = panel_spaghetti(dataMOD,
-                                    Colors,
-                                    title=title,
-                                    unit="m^{3}.s^{-1}",
-                                    alpha=0.85,
-                                    isSqrt=TRUE,
-                                    missRect=FALSE,
-                                    isBack=FALSE,
-                                    isTitle=TRUE,
-                                    date_labels="%d %b",
-                                    breaks="3 months",
-                                    minor_breaks="1 months",
-                                    Xlabel="",
-                                    limits_ymin=0,
-                                    isBackObsAbove=TRUE,
-                                    grid=TRUE,
-                                    ratio_title=1/15,
-                                    margin_title=
-                                        margin(t=0, r=7, b=0, l=0, "mm"),
-                                    margin_spag=
-                                        margin(t=0, r=3.5, b=0, l=0, "mm"),
-                                    first=FALSE,
-                                    last=TRUE)
             STOCK = add_plot(STOCK,
                              plot=medQJ,
                              name=paste0("medQJ", "_", prob),
@@ -188,6 +197,11 @@ sheet_diagnostic_region = function (meta,
                          plot=criteria,
                          name="criteria",
                          height=criteria_height)
+
+        STOCK = add_plot(STOCK,
+                         plot=void(),
+                         name="void",
+                         height=void_height)
 
 
         footName = 'Fiche région de diagnostic'

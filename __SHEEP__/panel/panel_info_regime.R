@@ -31,18 +31,43 @@ panel_info_regime = function(QM_code,
 
     # If there is a data serie for the given code
     if (!is.null(QM_code)) {
-        # Computes the hydrograph
-        hyd = panel_hydrograph(QM_code,
-                               regimeLight,
-                               ratio_title=1/2.5,
-                               margin_title=margin(t=2, r=0, b=0, l=10,
-                                                   unit="mm"),
-                               margin_hyd=margin(t=1, r=0, b=0, l=5,
-                                                 unit="mm"))
+        if (length(QM_code) == 2) {
+            # Computes the hydrograph
+            hyd1 = panel_hydrograph(
+                QM_code[[1]],
+                names(QM_code)[1],
+                ratio_title=1/7,
+                margin_title=margin(t=0, r=0, b=0, l=14,
+                                    unit="mm"),
+                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                                  unit="mm"))
+            hyd2 = panel_hydrograph(
+                QM_code[[2]],
+                names(QM_code)[2],
+                ratio_title=1/7,
+                margin_title=margin(t=0, r=0, b=0, l=14,
+                                    unit="mm"),
+                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                                  unit="mm"))
+        } else {
+            if (!is.list(QM_code)) {
+                QM_code = list(QM_code)
+            }
+            hyd1 = void()
+            hyd2 = panel_hydrograph(
+                QM_code[[1]],
+                names(QM_code)[1],
+                ratio_title=1/7,
+                margin_title=margin(t=0, r=0, b=0, l=14,
+                                    unit="mm"),
+                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                                  unit="mm"))
+        }
     # Otherwise
     } else {
         # Puts it blank
-        hyd = void()
+        hyd1 = void()
+        hyd2 = void()
     }
 
     meta_regime = meta[meta$Code %in% Code_regime,]
@@ -116,13 +141,13 @@ panel_info_regime = function(QM_code,
     }
 
     # Makes a list of all plots
-    P = list(gtext1, gtext2, gtext3, hyd, map)
+    P = list(gtext1, gtext2, gtext3, hyd1, hyd2, map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 4, 5,
-                  2, 2, 4, 5,
-                  3, 3, 4, 5,
-                  3, 3, 4, 5),
+    LM = matrix(c(1, 1, 1, 6,
+                  2, 4, 5, 6,
+                  3, 4, 5, 6,
+                  3, 4, 5, 6),
                 nrow=4, 
                 byrow=TRUE)
     # And sets the relative height of each plot

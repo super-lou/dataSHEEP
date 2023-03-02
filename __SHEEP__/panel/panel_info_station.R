@@ -36,8 +36,8 @@ panel_info_station = function(data_code,
         # Computes the hydrograph
         hyd = panel_hydrograph(QM_code,
                                regimeLight,
-                               ratio_title=1/2.5,
-                               margin_title=margin(t=2, r=0, b=0, l=10,
+                               ratio_title=1/7,
+                               margin_title=margin(t=0, r=0, b=0, l=14,
                                                    unit="mm"),
                                margin_hyd=margin(t=1, r=0, b=0, l=5,
                                                  unit="mm"))
@@ -176,7 +176,7 @@ panel_info_station = function(data_code,
     P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 5, 6,
+    LM = matrix(c(1, 1, 1, 6,
                   2, 2, 5, 6,
                   3, 4, 5, 6,
                   3, 4, 5, 6),

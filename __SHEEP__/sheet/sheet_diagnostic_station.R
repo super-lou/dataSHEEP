@@ -26,13 +26,13 @@ sheet_diagnostic_station = function (data,
                                      metaEXind,
                                      dataEXserie,
                                      Colors,
-                                     ModelGroup=NULL,
                                      icon_path="",
                                      Warnings=NULL,
                                      logo_path="",
                                      df_page=NULL,
                                      Shapefiles=NULL,
-                                     figdir="") {
+                                     figdir="",
+                                     verbose=FALSE) {
         
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
@@ -82,6 +82,10 @@ sheet_diagnostic_station = function (data,
 
     for (i in 1:nCode) {
         code = Code[i]
+        if (verbose) {
+            print(paste0("diagnostic station datasheet for ", code,
+                         "   ", round(i/nCode*100, 1), "% done"))
+        }
         
         data_code = data[data$Code == code,]
         data_obs_code = data_obs[data_obs$Code == code,]

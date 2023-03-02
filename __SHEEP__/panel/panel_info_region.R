@@ -96,7 +96,7 @@ panel_info_region = function(meta,
     P = list(gtext1, gtext2, gtext3, void(), map)
     
     # Creates the matrix layout
-    LM = matrix(c(1, 1, 4, 5,
+    LM = matrix(c(1, 1, 1, 5,
                   2, 2, 4, 5,
                   3, 3, 4, 5,
                   3, 3, 4, 5),
