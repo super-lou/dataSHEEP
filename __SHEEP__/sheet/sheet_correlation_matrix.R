@@ -197,7 +197,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          height=si_height,
                          width=leg_width)
 
-        footName = paste0('matrice de corrélation : ', Model2Disp)
+        footName = paste0('Matrice de corrélation : ', Model2Disp)
         if (is.null(df_page)) {
             n_page = i
         } else {
@@ -206,6 +206,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
             } else {
                 n_page = df_page$n[nrow(df_page)] + 1
             }
+            df_page = bind_rows(
+                df_page,
+                dplyr::tibble(section="Matrice de corrélation",
+                              subsection=Model2Disp,
+                              n=n_page))
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
