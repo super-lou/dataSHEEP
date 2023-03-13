@@ -263,6 +263,9 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         }
     }
 
+
+    
+
     select = select_grobs(ID)
     select = sort(select)
     grobs = STOCK$plot[select]
@@ -273,13 +276,201 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         print(select)
     }
 
-    plot = grid.arrange(arrangeGrob(grobs=grobs,
-                                    nrow=nrowNAME,
-                                    ncol=ncolNAME,
-                                    heights=heights,
-                                    widths=widths,
-                                    layout_matrix=ID,
-                                    as.table=FALSE))
+
+
+    Labels = STOCK$label[select]
+    if (any(nchar(Labels) > 0)) {
+        Aligns = Labels[grepl("align", Labels)]
+        Aligns = levels(factor(Aligns))
+        nAligns = length(Aligns)
+    } else {
+        Aligns = NULL
+    }
+    
+    if (!is.null(Aligns)) {
+
+        for (i in 1:nAligns) {
+            align = Aligns[i]
+            
+            widths_var = list()
+            nPlot = length(grobs)
+            for (j in 1:nPlot) {
+                if (is.null(grobs[[j]])) {
+                    grobs[[j]] = void()
+                }
+                if (Labels[j] == align) {
+
+                    if (is.ggplot(grobs[[j]])) {
+                        type = "ggplot"
+                        
+                        print("grobs_tmp")
+                        print(grobs[[j]])
+                    
+                        grobs[[j]] =
+                            ggplot_gtable(ggplot_build(grobs[[j]]))
+                        widths_var = append(widths_var,
+                                            list(grobs[[j]]$widths))
+                        
+                    } else if (gtable::is.gtable(grobs[[j]])) {
+                        type = "gtable"
+                        
+                        print("grobs_tmp")
+                        print(grobs[[j]]$grob)
+                        
+                        # grobs_widths =
+                        #     lapply(grobs[[j]]$grob[[1]]$grob,
+                        #            '[[', "widths")
+                        # widths_var = append(widths_var,
+                        #                     grobs_widths)
+                        widths_var = append(widths_var,
+                                            list(grobs[[j]]$grob[[2]]$widths))
+                    }
+                    
+
+                    print("grobs")
+                    print(class(grobs[[j]]))
+                    
+                    # print("ggplot")
+                    # print(grobs[[j]]$widths)
+                        
+                    # } else if (gtable::is.gtable(grobs[[j]])) {
+                        # grobs_widths =
+                            # lapply(grobs[[j]]$grob[[1]]$grob,
+                                   # '[[', "widths")
+                        # widths_var = append(widths_var,
+                        # grobs_widths)
+
+                        # print("gtable")
+                        # widths_var = append(widths_var,
+                                            # list(grobs[[j]]$widths))
+                        # print(grobs[[j]]$widths)
+
+                        # print(grobs[[j]]$widths)
+                        # widths_var = append(widths_var,
+                                            # list(grobs[[j]]$widths))
+                    # } else {
+                        # stop ("not a gtable or a ggplot object")
+                    # }
+                    # print("")
+                }
+            }
+
+            maxWidth = do.call(grid::unit.pmax, widths_var)
+
+            print("maxWidth")
+            print(maxWidth)
+            print("")
+            
+            for (j in 1:nPlot) {
+                if (Labels[j] == align) {
+
+                    if (type == "ggplot") {
+                        grobs[[j]]$widths = as.list(maxWidth)
+                        print("grobs_tmp")
+                        print(grobs[[j]])
+                        
+                    } else if (type == "gtable") {
+                        for (k in 1:length(grobs[[j]]$grob)) {
+
+                            print("grobs_tmp")
+                            print(grobs[[j]]$grob[[k]])
+                            
+                            grobs[[j]]$grob[[k]]$widths = as.list(maxWidth)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    print("END")
+    print("")
+
+
+
+
+
+
+    # widths_var = list()
+    # nPlot = length(LM_inline)
+    # for (i in 1:nPlot) {
+    #     if (is.null(LM_inline[[i]])) {
+    #         LM_inline[[i]] = void()
+    #     }
+    #     if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
+    #         LM_inline[[i]] = ggplot_gtable(ggplot_build(LM_inline[[i]]))
+    #         widths_var = append(widths_var, list(LM_inline[[i]]$widths))
+    #     }
+    # }        
+    # maxWidth = do.call(grid::unit.pmax, widths_var)
+    # for (i in 1:nPlot) {
+    #     if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
+    #         LM_inline[[i]]$widths = as.list(maxWidth)
+    #     }
+    # }
+
+
+
+    
+
+
+    
+    plot =
+        # grid.arrange(
+        arrangeGrob(grobs=grobs,
+                    nrow=nrowNAME,
+                    ncol=ncolNAME,
+                    heights=heights,
+                    widths=widths,
+                    layout_matrix=ID,
+                    as.table=FALSE)
+    # )
+
+
+
+    
+
+    # matrix2design_hide = function (X) {
+    #     X = paste0(LETTERS[X], collapse="")
+    #     X = gsub("NA", "#", X)
+    #     return (X)
+    # }
+    # matrix2design = function (M) {
+    #     design = as.list(as.data.frame(t(M)))
+    #     design = sapply(design, matrix2design_hide)
+    #     design = paste0("\n",
+    #                     paste0(design, collapse="\n"),
+    #                     "\n")
+    #     return (design)
+    # }
+    
+    # design = matrix2design(ID)
+    # print(design)
+    
+    # plot = patchwork::wrap_plots(grobs,
+    #                              nrow=nrowNAME,
+    #                              ncol=ncolNAME,
+    #                              heights=heights,
+    #                              widths=widths,
+    #                              design=design)
+
+    # plot = ggplotify::as.ggplot(plot)
+
+    # print("in plot")
+    # print(plot$widths)
+
+    # if (!is.null(Aligns)) {
+    #     for (i in 1:nAligns) {
+    #         maxWidth = maxWidthALL[[i]]
+    #         plot$widths = as.list(maxWidth)
+            
+    #     }
+    # }
+
+    # print(plot$widths)
+    # print("END")
+    # print("")
+    
     
     if (!is.null(paper_size)) {
         res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
@@ -298,19 +489,19 @@ select_grobs = function (lay) {
 ### 2.2. Add plot ____________________________________________________
 add_plot = function (STOCK, plot=NULL, name="",
                      height=0, width=0,
-                     first=FALSE, last=FALSE,
+                     label="",
                      overwrite_by_name=FALSE) {
     
     if (overwrite_by_name == FALSE | !any(which(STOCK$name == name))) {
         if (nrow(STOCK) == 0) {
             STOCK = tibble(name=name,
                            height=height, width=width,
-                           first=first, last=last,
+                           label=label,
                            plot=NULL)
         } else {
             STOCK = bind_rows(STOCK, tibble(name=name,
                                             height=height, width=width,
-                                            first=first, last=last,
+                                            label=label,
                                             plot=NULL))
         }
         STOCK$plot[[nrow(STOCK)]] = plot
@@ -319,8 +510,7 @@ add_plot = function (STOCK, plot=NULL, name="",
         id = which(STOCK$name == name)
         STOCK$height[id] = height
         STOCK$width[id] = width
-        STOCK$first[id] = first
-        STOCK$last[id] = last
+        STOCK$label[id] = label
         STOCK$plot[[id]] = plot
     }
     return (STOCK)

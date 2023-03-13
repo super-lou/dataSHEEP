@@ -189,13 +189,12 @@ sheet_diagnostic_regime = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["median{QJ}"]]
-                # dataMOD = dataEXserie_code[["median{QJ}C5"]]
+                dataMOD = dataEXserie_code[["median{QJ}C5"]]
                 dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                        origin=as.Date("1972-01-01"))
                 dataMOD = dplyr::rename(dataMOD,
-                                        Q_obs="median{QJ}_obs",
-                                        Q_sim="median{QJ}_sim")
+                                        Q_obs="median{QJ}C5_obs",
+                                        Q_sim="median{QJ}C5_sim")
                 medQJ = panel_spaghetti(
                     dataMOD,
                     Colors,

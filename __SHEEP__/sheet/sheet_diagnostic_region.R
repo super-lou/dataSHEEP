@@ -63,13 +63,16 @@ sheet_diagnostic_region = function (meta,
     
     for (i in 1:nRegion) {
         region = Region[i]
+        Code_region = Code[substr(Code, 1, 1) == region]
+        meta_region = meta[substr(meta$Code, 1, 1) == region,]
+        region_disp = paste0(meta_region$region_hydro[1],
+                             " - ", region)
+
         if (verbose) {
-            print(paste0("diagnostic region datasheet for ", region,
+            print(paste0("diagnostic region datasheet for ", region_disp,
                          "   ", round(i/nRegion*100, 1), "% done"))
         }
         
-        Code_region = Code[substr(Code, 1, 1) == region]
-
         dataEXind_region = dataEXind[dataEXind$Code %in% Code_region,]
         
         dataEXserie_region = list()
@@ -138,13 +141,12 @@ sheet_diagnostic_region = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["median{QJ}"]]
-                # dataMOD = dataEXserie_code[["median{QJ}C5"]]
+                dataMOD = dataEXserie_code[["median{QJ}C5"]]
                 dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                        origin=as.Date("1972-01-01"))
                 dataMOD = dplyr::rename(dataMOD,
-                                        Q_obs="median{QJ}_obs",
-                                        Q_sim="median{QJ}_sim")
+                                        Q_obs="median{QJ}C5_obs",
+                                        Q_sim="median{QJ}C5_sim")
                 medQJ = panel_spaghetti(dataMOD,
                                         Colors,
                                         title=title,
@@ -216,7 +218,7 @@ sheet_diagnostic_region = function (meta,
             df_page = bind_rows(
                 df_page,
                 tibble(section=footName,
-                       subsection=region,
+                       subsection=region_disp,
                        n=n_page))
         }
         foot = panel_foot(footName, n_page,
@@ -234,7 +236,10 @@ sheet_diagnostic_region = function (meta,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0(region, "_diagnostic_datasheet.pdf")
+        filename = paste0(gsub(" ", "_",
+                               gsub(" [-] ", "_",
+                                    region_disp)),
+                          "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

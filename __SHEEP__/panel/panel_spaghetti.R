@@ -498,13 +498,14 @@ panel_spaghetti = function (data_code, Colors=NULL,
                      plot=title,
                      name="title",
                      height=height_title)
+    
     STOCK = add_plot(STOCK,
                      plot=spag,
                      name="spag",
                      height=height_spag)
     
     plot = merge_panel(STOCK, direction="V")
-
     
     return (plot)
+    # return (spag)
 } 

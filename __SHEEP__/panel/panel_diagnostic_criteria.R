@@ -1091,7 +1091,7 @@ panel_diagnostic_criteria = function (dataEXind,
                           (k-1)*dl_leg_line/3),
                      label=paste0("<b>Quantile à ",
                      (1-Probs[k])*100,
-                     "%</b>", end),
+                     " %</b>", end),
                      fill=NA, label.color=NA,
                      color=IPCCgrey50,
                      hjust=0, vjust=0.6, size=2.4)
@@ -1170,7 +1170,7 @@ panel_diagnostic_criteria = function (dataEXind,
                           dl_leg_line +
                           (NP-k)*dl_leg_line/3),
                      label=paste0("<b>Quantile à ", Probs[k]*100,
-                                  "%</b>", end),
+                                  " %</b>", end),
                      fill=NA, label.color=NA,
                      color=IPCCgrey50,
                      hjust=0, vjust=0.6, size=2.4)
@@ -1253,7 +1253,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
 
-        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75% et 25 %, et minimum du KGE\u221A)."
+        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
         
         Label = guess_newline(Label, nLim=nLim)
         Label = unlist(strsplit(Label, "\n"))

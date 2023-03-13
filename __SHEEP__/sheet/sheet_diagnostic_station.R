@@ -142,6 +142,7 @@ sheet_diagnostic_station = function (data,
         STOCK = add_plot(STOCK,
                          plot=chronicle,
                          name="chronicle",
+                         label="align",
                          height=chronicle_height)
 
         dataMOD = dataEXserie_code[["QA"]]
@@ -163,6 +164,8 @@ sheet_diagnostic_station = function (data,
             breaks="5 years",
             minor_breaks="1 years",
             isBackObsAbove=TRUE,
+            axis_xlim=c(min(data_obs_code$Date),
+                        max(data_obs_code$Date)),
             grid=TRUE,
             ratio_title=1/7,
             margin_title=
@@ -174,16 +177,11 @@ sheet_diagnostic_station = function (data,
         STOCK = add_plot(STOCK,
                          plot=QA,
                          name="QA",
+                         label="align",
                          height=QA_height)
 
         
         dataMOD = dataEXserie_code[["median{QJ}C5"]]
-        
-        ###
-        dataMOD_tmp = dataEXserie_code[["median{QJ}"]]
-        dataMOD$Yearday = dataMOD_tmp$Yearday
-        ###
-
         dataMOD$Date = as.Date(dataMOD$Yearday-1,
                                origin=as.Date("1972-01-01"))
         dataMOD = dplyr::rename(dataMOD,
