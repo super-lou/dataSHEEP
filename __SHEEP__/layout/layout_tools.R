@@ -82,90 +82,85 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
 ### 2.1. Merge _______________________________________________________
 #' @title Merge
 #' @export
-merge_panel = function (STOCK, direction="V", NAME=NULL,
-                        page_margin=c(t=0, r=0, b=0, l=0),
-                        paper_size=NULL,
-                        hjust=0, vjust=1,
-                        verbose=FALSE) {
+return_to_sheepfold = function (flock,
+                                page_margin=c(t=0, r=0, b=0, l=0),
+                                paper_size=NULL,
+                                hjust=0, vjust=1,
+                                verbose=FALSE) {
 
+    SHEEP = flock$sheep
+    PLAN = flock$plan
 
-    if (!is.null(NAME)) {
-        STOCKname = STOCK$name
-        nSTOCKname = length(STOCK$name)
+    if (!is.null(PLAN)) {
+        SHEEPid = SHEEP$id
+        nSHEEPid = length(SHEEP$id)
         ID = c()
-        nrowNAME = nrow(NAME)
-        ncolNAME = ncol(NAME)
-        NAME = as.vector(NAME)
-        nNAME = nrowNAME*ncolNAME
-        ID = match(NAME, STOCK$name)
+        nrowPLAN = nrow(PLAN)
+        ncolPLAN = ncol(PLAN)
+        PLAN = as.vector(PLAN)
+        nPLAN = nrowPLAN*ncolPLAN
+        ID = match(PLAN, SHEEP$id)
 
-        PLOT = STOCK$plot[ID[!is.na(ID)]]
-        NAME = matrix(NAME, nrow=nrowNAME, ncol=ncolNAME)
-        ID = matrix(ID, nrow=nrowNAME, ncol=ncolNAME)
+        PLOT = SHEEP$plot[ID[!is.na(ID)]]
+        PLAN = matrix(PLAN, nrow=nrowPLAN, ncol=ncolPLAN)
+        ID = matrix(ID, nrow=nrowPLAN, ncol=ncolPLAN)
 
-        ncolNAME = ncol(NAME)
+        ncolPLAN = ncol(PLAN)
 
-        rowFoot = which(NAME[, 1] == "foot")
+        rowFoot = which(PLAN[, 1] == "foot")
 
         if (!identical(rowFoot, integer(0))) {
-            ID = rbind(rep(NA, times=ncolNAME),
+            ID = rbind(rep(NA, times=ncolPLAN),
                        ID[1:(rowFoot-1),, drop=FALSE],
-                       rep(NA, times=ncolNAME),
-                       ID[rowFoot:nrowNAME,, drop=FALSE])
-            NAME = rbind(rep("tjust", times=ncolNAME),
-                         NAME[1:(rowFoot-1),, drop=FALSE],
-                         rep("bjust", times=ncolNAME),
-                         NAME[rowFoot:nrowNAME,, drop=FALSE])
+                       rep(NA, times=ncolPLAN),
+                       ID[rowFoot:nrowPLAN,, drop=FALSE])
+            PLAN = rbind(rep("tjust", times=ncolPLAN),
+                         PLAN[1:(rowFoot-1),, drop=FALSE],
+                         rep("bjust", times=ncolPLAN),
+                         PLAN[rowFoot:nrowPLAN,, drop=FALSE])
         }
         
-        nrowNAME = nrow(NAME)
-        ID = cbind(rep(NA, times=nrowNAME), ID,
-                   rep(NA, times=nrowNAME))
-        NAME = cbind(rep("ljust", times=nrowNAME), NAME,
-                     rep("rjust", times=nrowNAME))
+        nrowPLAN = nrow(PLAN)
+        ID = cbind(rep(NA, times=nrowPLAN), ID,
+                   rep(NA, times=nrowPLAN))
+        PLAN = cbind(rep("ljust", times=nrowPLAN), PLAN,
+                     rep("rjust", times=nrowPLAN))
 
-        ncolNAME = ncol(NAME)
-        ID = rbind(rep(NA, times=ncolNAME), ID,
-                   rep(NA, times=ncolNAME))
-        NAME = rbind(rep("tmargin", times=ncolNAME), NAME,
-                     rep("bmargin", times=ncolNAME))
+        ncolPLAN = ncol(PLAN)
+        ID = rbind(rep(NA, times=ncolPLAN), ID,
+                   rep(NA, times=ncolPLAN))
+        PLAN = rbind(rep("tmargin", times=ncolPLAN), PLAN,
+                     rep("bmargin", times=ncolPLAN))
         
-        nrowNAME = nrow(NAME)
-        ID = cbind(rep(NA, times=nrowNAME), ID,
-                   rep(NA, times=nrowNAME))
-        NAME = cbind(rep("lmargin", times=nrowNAME), NAME,
-                     rep("rmargin", times=nrowNAME))
+        nrowPLAN = nrow(PLAN)
+        ID = cbind(rep(NA, times=nrowPLAN), ID,
+                   rep(NA, times=nrowPLAN))
+        PLAN = cbind(rep("lmargin", times=nrowPLAN), PLAN,
+                     rep("rmargin", times=nrowPLAN))
 
-        nrowNAME = nrow(NAME)
-        ncolNAME = ncol(NAME)
+        nrowPLAN = nrow(PLAN)
+        ncolPLAN = ncol(PLAN)
 
     } else {
-        ID = 1:nrow(STOCK)
-        NAME = STOCK$name
-        if (direction == "V") {
-            nrowNAME = length(NAME)
-            ncolNAME = 1
-        } else if (direction == "H") {
-            nrowNAME = 1
-            ncolNAME = length(NAME)
-        } else {
-            stop ("error when selecting 'direction'")
-        }
-        ID = matrix(ID, nrow=nrowNAME, ncol=ncolNAME)
-        NAME = matrix(NAME, nrow=nrowNAME, ncol=ncolNAME)
+        ID = 1:nrow(SHEEP)
+        PLAN = SHEEP$id
+        nrowPLAN = 1
+        ncolPLAN = length(PLAN)
+        ID = matrix(ID, nrow=nrowPLAN, ncol=ncolPLAN)
+        PLAN = matrix(PLAN, nrow=nrowPLAN, ncol=ncolPLAN)
     }
 
     if (!is.null(paper_size)) {
         
-        HEIGHT = STOCK$height[match(NAME, STOCK$name)]
-        HEIGHT = matrix(HEIGHT, nrow=nrowNAME, ncol=ncolNAME)
-        WIDTH = STOCK$width[match(NAME, STOCK$name)]
-        WIDTH = matrix(WIDTH, nrow=nrowNAME, ncol=ncolNAME)
+        HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
+        HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
+        WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
+        WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
 
         if (verbose) {
             print("RESUME")
             print(ID)
-            print(NAME)
+            print(PLAN)
             print(HEIGHT)
             print(WIDTH)
         }
@@ -192,22 +187,22 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         tjust_height = paperHeight * (1-vjust) / ratioHeight
         bjust_height = paperHeight * vjust / ratioHeight
 
-        NAMEcut = NAME[, idMaxHeight]
+        PLANcut = PLAN[, idMaxHeight]
         heights = HEIGHT[, idMaxHeight]
 
-        res = rle(NAMEcut)
+        res = rle(PLANcut)
         REPtimes = res$lengths
-        REPname = res$values
+        REPid = res$values
         for (i in 1:length(REPtimes)) {
             if (REPtimes[i] > 1) {
-                heights[NAMEcut == REPname[i]] =
-                    heights[NAMEcut == REPname[i]][1] / REPtimes[i]
+                heights[PLANcut == REPid[i]] =
+                    heights[PLANcut == REPid[i]][1] / REPtimes[i]
             }
         }    
-        heights[NAMEcut == "tjust"] = tjust_height
-        heights[NAMEcut == "bjust"] = bjust_height
-        heights[NAMEcut == "tmargin"] = page_margin["t"]
-        heights[NAMEcut == "bmargin"] = page_margin["b"]
+        heights[PLANcut == "tjust"] = tjust_height
+        heights[PLANcut == "bjust"] = bjust_height
+        heights[PLANcut == "tmargin"] = page_margin["t"]
+        heights[PLANcut == "bmargin"] = page_margin["b"]
 
         if (verbose) {
             print("HEIGHT")
@@ -229,22 +224,22 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         ljust_width = paperWidth * hjust / ratioWidth
         rjust_width = paperWidth * (1-hjust) / ratioWidth
 
-        NAMEcut = NAME[idMaxWidth,]
+        PLANcut = PLAN[idMaxWidth,]
         widths = WIDTH[idMaxWidth,]
 
-        res = rle(NAMEcut)
+        res = rle(PLANcut)
         REPtimes = res$lengths
-        REPname = res$values
+        REPid = res$values
         for (i in 1:length(REPtimes)) {
             if (REPtimes[i] > 1) {
-                widths[NAMEcut == REPname[i]] =
-                    widths[NAMEcut == REPname[i]][1] / REPtimes[i]
+                widths[PLANcut == REPid[i]] =
+                    widths[PLANcut == REPid[i]][1] / REPtimes[i]
             }
         }
-        widths[NAMEcut == "ljust"] = ljust_width
-        widths[NAMEcut == "rjust"] = rjust_width
-        widths[NAMEcut == "lmargin"] = page_margin["l"]
-        widths[NAMEcut == "rmargin"] = page_margin["r"]
+        widths[PLANcut == "ljust"] = ljust_width
+        widths[PLANcut == "rjust"] = rjust_width
+        widths[PLANcut == "lmargin"] = page_margin["l"]
+        widths[PLANcut == "rmargin"] = page_margin["r"]
 
         if (verbose) {
             print("WIDTH")
@@ -253,8 +248,8 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         }
 
     } else {
-        heights = STOCK$height
-        widths = STOCK$width
+        heights = SHEEP$height
+        widths = SHEEP$width
         if (all(heights == 0)) {
             heights = NULL
         }
@@ -263,214 +258,35 @@ merge_panel = function (STOCK, direction="V", NAME=NULL,
         }
     }
 
-
-    
-
     select = select_grobs(ID)
     select = sort(select)
-    grobs = STOCK$plot[select]
+    grobs = SHEEP$plot[select]
 
     if (verbose) {
-        print("STOCK")
-        print(STOCK)
+        print("SHEEP")
+        print(SHEEP)
         print(select)
     }
 
 
+    #     Nested layouts with arrangeGrob
 
-    Labels = STOCK$label[select]
-    if (any(nchar(Labels) > 0)) {
-        Aligns = Labels[grepl("align", Labels)]
-        Aligns = levels(factor(Aligns))
-        nAligns = length(Aligns)
-    } else {
-        Aligns = NULL
-    }
-    
-    if (!is.null(Aligns)) {
+    # The grid.arrange() function draws on the device; for more complex layouts, we may want to store the gtable and combine it with other objects, e.g. forming nested layouts. To this end, use arrangeGrob(),
 
-        for (i in 1:nAligns) {
-            align = Aligns[i]
-            
-            widths_var = list()
-            nPlot = length(grobs)
-            for (j in 1:nPlot) {
-                if (is.null(grobs[[j]])) {
-                    grobs[[j]] = void()
-                }
-                if (Labels[j] == align) {
-
-                    if (is.ggplot(grobs[[j]])) {
-                        type = "ggplot"
-                        
-                        print("grobs_tmp")
-                        print(grobs[[j]])
-                    
-                        grobs[[j]] =
-                            ggplot_gtable(ggplot_build(grobs[[j]]))
-                        widths_var = append(widths_var,
-                                            list(grobs[[j]]$widths))
-                        
-                    } else if (gtable::is.gtable(grobs[[j]])) {
-                        type = "gtable"
-                        
-                        print("grobs_tmp")
-                        print(grobs[[j]]$grob)
-                        
-                        # grobs_widths =
-                        #     lapply(grobs[[j]]$grob[[1]]$grob,
-                        #            '[[', "widths")
-                        # widths_var = append(widths_var,
-                        #                     grobs_widths)
-                        widths_var = append(widths_var,
-                                            list(grobs[[j]]$grob[[2]]$widths))
-                    }
-                    
-
-                    print("grobs")
-                    print(class(grobs[[j]]))
-                    
-                    # print("ggplot")
-                    # print(grobs[[j]]$widths)
-                        
-                    # } else if (gtable::is.gtable(grobs[[j]])) {
-                        # grobs_widths =
-                            # lapply(grobs[[j]]$grob[[1]]$grob,
-                                   # '[[', "widths")
-                        # widths_var = append(widths_var,
-                        # grobs_widths)
-
-                        # print("gtable")
-                        # widths_var = append(widths_var,
-                                            # list(grobs[[j]]$widths))
-                        # print(grobs[[j]]$widths)
-
-                        # print(grobs[[j]]$widths)
-                        # widths_var = append(widths_var,
-                                            # list(grobs[[j]]$widths))
-                    # } else {
-                        # stop ("not a gtable or a ggplot object")
-                    # }
-                    # print("")
-                }
-            }
-
-            maxWidth = do.call(grid::unit.pmax, widths_var)
-
-            print("maxWidth")
-            print(maxWidth)
-            print("")
-            
-            for (j in 1:nPlot) {
-                if (Labels[j] == align) {
-
-                    if (type == "ggplot") {
-                        grobs[[j]]$widths = as.list(maxWidth)
-                        print("grobs_tmp")
-                        print(grobs[[j]])
-                        
-                    } else if (type == "gtable") {
-                        for (k in 1:length(grobs[[j]]$grob)) {
-
-                            print("grobs_tmp")
-                            print(grobs[[j]]$grob[[k]])
-                            
-                            grobs[[j]]$grob[[k]]$widths = as.list(maxWidth)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    print("END")
-    print("")
-
-
-
-
-
-
-    # widths_var = list()
-    # nPlot = length(LM_inline)
-    # for (i in 1:nPlot) {
-    #     if (is.null(LM_inline[[i]])) {
-    #         LM_inline[[i]] = void()
-    #     }
-    #     if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
-    #         LM_inline[[i]] = ggplot_gtable(ggplot_build(LM_inline[[i]]))
-    #         widths_var = append(widths_var, list(LM_inline[[i]]$widths))
-    #     }
-    # }        
-    # maxWidth = do.call(grid::unit.pmax, widths_var)
-    # for (i in 1:nPlot) {
-    #     if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
-    #         LM_inline[[i]]$widths = as.list(maxWidth)
-    #     }
-    # }
-
-
-
-    
-
-
+    # g1 <- arrangeGrob(grobs = gs, layout_matrix = t(lay))
+    # g2 <- arrangeGrob(grobs = gs, layout_matrix = lay)
+    #     grid.arrange(g1, g2, ncol=2)
     
     plot =
         # grid.arrange(
         arrangeGrob(grobs=grobs,
-                    nrow=nrowNAME,
-                    ncol=ncolNAME,
+                    nrow=nrowPLAN,
+                    ncol=ncolPLAN,
                     heights=heights,
                     widths=widths,
                     layout_matrix=ID,
                     as.table=FALSE)
     # )
-
-
-
-    
-
-    # matrix2design_hide = function (X) {
-    #     X = paste0(LETTERS[X], collapse="")
-    #     X = gsub("NA", "#", X)
-    #     return (X)
-    # }
-    # matrix2design = function (M) {
-    #     design = as.list(as.data.frame(t(M)))
-    #     design = sapply(design, matrix2design_hide)
-    #     design = paste0("\n",
-    #                     paste0(design, collapse="\n"),
-    #                     "\n")
-    #     return (design)
-    # }
-    
-    # design = matrix2design(ID)
-    # print(design)
-    
-    # plot = patchwork::wrap_plots(grobs,
-    #                              nrow=nrowNAME,
-    #                              ncol=ncolNAME,
-    #                              heights=heights,
-    #                              widths=widths,
-    #                              design=design)
-
-    # plot = ggplotify::as.ggplot(plot)
-
-    # print("in plot")
-    # print(plot$widths)
-
-    # if (!is.null(Aligns)) {
-    #     for (i in 1:nAligns) {
-    #         maxWidth = maxWidthALL[[i]]
-    #         plot$widths = as.list(maxWidth)
-            
-    #     }
-    # }
-
-    # print(plot$widths)
-    # print("END")
-    # print("")
-    
     
     if (!is.null(paper_size)) {
         res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
@@ -487,34 +303,198 @@ select_grobs = function (lay) {
 } 
 
 ### 2.2. Add plot ____________________________________________________
-add_plot = function (STOCK, plot=NULL, name="",
-                     height=0, width=0,
-                     label="",
-                     overwrite_by_name=FALSE) {
+bring_grass = function (sheep=NULL, id="",
+                        height=0, width=0,
+                        label="", overwrite_by_id=FALSE,
+                        plan=NULL) {
     
-    if (overwrite_by_name == FALSE | !any(which(STOCK$name == name))) {
-        if (nrow(STOCK) == 0) {
-            STOCK = tibble(name=name,
-                           height=height, width=width,
-                           label=label,
-                           plot=NULL)
-        } else {
-            STOCK = bind_rows(STOCK, tibble(name=name,
-                                            height=height, width=width,
-                                            label=label,
-                                            plot=NULL))
-        }
-        STOCK$plot[[nrow(STOCK)]] = plot
-
-    } else {
-        id = which(STOCK$name == name)
-        STOCK$height[id] = height
-        STOCK$width[id] = width
-        STOCK$label[id] = label
-        STOCK$plot[[id]] = plot
+    if (is.null(plan)) {
+        plan = NA
     }
-    return (STOCK)
+    flock = list(sheep=dplyr::tibble(), plan=as.matrix(plan))
+
+    if (!is.null(sheep)) {
+        flock = add_sheep(flock, sheep=sheep, id=id,
+                          height=height, width=width,
+                          label=label,
+                          overwrite_by_id=FALSE)
+    }
+    return (flock)
 }
+
+
+plan_of_flock = function (flock, plan) {
+    if (!is.matrix(plan) & is.character(plan)) {
+        # plan =
+        #     "bibi bob
+        #      gael mike
+        #      alice jack"
+        plan = gsub("[[:space:]]+", " ",
+                    unlist(strsplit(plan, "\n")))
+        plan = gsub("(^[[:space:]])|([[:space:]]$)", "", plan)
+        plan = strsplit(plan, " ")
+        plan = matrix(unlist(plan),
+                      nrow=length(plan),
+                      ncol=length(plan[[1]]),
+                      byrow=TRUE)
+    }
+    flock$plan = as.matrix(plan)
+    return (flock)
+}
+
+shear_sheeps = function (flock, height=TRUE, width=TRUE) {
+    if (height & !all(flock$sheep$height == 0)) {
+        flock$sheep$height = flock$sheep$height/sum(flock$sheep$height)
+    }
+    if (width & !all(flock$sheep$width == 0)) {
+        flock$sheep$width = flock$sheep$width/sum(flock$sheep$width)
+    }
+    return (flock) 
+}
+
+add_sheep = function (flock, sheep=NULL, id="",
+                      height=0, width=0,
+                      label="",
+                      overwrite_by_id=FALSE) {
+
+    if (!is.ggplot(sheep)) {
+        sheep$sheep$height = sheep$sheep$height * height
+        sheep$sheep$width = sheep$sheep$width * width
+    }
+        
+    if (overwrite_by_id == FALSE |
+        !any(which(flock$sheep$id == id))) {
+
+        if (nchar(id) == 0) {
+            id = nrow(flock$sheep) + 1
+        }
+        
+        if (is.ggplot(sheep) | grid::is.grob(sheep)) {
+            flock$sheep =
+                dplyr::bind_rows(flock$sheep,
+                                 dplyr::tibble(id=id,
+                                               height=height,
+                                               width=width,
+                                               label=label,
+                                               plot=NULL))
+            flock$sheep$plot[[nrow(flock$sheep)]] = sheep
+        } else {
+
+            sheep$sheep$id = paste0(id, ".", sheep$sheep$id)
+            sheep$plan = matrix(paste0(id, ".", sheep$plan),
+                                nrow=nrow(sheep$plan),
+                                ncol=ncol(sheep$plan))
+            
+            flock$sheep =
+                dplyr::bind_rows(flock$sheep,
+                                 sheep$sheep)
+            
+
+            # flock$plan = matrix(
+            #     c("info", "chronicle", "QA", "medQJ", "criteria", "foot",
+            #       "info", "chronicle", "QA", "FDC", "criteria", "foot"),
+            #     ncol=2)
+            # sheep$plan =matrix(c("text1", "text1", "text1", "map",
+            #                      "text2", "text2", "hyd", "map",
+            #                      "text3", "text4", "hyd", "map",
+            #                      "text3", "text4", "hyd", "map"),
+            #                    nrow=4, 
+            #                    byrow=TRUE) 
+            
+            index = which(flock$plan == id, arr.ind=TRUE)
+            index = index[nrow(index):1,]
+            nh = length(levels(factor(index[, "row"])))
+            nw = length(levels(factor(index[, "col"])))
+            h = nrow(sheep$plan)
+            w = ncol(sheep$plan)
+            
+            for (i in 1:nh) {
+                row = index[i, "row"]
+
+                if (h > 0) {
+                    if (row == 1) {
+                        flock$plan =
+                            rbind(matrix(rep(flock$plan[row,], h),
+                                         nrow=h, byrow=TRUE),
+                                  flock$plan[(row+1):nrow(flock$plan),])
+                    } else if (row == nrow(flock$plan)) {
+                        flock$plan =
+                            rbind(flock$plan[1:(row-1),],
+                                  matrix(rep(flock$plan[row,], h),
+                                         nrow=h, byrow=TRUE))
+                    } else {
+                        flock$plan =
+                            rbind(flock$plan[1:(row-1),],
+                                  matrix(rep(flock$plan[row,], h),
+                                         nrow=h, byrow=TRUE),
+                                  flock$plan[(row+1):nrow(flock$plan),])
+                    }
+                }
+            }
+
+            for (i in 1:nw) {
+                col = index[i, "col"]
+
+                if (w > 0) {
+                    if (col == 1) {
+                        flock$plan =
+                            cbind(matrix(rep(flock$plan[, col], w),
+                                         ncol=w, byrow=FALSE),
+                                  flock$plan[, (col+1):ncol(flock$plan)])
+                    } else if (col == ncol(flock$plan)) {
+                        flock$plan =
+                            cbind(flock$plan[, 1:(col-1)],
+                                  matrix(rep(flock$plan[, col], w),
+                                         ncol=w, byrow=FALSE))
+                    } else {
+                        flock$plan =
+                            cbind(flock$plan[, 1:(col-1)],
+                                  matrix(rep(flock$plan[, col], w),
+                                         ncol=w, byrow=FALSE),
+                                  flock$plan[, (col+1):ncol(flock$plan)])
+                    }
+                }
+            }
+
+            sheep$plan = matrix(rep(sheep$plan, each=nh),
+                                nrow=nrow(sheep$plan)*nh, byrow=FALSE)
+            sheep$plan = t(matrix(rep(t(sheep$plan), each=nw),
+                                  nrow=ncol(sheep$plan)*nw, byrow=FALSE))
+            
+            flock$plan[flock$plan == id] = sheep$plan
+
+            print("id")
+            print(id)
+            print("flock")
+            print(flock)
+            print("")
+            
+        }
+        
+    } else {
+        if (is.ggplot(sheep)) {
+            here = which(sheep$id == id)
+            sheep$height[here] = height
+            sheep$width[here] = width
+            sheep$label[here] = label
+            sheep$plot[[here]] = sheep
+        } else {
+            for (i in 1:length(sheep$id)) {
+                id = sheep$id[i]
+                here = which(flock$sheep$id == id)
+                flock$sheep$height[here] = sheep$sheep$height[i]
+                flock$sheep$width[here] = sheep$sheep$width[i]
+                flock$sheep$label[here] = sheep$sheep$label[i]
+                flock$sheep$plot[[here]] = sheep$sheep$plot[[i]]
+            }
+        }
+    }
+    
+    return (flock)
+}
+
+
+
 
 
 ## 3. NUMBER MANAGEMENT ______________________________________________

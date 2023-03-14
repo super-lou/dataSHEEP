@@ -492,20 +492,25 @@ panel_spaghetti = function (data_code, Colors=NULL,
     } else {
         height_title = 0
     }
-    height_spag = 1
 
-    STOCK = add_plot(dplyr::tibble(),
-                     plot=title,
-                     name="title",
-                     height=height_title)
+    plan = matrix(c("title",
+                    "spag"),
+                  nrow=2, 
+                  byrow=TRUE)
     
-    STOCK = add_plot(STOCK,
-                     plot=spag,
-                     name="spag",
-                     height=height_spag)
+    flock = bring_grass()
+    flock = plan_of_flock(flock, plan)
     
-    plot = merge_panel(STOCK, direction="V")
+    flock = add_sheep(flock,
+                      sheep=title,
+                      id="title",
+                      height=height_title)
+    flock = add_sheep(flock,
+                      sheep=spag,
+                      id="spag",
+                      height=1)
     
-    return (plot)
-    # return (spag)
+    flock = shear_sheeps(flock)
+    
+    return (flock)
 } 

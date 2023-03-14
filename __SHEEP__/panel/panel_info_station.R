@@ -172,25 +172,63 @@ panel_info_station = function(data_code,
     }
 
 
-    # Makes a list of all plots
-    P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
+    # # Makes a list of all plots
+    # P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
     
-    # Creates the matrix layout
-    LM = matrix(c(1, 1, 1, 6,
-                  2, 2, 5, 6,
-                  3, 4, 5, 6,
-                  3, 4, 5, 6),
-                nrow=4, 
-                byrow=TRUE)
-    # And sets the relative height of each plot
-    heights = rep(1, times=nrow(LM))
-    # heights[2] = 0.1
-    heights[2] = 0.8
+    # # Creates the matrix layout
+    # LM = matrix(c(1, 1, 1, 6,
+    #               2, 2, 5, 6,
+    #               3, 4, 5, 6,
+    #               3, 4, 5, 6),
+    #             nrow=4, 
+    #             byrow=TRUE)
+    # # And sets the relative height of each plot
+    # heights = rep(1, times=nrow(LM))
+    # # heights[2] = 0.1
+    # heights[2] = 0.8
 
-    # Arranges all the graphical objetcs
-    plot = grid.arrange(grobs=P,
-                        layout_matrix=LM,
-                        heights=heights)
-    # Return the plot object
-    return(plot)
+    # # Arranges all the graphical objetcs
+    # plot = grid.arrange(grobs=P,
+    #                     layout_matrix=LM,
+    #                     heights=heights)
+
+
+    plan = matrix(c("text1", "text1", "text1", "map",
+                    "text2", "text2", "hyd", "map",
+                    "text3", "text4", "hyd", "map",
+                    "text3", "text4", "hyd", "map"),
+                  nrow=4, 
+                  byrow=TRUE)
+    
+    flock = bring_grass()
+    flock = plan_of_flock(flock, plan)
+
+    flock = add_sheep(flock,
+                      sheep=gtext1,
+                      id="text1",
+                      height=1)
+    flock = add_sheep(flock,
+                      sheep=gtext2,
+                      id="text2",
+                      height=0.8)
+    flock = add_sheep(flock,
+                      sheep=gtext3,
+                      id="text3",
+                      height=1)
+    flock = add_sheep(flock,
+                      sheep=gtext4,
+                      id="text4",
+                      height=1)
+    flock = add_sheep(flock,
+                      sheep=hyd,
+                      id="hyd",
+                      height=1)
+    flock = add_sheep(flock,
+                      sheep=map,
+                      id="map",
+                      height=1)    
+    
+    flock = shear_sheeps(flock)
+
+    return (flock)
 }  

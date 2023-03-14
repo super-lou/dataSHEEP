@@ -49,10 +49,10 @@ sheet_diagnostic_station = function (data,
     FDC_width = 10
 
     
-    NAME = matrix(c(
+    plan = matrix(c(
         "info", "chronicle", "QA", "medQJ", "criteria", "foot",
         "info", "chronicle", "QA", "FDC", "criteria", "foot"),
-    ncol=2)
+        ncol=2)
     WIP = FALSE
     
     data_obs =
@@ -100,7 +100,8 @@ sheet_diagnostic_station = function (data,
         }
         names(dataEXserie_code) = names(dataEXserie)
 
-        STOCK = tibble()
+        flock = bring_grass()
+        flock = plan_of_flock(flock, plan)
         
         info = panel_info_station(
             data_obs_code,
@@ -111,11 +112,11 @@ sheet_diagnostic_station = function (data,
             codeLight=code,
             to_do='all',
             zone_to_show='France')
-        STOCK = add_plot(STOCK,
-                         plot=info,
-                         name="info",
-                         height=info_height)
-        
+        flock = add_sheep(flock,
+                          sheep=info,
+                          id="info",
+                          height=info_height)
+
         chronicle = panel_spaghetti(data_code,
                                     title="(a) Débit journalier",
                                     unit="m^{3}.s^{-1}",
@@ -139,11 +140,11 @@ sheet_diagnostic_station = function (data,
                                         margin(t=0, r=0, b=0, l=0, "mm"),
                                     first=FALSE,
                                     last=FALSE)
-        STOCK = add_plot(STOCK,
-                         plot=chronicle,
-                         name="chronicle",
-                         label="align",
-                         height=chronicle_height)
+        flock = add_sheep(flock,
+                          sheep=chronicle,
+                          id="chronicle",
+                          label="align",
+                          height=chronicle_height)
 
         dataMOD = dataEXserie_code[["QA"]]
         dataMOD = dplyr::rename(dataMOD,
@@ -174,11 +175,11 @@ sheet_diagnostic_station = function (data,
                 margin(t=0, r=0, b=2, l=0, "mm"),
             first=FALSE,
             last=TRUE)
-        STOCK = add_plot(STOCK,
-                         plot=QA,
-                         name="QA",
-                         label="align",
-                         height=QA_height)
+        flock = add_sheep(flock,
+                          sheep=QA,
+                          id="QA",
+                          label="align",
+                          height=QA_height)
 
         
         dataMOD = dataEXserie_code[["median{QJ}C5"]]
@@ -210,11 +211,11 @@ sheet_diagnostic_station = function (data,
                                     margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
-        STOCK = add_plot(STOCK,
-                         plot=medQJ,
-                         name="medQJ",
-                         height=medQJ_height,
-                         width=medQJ_width)
+        flock = add_sheep(flock,
+                          sheep=medQJ,
+                          id="medQJ",
+                          height=medQJ_height,
+                          width=medQJ_width)
 
         dataMOD = dataEXserie_code[["FDC"]]
         dataMOD = dplyr::rename(dataMOD,
@@ -245,11 +246,11 @@ sheet_diagnostic_station = function (data,
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
                               last=TRUE)
-        STOCK = add_plot(STOCK,
-                         plot=FDC,
-                         name="FDC",
-                         height=FDC_height,
-                         width=FDC_width)
+        flock = add_sheep(flock,
+                          sheep=FDC,
+                          id="FDC",
+                          height=FDC_height,
+                          width=FDC_width)
 
 
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
@@ -271,10 +272,10 @@ sheet_diagnostic_station = function (data,
             add_name=TRUE,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
-        STOCK = add_plot(STOCK,
-                         plot=criteria,
-                         name="criteria",
-                         height=criteria_height)
+        flock = add_sheep(flock,
+                          sheep=criteria,
+                          id="criteria",
+                          height=criteria_height)
 
         footName = 'Fiche station de diagnostic'
         if (is.null(df_page)) {
@@ -294,16 +295,17 @@ sheet_diagnostic_station = function (data,
         
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        STOCK = add_plot(STOCK,
-                         plot=foot,
-                         name="foot",
-                         height=foot_height)
+        flock = add_sheep(flock,
+                          sheep=foot,
+                          id="foot",
+                          height=foot_height)
 
-        res = merge_panel(STOCK, NAME=NAME,
-                          page_margin=page_margin,
-                          paper_size="A4",
-                          hjust=0, vjust=1)
-
+        res = return_to_sheepfold(flock,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=TRUE)
+        
         plot = res$plot
         paper_size = res$paper_size
 

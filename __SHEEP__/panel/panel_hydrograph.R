@@ -118,19 +118,25 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                            n.breaks=4,
                            expand=c(0, 0))
     
-    height_title = ratio_title
-    height_hyd = 1
 
-    STOCK = add_plot(dplyr::tibble(),
-                     plot=title,
-                     name="title",
-                     height=height_title)
-    STOCK = add_plot(STOCK,
-                     plot=hyd,
-                     name="hyd",
-                     height=height_hyd)
+    plan = matrix(c("title",
+                    "hyd"),
+                  nrow=2, 
+                  byrow=TRUE)
     
-    plot = merge_panel(STOCK, direction="V")
+    flock = bring_grass()
+    flock = plan_of_flock(flock, plan)
     
-    return (plot)
+    flock = add_sheep(flock,
+                      sheep=title,
+                      id="title",
+                      height=ratio_title)
+    flock = add_sheep(flock,
+                      sheep=hyd,
+                      id="hyd",
+                      height=1)
+
+    flock = shear_sheeps(flock)
+    
+    return (flock)
 } 
