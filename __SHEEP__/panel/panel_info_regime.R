@@ -115,21 +115,21 @@ panel_info_regime = function(QM_code,
         gtext2 = void()
     }
 
-    # print(meta_regime$Code[is.na(meta_regime$surface_km2_BH)])
+    # print(meta_regime$Code[is.na(meta_regime$Surface_km2)])
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste0(
             "Superficie minimale : ",
-            min(meta_regime$surface_km2_BH, na.rm=TRUE),
+            min(meta_regime$Surface_km2, na.rm=TRUE),
             " km<sup>2</sup><br>",
             "Superficie maximale : ",
-            max(meta_regime$surface_km2_BH, na.rm=TRUE),
+            max(meta_regime$Surface_km2, na.rm=TRUE),
             " km<sup>2</sup><br>",
             "Altitude minimale (station) : ",
-            min(meta_regime$altitude_m_BH, na.rm=TRUE), " m<br>",
+            min(meta_regime$Altitude_m, na.rm=TRUE), " m<br>",
             "Altitude maximale (station) : ",
-            max(meta_regime$altitude_m_BH, na.rm=TRUE), " m")
+            max(meta_regime$Altitude_m, na.rm=TRUE), " m")
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),

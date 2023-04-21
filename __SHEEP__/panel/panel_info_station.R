@@ -63,12 +63,12 @@ panel_info_station = function(data_code,
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        nom = meta_code$nom
+        Nom = meta_code$Nom
         # Corrects some errors about the formatting of title with dash
-        nom = gsub("-", "-&nbsp;", nom)
+        Nom = gsub("-", "-&nbsp;", Nom)
         # Name of the datasheet
         text1 = paste(
-            "<b>", codeLight, '</b>  -  ', nom,
+            "<b>", codeLight, '</b>  -  ', Nom,
             sep='')
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(text1,
@@ -97,8 +97,8 @@ panel_info_station = function(data_code,
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
         text2 = paste(
             "<b>",
-            "Gestionnaire : ", meta_code$gestionnaire, "<br>",
-            "Région hydrographique : ", meta_code$region_hydro,
+            "Gestionnaire : ", meta_code$Gestionnaire, "<br>",
+            "Région hydrographique : ", meta_code$Region_Hydro,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
@@ -113,30 +113,30 @@ panel_info_station = function(data_code,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (is.na(meta_code$surface_km2_BH)) {
+        if (is.na(meta_code$Surface_km2)) {
             if (is.na(meta_code$surface_km2_IN)) {
                 surface = "inconnue"
             } else {
                 surface = paste0(meta_code$surface_km2_IN, " km<sup>2</sup>")
             }
         } else {
-            surface = paste0(meta_code$surface_km2_BH, " km<sup>2</sup>")
+            surface = paste0(meta_code$Surface_km2, " km<sup>2</sup>")
         }
-        if (is.na(meta_code$altitude_m_BH)) {
+        if (is.na(meta_code$Altitude_m)) {
             if (is.na(meta_code$altitude_m_IN)) {
                 altitude = "inconnue"
             } else {
                 altitude = paste0(meta_code$altitude_m_IN, " m")
             }
         } else {
-            altitude = paste0(meta_code$altitude_m_BH, " m")
+            altitude = paste0(meta_code$Altitude_m, " m")
         }
 
         text3 = paste0(
             "Superficie : ", surface, "<br>",
             "Altitude : ", altitude, "<br>",
-            "X = ", meta_code$L93X_m_BH, "  m (Lambert93)<br>",
-            "Y = ", meta_code$L93Y_m_BH, "  m (Lambert93)")
+            "X = ", meta_code$XL93_m, "  m (Lambert93)<br>",
+            "Y = ", meta_code$YL93_m, "  m (Lambert93)")
         gtext3 = richtext_grob(text3,
                                x=0, y=0.96,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -159,7 +159,7 @@ panel_info_station = function(data_code,
             "Date de début : ", debut, "<br>",
             "Date de fin : ", fin, "<br>",
             "Disponibilité : ", duration, " ans", "<br>",
-            "Taux de lacunes : ", signif(meta_code$tLac100, 2),
+            "Taux de lacunes : ", signif(meta_code$tLac_pct, 2),
             " %")
         gtext4 = richtext_grob(text4,
                                x=0, y=0.96,

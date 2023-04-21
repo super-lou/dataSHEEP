@@ -44,7 +44,7 @@ panel_info_region = function(meta,
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Extracts the name
-        text1 = paste0("<b>", meta_region$region_hydro[1], "</b>",
+        text1 = paste0("<b>", meta_region$Region_Hydro[1], "</b>",
                        " - ", regionLight)
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(text1,
@@ -75,13 +75,13 @@ panel_info_region = function(meta,
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         text3 = paste0(
             "Superficie minimale : ",
-            min(meta_region$surface_km2_BH), " km<sup>2</sup><br>",
+            min(meta_region$Surface_km2), " km<sup>2</sup><br>",
             "Superficie maximale : ",
-            max(meta_region$surface_km2_BH), " km<sup>2</sup><br>",
+            max(meta_region$Surface_km2), " km<sup>2</sup><br>",
             "Altitude minimale (station) : ",
-            min(meta_region$altitude_m_BH), " m<br>",
+            min(meta_region$Altitude_m), " m<br>",
             "Altitude maximale (station) : ",
-            max(meta_region$altitude_m_BH), " m")
+            max(meta_region$Altitude_m), " m")
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),

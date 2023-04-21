@@ -65,7 +65,7 @@ sheet_diagnostic_region = function (meta,
         region = Region[i]
         Code_region = Code[substr(Code, 1, 1) == region]
         meta_region = meta[substr(meta$Code, 1, 1) == region,]
-        region_disp = paste0(meta_region$region_hydro[1],
+        region_disp = paste0(meta_region$Region_Hydro[1],
                              " - ", region)
 
         if (verbose) {

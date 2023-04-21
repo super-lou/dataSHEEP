@@ -351,8 +351,8 @@ sheet_table = function (list_df2plot, meta, trend_period,
         # Gets the type
         type = Type[itype]
         # Extracts each possibilities of hydrological region
-        RH = rle(sort(meta$region_hydro))$values
-        twoL = names(meta$region_hydro)
+        RH = rle(sort(meta$Region_Hydro))$values
+        twoL = names(meta$Region_Hydro)
         # Number of different first letters
         nRH = length(RH)
 
@@ -363,7 +363,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
         for (iR in 1:nRH) {
 
             rh = RH[iR]
-            okL = rle(sort(twoL[meta$region_hydro == rh]))$values
+            okL = rle(sort(twoL[meta$Region_Hydro == rh]))$values
             nL = nchar(okL[1])
             # Get only station code with the same first letter 
             subCodeRh = Code[substr(Code, 1, nL) %in% okL]
@@ -604,15 +604,15 @@ sheet_table = function (list_df2plot, meta, trend_period,
         # Gets the type
         type = Type[itype]
         # Extracts each possibilities of hydrological region
-        RH = rle(sort(meta$region_hydro))$values
-        twoL = names(meta$region_hydro)
+        RH = rle(sort(meta$Region_Hydro))$values
+        twoL = names(meta$Region_Hydro)
         # Number of different first letters
         nRH = length(RH)
         # For all the available first letter
         for (iR in 1:nRH) {
             # Gets the first letter
             rh = RH[iR]
-            okL = rle(sort(twoL[meta$region_hydro == rh]))$values
+            okL = rle(sort(twoL[meta$Region_Hydro == rh]))$values
             nL = nchar(okL[1])
             # Get only station code with the same first letter 
             subCodeRh = Code[substr(Code, 1, nL) %in% okL]
@@ -714,7 +714,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
 
                 # Extracts the name of the currently hydrological
                 # region plotted
-                title = meta[meta$Code == subCode[1],]$region_hydro
+                title = meta[meta$Code == subCode[1],]$Region_Hydro
 
                 subtitle = paste(type, ' ', iMat, '/', nMat,
                                  sep='')    
@@ -1281,7 +1281,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
                     # Gets the code
                     code = subCode[k]
                     # Gets the name of the station
-                    name = meta[meta$Code == code,]$nom
+                    name = meta[meta$Code == code,]$Nom
                     # Fixes a limit for the max number
                     # of characters available
                     ncharMax = 38

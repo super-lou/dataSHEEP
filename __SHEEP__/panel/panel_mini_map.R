@@ -131,8 +131,8 @@ panel_mini_map = function (meta, Shapefiles,
 
     if (!is.null(codeLight)) {
         Code = levels(factor(meta$Code))
-        L93X = meta$L93X_m_BH[match(meta$Code, Code)]           
-        L93Y = meta$L93Y_m_BH[match(meta$Code, Code)]
+        L93X = meta$XL93_m[match(meta$Code, Code)]           
+        L93Y = meta$YL93_m[match(meta$Code, Code)]
         
         # Creates a tibble to stores all the data to plot
         plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=Code)
@@ -176,8 +176,8 @@ panel_mini_map = function (meta, Shapefiles,
     if (!is.null(regimeCodeLight)) {
         matchCode = match(meta$Code, regimeCodeLight)
         matchCode = matchCode[!is.na(matchCode)]
-        L93X = meta$L93X_m_BH[matchCode]           
-        L93Y = meta$L93Y_m_BH[matchCode]
+        L93X = meta$XL93_m[matchCode]           
+        L93Y = meta$YL93_m[matchCode]
         
         # Creates a tibble to stores all the data to plot
         plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=regimeCodeLight)

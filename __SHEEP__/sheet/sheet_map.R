@@ -502,9 +502,9 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
 
                 # Extracts the localisation of the current station
                 lontmp =
-                    meta$L93X_m_BH[meta$Code == code]           
+                    meta$XL93_m[meta$Code == code]           
                 lattmp =
-                    meta$L93Y_m_BH[meta$Code == code]
+                    meta$YL93_m[meta$Code == code]
                 
                 # Stores all the parameters
                 lon = c(lon, lontmp)

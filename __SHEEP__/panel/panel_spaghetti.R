@@ -133,6 +133,9 @@ panel_spaghetti = function (data_code, Colors=NULL,
     if ("Model" %in% names(data_code)) {
 
         Model = levels(factor(data_code$Model))
+
+        # print(Model)
+        
         nModel = length(Model)
         
         select_good = function (X) {
@@ -259,8 +262,14 @@ panel_spaghetti = function (data_code, Colors=NULL,
             names(Colors) = Model
         }
         for (i in 1:nModel) {
+            # print(nModel)
+            # print(i)
             model = Model[i]
-            data_model_code = data_code[data_code$Model == model,] 
+            data_model_code = data_code[data_code$Model == model,]
+
+            # print(model)
+            # print(data_code)
+            # print(data_model_code)
             # Plot the data as line
             spag = spag +
                 ggplot2::annotate("line",
