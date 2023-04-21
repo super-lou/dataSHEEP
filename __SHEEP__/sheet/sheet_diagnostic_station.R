@@ -112,13 +112,13 @@ sheet_diagnostic_station = function (data,
             codeLight=code,
             to_do='all',
             zone_to_show='France')
-        info = contour()
+        # info = contour()
         flock = add_sheep(flock,
                           sheep=info,
                           id="info",
                           height=info_height)
 
-        print("info")
+        # print("info")
         # print(flock)
         
         chronicle = panel_spaghetti(data_code,
@@ -144,14 +144,14 @@ sheet_diagnostic_station = function (data,
                                         margin(t=0, r=0, b=0, l=0, "mm"),
                                     first=FALSE,
                                     last=FALSE)
-        chronicle = contour()
+        # chronicle = contour()
         flock = add_sheep(flock,
                           sheep=chronicle,
                           id="chronicle",
                           label="align",
                           height=chronicle_height)
 
-        print("chronicle")
+        # print("chronicle")
         # print(flock)
 
         # print(dataEXserie_code)
@@ -192,7 +192,7 @@ sheet_diagnostic_station = function (data,
                           label="align",
                           height=QA_height)
 
-        print("QA")
+        # print("QA")
         # print(flock)
 
         
@@ -225,14 +225,14 @@ sheet_diagnostic_station = function (data,
                                     margin(t=0, r=3.5, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
-        medQJ = contour()
+        # medQJ = contour()
         flock = add_sheep(flock,
                           sheep=medQJ,
                           id="medQJ",
                           height=medQJ_height,
                           width=medQJ_width)
 
-        print("medQJ")
+        # print("medQJ")
         # print(flock)
 
         dataMOD = dataEXserie_code[["FDC"]]
@@ -264,14 +264,14 @@ sheet_diagnostic_station = function (data,
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
                               last=TRUE)
-        FDC = contour()
+        # FDC = contour()
         flock = add_sheep(flock,
                           sheep=FDC,
                           id="FDC",
                           height=FDC_height,
                           width=FDC_width)
 
-        print("FDC")
+        # print("FDC")
         # print(flock)
 
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
@@ -293,13 +293,12 @@ sheet_diagnostic_station = function (data,
             add_name=TRUE,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
-        # criteria = contour()
         flock = add_sheep(flock,
                           sheep=criteria,
                           id="criteria",
                           height=criteria_height)
 
-        print("criteria")
+        # print("criteria")
         # print(flock)
 
         footName = 'Fiche station de diagnostic'
@@ -320,13 +319,12 @@ sheet_diagnostic_station = function (data,
         
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        # foot = contour()
         flock = add_sheep(flock,
                           sheep=foot,
                           id="foot",
                           height=foot_height)
 
-        print("foot")
+        # print("foot")
         # print(flock)
 
         res = return_to_sheepfold(flock,
@@ -343,14 +341,6 @@ sheet_diagnostic_station = function (data,
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
-        print("bbb")
-
-
-        # print(plot)
-        # print(figdir)
-        # print(filename)
-        # print(paper_size)
-
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,
@@ -358,7 +348,6 @@ sheet_diagnostic_station = function (data,
                         height=paper_size[2], units='cm',
                         dpi=300,
                         device=cairo_pdf)
-        print("ccc")
     }
     return (df_page)
 }

@@ -227,8 +227,12 @@ panel_info_station = function(data_code,
                       sheep=map,
                       id="map",
                       height=1)    
+
+    # print(flock)
     
     flock = shear_sheeps(flock)
 
+    # print(flock)
+    
     return (flock)
 }  

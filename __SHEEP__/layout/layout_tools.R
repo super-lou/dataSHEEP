@@ -150,10 +150,6 @@ return_to_sheepfold = function (flock,
         PLAN = matrix(PLAN, nrow=nrowPLAN, ncol=ncolPLAN)
     }
 
-
-
-    
-
     HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
     HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
     WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
@@ -179,125 +175,117 @@ return_to_sheepfold = function (flock,
     SHEEP$block = ""    
     nGroup = max(SHEEP$group, na.rm=TRUE)
     SHEEP$num = 1:nrow(SHEEP)
+
+    if (nGroup > 1) {
     
-    for (i in nGroup:1) {
-        if (i == 1) {
-            break
-        }
-        
-        SHEEP_group = SHEEP[SHEEP$group == i,]
-        SHEEP_group = get_block(SHEEP_group)
-        SHEEP$block[SHEEP$group == i] = SHEEP_group$block
-        
-        Block = levels(factor(SHEEP_group$block))
-        nBlock = length(Block)
-        for (j in 1:nBlock) {
-            block = Block[j]
-            SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
-
-            OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
-            nrowOK = max(apply(OK, 2, sum))
-            ncolOK = max(apply(OK, 1, sum))
-            NUM_group_block = matrix(NUM[OK], nrow=nrowOK, ncol=ncolOK)
-            PLAN_group_block = matrix(PLAN[OK], nrow=nrowOK, ncol=ncolOK)
-            HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
-            WIDTH_group_block = matrix(WIDTH[OK], nrow=nrowOK, ncol=ncolOK)
-
-            heights_group_block = apply(HEIGHT_group_block, 1, min, na.rm=TRUE)
-            widths_group_block = apply(WIDTH_group_block, 2, min, na.rm=TRUE)
-
-            rowHEIGHT_group_block = as.list(as.data.frame(t(HEIGHT_group_block)))
-            rowPLAN_group_block = as.list(as.data.frame(t(PLAN_group_block)))
-            names(rowHEIGHT_group_block) = NULL
-            names(rowPLAN_group_block) = NULL
-            idHEIGHT_group_block = apply(HEIGHT_group_block, 1, which.min)
-            heights_real = mapply('[', rowHEIGHT_group_block, idHEIGHT_group_block)
-            names(heights_real) =
-                mapply('[', rowPLAN_group_block, idHEIGHT_group_block)
-            heights_real = heights_real[!duplicated(names(heights_real))]
-
-            colWIDTH_group_block = as.list(as.data.frame(WIDTH_group_block))
-            colPLAN_group_block = as.list(as.data.frame(PLAN_group_block))
-            names(colWIDTH_group_block) = NULL
-            names(colPLAN_group_block) = NULL
-            idWIDTH_group_block = apply(WIDTH_group_block, 2, which.min)
-            widths_real = mapply('[', colWIDTH_group_block, idWIDTH_group_block)
-            names(widths_real) =
-                mapply('[', colPLAN_group_block, idWIDTH_group_block)
-            widths_real = widths_real[!duplicated(names(widths_real))]
-
-            if (all(heights_group_block == 0)) {
-                heights = NULL
-            } else {
-                heights = heights_group_block
+        for (i in nGroup:1) {
+            if (i == 1) {
+                break
             }
-            if (all(widths_group_block == 0)) {
-                widths = NULL
-            } else {
-                widths = widths_group_block
+            
+            SHEEP_group = SHEEP[SHEEP$group == i,]
+            SHEEP_group = get_block(SHEEP_group)
+            SHEEP$block[SHEEP$group == i] = SHEEP_group$block
+            
+            Block = levels(factor(SHEEP_group$block))
+            nBlock = length(Block)
+            for (j in 1:nBlock) {
+                block = Block[j]
+                SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
+
+                OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
+                nrowOK = max(apply(OK, 2, sum))
+                ncolOK = max(apply(OK, 1, sum))
+                NUM_group_block = matrix(NUM[OK], nrow=nrowOK, ncol=ncolOK)
+                PLAN_group_block = matrix(PLAN[OK], nrow=nrowOK, ncol=ncolOK)
+                HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
+                WIDTH_group_block = matrix(WIDTH[OK], nrow=nrowOK, ncol=ncolOK)
+
+                heights_group_block = apply(HEIGHT_group_block, 1, min, na.rm=TRUE)
+                widths_group_block = apply(WIDTH_group_block, 2, min, na.rm=TRUE)
+
+                rowHEIGHT_group_block = as.list(as.data.frame(t(HEIGHT_group_block)))
+                rowPLAN_group_block = as.list(as.data.frame(t(PLAN_group_block)))
+                names(rowHEIGHT_group_block) = NULL
+                names(rowPLAN_group_block) = NULL
+                idHEIGHT_group_block = apply(HEIGHT_group_block, 1, which.min)
+                heights_real = mapply('[', rowHEIGHT_group_block, idHEIGHT_group_block)
+                names(heights_real) =
+                    mapply('[', rowPLAN_group_block, idHEIGHT_group_block)
+                heights_real = heights_real[!duplicated(names(heights_real))]
+
+                colWIDTH_group_block = as.list(as.data.frame(WIDTH_group_block))
+                colPLAN_group_block = as.list(as.data.frame(PLAN_group_block))
+                names(colWIDTH_group_block) = NULL
+                names(colPLAN_group_block) = NULL
+                idWIDTH_group_block = apply(WIDTH_group_block, 2, which.min)
+                widths_real = mapply('[', colWIDTH_group_block, idWIDTH_group_block)
+                names(widths_real) =
+                    mapply('[', colPLAN_group_block, idWIDTH_group_block)
+                widths_real = widths_real[!duplicated(names(widths_real))]
+
+                if (all(heights_group_block == 0)) {
+                    heights = NULL
+                } else {
+                    heights = heights_group_block
+                }
+                if (all(widths_group_block == 0)) {
+                    widths = NULL
+                } else {
+                    widths = widths_group_block
+                }
+
+                grobs = SHEEP$plot[SHEEP$num %in%
+                                   sort(select_grobs(NUM_group_block))]
+                grob =
+                    arrangeGrob(grobs=grobs,
+                                nrow=nrow(NUM_group_block),
+                                ncol=ncol(NUM_group_block),
+                                heights=heights,
+                                widths=widths,
+                                layout_matrix=NUM_group_block,
+                                as.table=FALSE)
+
+                OK_block = SHEEP$group == i &
+                    SHEEP$block == block            
+                SHEEP[OK_block,]$id = block
+                SHEEP[OK_block,]$height = sum(heights_real)
+                SHEEP[OK_block,]$width = sum(widths_real)
+                SHEEP[OK_block,]$label =
+                    paste0(SHEEP_group_block$label[nchar(SHEEP_group_block$label) > 0],
+                           collapse="/")
+                SHEEP[OK_block,]$plot =
+                    list(
+                        # ggplotify::as.ggplot(
+                        grob
+                        # )
+                    )
+                SHEEP[OK_block,]$group = SHEEP_group_block$group-1
+                SHEEP[OK_block,]$num = 0
+                SHEEP[OK_block,]$block = ""
+                SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
+                SHEEP$num = 1:nrow(SHEEP)
+
+                PLAN[OK] = block
+                
+                okPLAN = t(!apply(PLAN, 1, duplicated)) &
+                    !apply(PLAN, 2, duplicated)
+                row2rm = apply(okPLAN, 1, sum) != 0
+                col2rm = apply(okPLAN, 2, sum) != 0
+                PLAN = PLAN[row2rm, col2rm]
+                nrowPLAN = nrow(PLAN)
+                ncolPLAN = ncol(PLAN)
+                HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
+                HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
+                WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
+                WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
+                NUM = match(PLAN, SHEEP$id)
+                NUM = matrix(NUM, nrow=nrowPLAN, ncol=ncolPLAN)
             }
-
-            grobs = SHEEP$plot[SHEEP$num %in% sort(select_grobs(NUM_group_block))]
-            grob =
-                arrangeGrob(grobs=grobs,
-                            nrow=nrow(NUM_group_block),
-                            ncol=ncol(NUM_group_block),
-                            heights=heights,
-                            widths=widths,
-                            layout_matrix=NUM_group_block,
-                            as.table=FALSE)
-
-            OK_block = SHEEP$group == i &
-                SHEEP$block == block            
-            SHEEP[OK_block,]$id = block
-            SHEEP[OK_block,]$height = sum(heights_real)
-            SHEEP[OK_block,]$width = sum(widths_real)
-            SHEEP[OK_block,]$label =
-                paste0(SHEEP_group_block$label[nchar(SHEEP_group_block$label) > 0],
-                       collapse="/")
-            SHEEP[OK_block,]$plot =
-                list(
-                    # ggplotify::as.ggplot(
-                                   grob
-                               # )
-                )
-            SHEEP[OK_block,]$group = SHEEP_group_block$group-1
-            SHEEP[OK_block,]$num = 0
-            SHEEP[OK_block,]$block = ""
-            SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
-            SHEEP$num = 1:nrow(SHEEP)
-
-            PLAN[OK] = block
         }
     }
-
-    # print(SHEEP)
-    # print(PLAN)
-    # print(NUM)
-    # print("")
-    
-    okPLAN = t(!apply(PLAN, 1, duplicated)) & !apply(PLAN, 2, duplicated)
-    row2rm = apply(okPLAN, 1, sum) != 0
-    col2rm = apply(okPLAN, 2, sum) != 0
-    PLAN = PLAN[row2rm, col2rm]
-    nrowPLAN = nrow(PLAN)
-    ncolPLAN = ncol(PLAN)
-    # NUM = NUM[row2rm, col2rm]
-    
-    NUM = match(PLAN, SHEEP$id)
-    NUM = matrix(NUM, nrow=nrowPLAN, ncol=ncolPLAN)
-
-    print(PLAN)
-    print(NUM)
-    print("")
-    print("")
     
     if (!is.null(paper_size)) {
-        
-        HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
-        HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
-        WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
-        WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
 
         if (verbose) {
             print("RESUME")
@@ -401,12 +389,6 @@ return_to_sheepfold = function (flock,
     }
 
 
-
-    print(SHEEP)
-    print(NUM)
-
-    # grobs = SHEEP$plot[sort(select_grobs(NUM))]
-
     select = select_grobs(NUM)
     select = sort(select)
     grobs = SHEEP$plot[select]
@@ -417,30 +399,14 @@ return_to_sheepfold = function (flock,
         print(select)
     }
 
-    print(NUM)
-
-    # print(SHEEP)
-    # print(sort(select_grobs(NUM)))
-
-    # print(nrowPLAN)
-    # print(ncolPLAN)
-    # print(heights)
-    # print(widths)
-    # print(NUM)
-    
     plot =
-        # grid.arrange(
-            arrangeGrob(grobs=grobs,
-                        nrow=nrowPLAN,
-                        ncol=ncolPLAN,
-                        heights=heights,
-                        widths=widths,
-                        layout_matrix=NUM,
-                        as.table=FALSE)
-        # )
-
-    print(plot)
-    print("aaa")
+        arrangeGrob(grobs=grobs,
+                    nrow=nrowPLAN,
+                    ncol=ncolPLAN,
+                    heights=heights,
+                    widths=widths,
+                    layout_matrix=NUM,
+                    as.table=FALSE)
     
     if (!is.null(paper_size)) {
         res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
@@ -497,12 +463,141 @@ plan_of_flock = function (flock, plan) {
 }
 
 shear_sheeps = function (flock, height=TRUE, width=TRUE) {
+
+    SHEEP = flock$sheep
+    PLAN = flock$plan    
+    nrowPLAN = nrow(PLAN)
+    ncolPLAN = ncol(PLAN)
+    HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
+    HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
+    WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
+    WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
+
+    get_group = function (SHEEP) {
+        dot = gsub("[^.]", "", SHEEP$id)
+        dot = nchar(dot)
+        dot[is.na(dot)] = 0
+        group = dot+1
+        SHEEP$group = group
+        return (SHEEP)
+    }
+
+    get_block = function (SHEEP_group) {
+        SHEEP_group$block =
+            gsub("[.]$", "",
+                 stringr::str_extract(SHEEP_group$id, ".*[.]"))
+        return (SHEEP_group)
+    }
+    
+    SHEEP = get_group(SHEEP)
+    SHEEP$block = ""    
+    nGroup = max(SHEEP$group, na.rm=TRUE)
+    SHEEP$num = 1:nrow(SHEEP)
+    
+    if (nGroup > 1) {
+        
+        for (i in nGroup:1) {
+            if (i == 1) {
+                break
+            }
+            
+            SHEEP_group = SHEEP[SHEEP$group == i,]
+            SHEEP_group = get_block(SHEEP_group)
+            SHEEP$block[SHEEP$group == i] = SHEEP_group$block
+            
+            Block = levels(factor(SHEEP_group$block))
+            nBlock = length(Block)
+            for (j in 1:nBlock) {
+                block = Block[j]
+                SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
+
+                OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
+                nrowOK = max(apply(OK, 2, sum))
+                ncolOK = max(apply(OK, 1, sum))
+                # NUM_group_block = matrix(NUM[OK], nrow=nrowOK, ncol=ncolOK)
+                PLAN_group_block = matrix(PLAN[OK], nrow=nrowOK, ncol=ncolOK)
+                HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
+                WIDTH_group_block = matrix(WIDTH[OK], nrow=nrowOK, ncol=ncolOK)
+
+                heights_group_block = apply(HEIGHT_group_block, 1, min, na.rm=TRUE)
+                widths_group_block = apply(WIDTH_group_block, 2, min, na.rm=TRUE)
+
+                rowHEIGHT_group_block = as.list(as.data.frame(t(HEIGHT_group_block)))
+                rowPLAN_group_block = as.list(as.data.frame(t(PLAN_group_block)))
+                names(rowHEIGHT_group_block) = NULL
+                names(rowPLAN_group_block) = NULL
+                idHEIGHT_group_block = apply(HEIGHT_group_block, 1, which.min)
+                heights_real = mapply('[', rowHEIGHT_group_block, idHEIGHT_group_block)
+                names(heights_real) =
+                    mapply('[', rowPLAN_group_block, idHEIGHT_group_block)
+                heights_real = heights_real[!duplicated(names(heights_real))]
+
+                colWIDTH_group_block = as.list(as.data.frame(WIDTH_group_block))
+                colPLAN_group_block = as.list(as.data.frame(PLAN_group_block))
+                names(colWIDTH_group_block) = NULL
+                names(colPLAN_group_block) = NULL
+                idWIDTH_group_block = apply(WIDTH_group_block, 2, which.min)
+                widths_real = mapply('[', colWIDTH_group_block, idWIDTH_group_block)
+                names(widths_real) =
+                    mapply('[', colPLAN_group_block, idWIDTH_group_block)
+                widths_real = widths_real[!duplicated(names(widths_real))]
+
+                OK_block = SHEEP$group == i &
+                    SHEEP$block == block            
+                SHEEP[OK_block,]$id = block
+                SHEEP[OK_block,]$height = sum(heights_real)
+                SHEEP[OK_block,]$width = sum(widths_real)
+                SHEEP[OK_block,]$group = SHEEP_group_block$group-1
+                SHEEP[OK_block,]$num = 0
+                SHEEP[OK_block,]$block = ""
+                SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
+                SHEEP$num = 1:nrow(SHEEP)
+
+                PLAN[OK] = block
+
+                okPLAN = t(!apply(PLAN, 1, duplicated)) &
+                    !apply(PLAN, 2, duplicated)
+                row2rm = apply(okPLAN, 1, sum) != 0
+                col2rm = apply(okPLAN, 2, sum) != 0
+                PLAN = PLAN[row2rm, col2rm]
+
+                nrowPLAN = nrow(PLAN)
+                ncolPLAN = ncol(PLAN)
+                HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
+                HEIGHT = matrix(HEIGHT, nrow=nrowPLAN, ncol=ncolPLAN)
+                WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
+                WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
+            }
+        }
+    }
+    
+    rowHEIGHT = as.list(as.data.frame(t(HEIGHT)))
+    rowPLAN = as.list(as.data.frame(t(PLAN)))
+    names(rowHEIGHT) = NULL
+    names(rowPLAN) = NULL
+    idHEIGHT = apply(HEIGHT, 1, which.min)
+    heights_real = mapply('[', rowHEIGHT, idHEIGHT)
+    names(heights_real) =
+        mapply('[', rowPLAN, idHEIGHT)
+    heights_real = heights_real[!duplicated(names(heights_real))]
+
+    colWIDTH = as.list(as.data.frame(WIDTH))
+    colPLAN = as.list(as.data.frame(PLAN))
+    names(colWIDTH) = NULL
+    names(colPLAN) = NULL
+    idWIDTH = apply(WIDTH, 2, which.min)
+    widths_real = mapply('[', colWIDTH, idWIDTH)
+    names(widths_real) =
+        mapply('[', colPLAN, idWIDTH)
+    widths_real = widths_real[!duplicated(names(widths_real))]
+
     if (height & !all(flock$sheep$height == 0)) {
-        flock$sheep$height = flock$sheep$height/sum(flock$sheep$height)
+        flock$sheep$height = flock$sheep$height/sum(heights_real)
     }
     if (width & !all(flock$sheep$width == 0)) {
-        flock$sheep$width = flock$sheep$width/sum(flock$sheep$width)
+        flock$sheep$width = flock$sheep$width/sum(widths_real)
     }
+
     return (flock) 
 }
 
@@ -542,18 +637,6 @@ add_sheep = function (flock, sheep=NULL, id="",
             flock$sheep =
                 dplyr::bind_rows(flock$sheep,
                                  sheep$sheep)
-            
-
-            # flock$plan = matrix(
-            #     c("info", "chronicle", "QA", "medQJ", "criteria", "foot",
-            #       "info", "chronicle", "QA", "FDC", "criteria", "foot"),
-            #     ncol=2)
-            # sheep$plan =matrix(c("text1", "text1", "text1", "map",
-            #                      "text2", "text2", "hyd", "map",
-            #                      "text3", "text4", "hyd", "map",
-            #                      "text3", "text4", "hyd", "map"),
-            #                    nrow=4, 
-            #                    byrow=TRUE) 
             
             index = which(flock$plan == id, arr.ind=TRUE)
             index = index[nrow(index):1,]
@@ -616,13 +699,6 @@ add_sheep = function (flock, sheep=NULL, id="",
                                   nrow=ncol(sheep$plan)*nw, byrow=FALSE))
             
             flock$plan[flock$plan == id] = sheep$plan
-
-            # print("id")
-            # print(id)
-            # print("flock")
-            # print(flock)
-            # print("")
-            
         }
         
     } else {
