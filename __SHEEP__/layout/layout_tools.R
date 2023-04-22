@@ -91,6 +91,31 @@ return_to_sheepfold = function (flock,
     SHEEP = flock$sheep
     PLAN = flock$plan
 
+    Plots = SHEEP$plot
+    Labels = SHEEP$label
+
+    widths_var = list()
+    nPlot = length(Plots)
+    for (k in 1:nPlot) {
+        if (is.null(Plots[[k]])) {
+            Plots[[k]] = void()
+        }
+        if (Labels[k] == "align") {
+            Plots[[k]] =
+                ggplot_gtable(ggplot_build(Plots[[k]]))
+            widths_var = append(widths_var,
+                                list(Plots[[k]]$widths))
+        }
+    }        
+    maxWidth = do.call(grid::unit.pmax, widths_var)
+    for (k in 1:nPlot) {
+        if (Labels[k] == "align") {
+            Plots[[k]]$widths = as.list(maxWidth)
+        }
+    }
+
+    SHEEP$plot = Plots
+
     if (!is.null(PLAN)) {
         SHEEPid = SHEEP$id
         nSHEEPid = length(SHEEP$id)
@@ -111,9 +136,9 @@ return_to_sheepfold = function (flock,
 
         if (!identical(rowFoot, integer(0))) {
             NUM = rbind(rep(NA, times=ncolPLAN),
-                       NUM[1:(rowFoot-1),, drop=FALSE],
-                       rep(NA, times=ncolPLAN),
-                       NUM[rowFoot:nrowPLAN,, drop=FALSE])
+                        NUM[1:(rowFoot-1),, drop=FALSE],
+                        rep(NA, times=ncolPLAN),
+                        NUM[rowFoot:nrowPLAN,, drop=FALSE])
             PLAN = rbind(rep("tjust", times=ncolPLAN),
                          PLAN[1:(rowFoot-1),, drop=FALSE],
                          rep("bjust", times=ncolPLAN),
@@ -122,19 +147,19 @@ return_to_sheepfold = function (flock,
         
         nrowPLAN = nrow(PLAN)
         NUM = cbind(rep(NA, times=nrowPLAN), NUM,
-                   rep(NA, times=nrowPLAN))
+                    rep(NA, times=nrowPLAN))
         PLAN = cbind(rep("ljust", times=nrowPLAN), PLAN,
                      rep("rjust", times=nrowPLAN))
 
         ncolPLAN = ncol(PLAN)
         NUM = rbind(rep(NA, times=ncolPLAN), NUM,
-                   rep(NA, times=ncolPLAN))
+                    rep(NA, times=ncolPLAN))
         PLAN = rbind(rep("tmargin", times=ncolPLAN), PLAN,
                      rep("bmargin", times=ncolPLAN))
         
         nrowPLAN = nrow(PLAN)
         NUM = cbind(rep(NA, times=nrowPLAN), NUM,
-                   rep(NA, times=nrowPLAN))
+                    rep(NA, times=nrowPLAN))
         PLAN = cbind(rep("lmargin", times=nrowPLAN), PLAN,
                      rep("rmargin", times=nrowPLAN))
 
@@ -177,7 +202,7 @@ return_to_sheepfold = function (flock,
     SHEEP$num = 1:nrow(SHEEP)
 
     if (nGroup > 1) {
-    
+        
         for (i in nGroup:1) {
             if (i == 1) {
                 break
@@ -610,7 +635,7 @@ add_sheep = function (flock, sheep=NULL, id="",
         sheep$sheep$height = sheep$sheep$height * height
         sheep$sheep$width = sheep$sheep$width * width
     }
-        
+    
     if (overwrite_by_id == FALSE |
         !any(which(flock$sheep$id == id))) {
 
@@ -906,15 +931,15 @@ load_shapefile = function (resources_path, Code,
     # Hydrological basin
     basinHydro = st_read(basinHydro_path)
     basinHydro = st_simplify(basinHydro,
-                        preserveTopology=TRUE,
-                        dTolerance=toleranceRel/2)
+                             preserveTopology=TRUE,
+                             dTolerance=toleranceRel/2)
     basinHydro = st_transform(basinHydro, 2154)
     
     # Hydrological sub-basin
     regionHydro = st_read(regionHydro_path)    
     regionHydro = st_simplify(regionHydro,
-                           preserveTopology=TRUE,
-                           dTolerance=toleranceRel/2)
+                              preserveTopology=TRUE,
+                              dTolerance=toleranceRel/2)
     regionHydro = st_transform(regionHydro, 2154)
     
     # Hydrological code bassin
@@ -923,8 +948,8 @@ load_shapefile = function (resources_path, Code,
     entiteHydro = do.call(rbind, entiteHydro_list)
     entiteHydro = entiteHydro[entiteHydro$Code %in% Code,]
     entiteHydro = st_simplify(entiteHydro,
-                            preserveTopology=TRUE,
-                            dTolerance=toleranceRel/3)
+                              preserveTopology=TRUE,
+                              dTolerance=toleranceRel/3)
     
     entiteHydro = st_transform(entiteHydro, 2154)
     

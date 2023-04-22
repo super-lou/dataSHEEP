@@ -214,13 +214,10 @@ panel_diagnostic_criteria = function (dataEXind,
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
 
-    print("a")
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
     names(mainTopic_icon) = mainTopic
-
-    print("b")
 
     vars2keep = names(dataEXind)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]

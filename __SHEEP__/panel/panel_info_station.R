@@ -102,7 +102,7 @@ panel_info_station = function(data_code,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
-                               x=0, y=1.4,
+                               x=0, y=1.1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -138,7 +138,7 @@ panel_info_station = function(data_code,
             "X = ", meta_code$XL93_m, "  m (Lambert93)<br>",
             "Y = ", meta_code$YL93_m, "  m (Lambert93)")
         gtext3 = richtext_grob(text3,
-                               x=0, y=0.96,
+                               x=0, y=0.98,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -205,12 +205,14 @@ panel_info_station = function(data_code,
 
     flock = add_sheep(flock,
                       sheep=gtext1,
+                      # sheep=contour(),
                       id="text1",
-                      height=1)
+                      height=0.4)
     flock = add_sheep(flock,
                       sheep=gtext2,
+                      # sheep=contour(),
                       id="text2",
-                      height=0.8)
+                      height=0.5)
     flock = add_sheep(flock,
                       sheep=gtext3,
                       id="text3",
