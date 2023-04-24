@@ -117,26 +117,28 @@ panel_info_station = function(data_code,
             if (is.na(meta_code$surface_km2_IN)) {
                 surface = "inconnue"
             } else {
-                surface = paste0(meta_code$surface_km2_IN, " km<sup>2</sup>")
+                surface = paste0(round(meta_code$surface_km2_IN),
+                                 " km<sup>2</sup>")
             }
         } else {
-            surface = paste0(meta_code$Surface_km2, " km<sup>2</sup>")
+            surface = paste0(round(meta_code$Surface_km2),
+                             " km<sup>2</sup>")
         }
         if (is.na(meta_code$Altitude_m)) {
             if (is.na(meta_code$altitude_m_IN)) {
                 altitude = "inconnue"
             } else {
-                altitude = paste0(meta_code$altitude_m_IN, " m")
+                altitude = paste0(round(meta_code$altitude_m_IN), " m")
             }
         } else {
-            altitude = paste0(meta_code$Altitude_m, " m")
+            altitude = paste0(round(meta_code$Altitude_m), " m")
         }
 
         text3 = paste0(
             "Superficie : ", surface, "<br>",
             "Altitude : ", altitude, "<br>",
-            "X = ", meta_code$XL93_m, "  m (Lambert93)<br>",
-            "Y = ", meta_code$YL93_m, "  m (Lambert93)")
+            "X = ", round(meta_code$XL93_m), "  m (Lambert93)<br>",
+            "Y = ", round(meta_code$YL93_m), "  m (Lambert93)")
         gtext3 = richtext_grob(text3,
                                x=0, y=0.98,
                                margin=unit(c(t=0, r=0, b=0, l=0),

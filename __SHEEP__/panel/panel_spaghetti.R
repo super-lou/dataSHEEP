@@ -41,6 +41,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             isZeroLine=TRUE,
                             limits_ymin=NA,
                             isBackObsAbove=TRUE,
+                            lwObs=0.55,
+                            lwObs_back=1.7,
+                            lwSim=0.4,
+                            lwSim_back=0.7,
                             axis_xlim=NULL, grid=TRUE,
                             ratio_title=1/5,
                             margin_title=margin(t=0, r=0, b=0, l=0, "mm"),
@@ -131,11 +135,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
     
     if ("Model" %in% names(data_code)) {
-
         Model = levels(factor(data_code$Model))
-
-        # print(Model)
-        
         nModel = length(Model)
         
         select_good = function (X) {
@@ -240,7 +240,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=0.4,
+                              linewidth=lwObs_back,#0.4,
                               lineend="round")
     }
     
@@ -254,7 +254,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color="white",
-                                  linewidth=0.7,
+                                  linewidth=lwSim_back,#0.7,
                                   lineend="round")
         }
         if (is.null(Colors)) {
@@ -262,21 +262,14 @@ panel_spaghetti = function (data_code, Colors=NULL,
             names(Colors) = Model
         }
         for (i in 1:nModel) {
-            # print(nModel)
-            # print(i)
             model = Model[i]
             data_model_code = data_code[data_code$Model == model,]
-
-            # print(model)
-            # print(data_code)
-            # print(data_model_code)
-            # Plot the data as line
             spag = spag +
                 ggplot2::annotate("line",
                                   x=data_model_code$Date,
                                   y=data_model_code$Q_sim,
                                   color=Colors[names(Colors) == model],
-                                  linewidth=0.4,
+                                  linewidth=lwSim,
                                   alpha=alpha,
                                   lineend="round")
         }
@@ -288,13 +281,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=1.7,
+                              linewidth=lwObs_back,#1.7,
                               lineend="round") +
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color=IPCCgrey25,
-                              linewidth=0.55,
+                              linewidth=lwObs,#0.55,
                               lineend="round")
     } else {
         spag = spag +
@@ -302,7 +295,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
                               color=IPCCgrey25,
-                              linewidth=0.2,
+                              linewidth=lwObs,#0.2,
                               lineend="round") 
     }
 

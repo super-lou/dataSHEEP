@@ -33,6 +33,9 @@ panel_diagnostic_criteria = function (dataEXind,
                                       title="",
                                       dTitle=0,
                                       add_name=FALSE,
+                                      group_name="dans la région",
+                                      dx_interp=7.6,
+                                      nLim_interp=130,
                                       margin_add=margin(t=0, r=0,
                                                         b=0, l=0,
                                                         "mm")) {
@@ -49,14 +52,14 @@ panel_diagnostic_criteria = function (dataEXind,
     dr_grid=0.10
 
     dspace_label = 0.12
-    dspace_grid = 0.11
+    dspace_grid = 0.13
 
     dx_rect = 0.12
     dy_rect = 0.05
     dx_label = -0.1
     dx_bar = 0.08
         
-    dy_arrow = 0.045
+    dy_arrow = 0.14#0.045
     dl_arrow = 0.2
 
 
@@ -96,7 +99,7 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_leg_arrow_gap = 0.1
     dx_leg_arrow_text = 0.1
     
-    dx_interp = 9.9
+    # dx_interp = 9.8
     dx_interp_text = 0.12
     dl_interp_text_line = 0.05
     dr_interp_text_line = 0.05
@@ -104,6 +107,7 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_interp_text = 0.3
     dy_interp_line = 0.35
     dy_interp_nline = 0.3
+    # nLim_interp = 99
     
     
     dx_arrow = 0.8
@@ -372,6 +376,16 @@ panel_diagnostic_criteria = function (dataEXind,
                          fill=IPCCgrey99,
                          size=0)
 
+            Ind = Ind +
+                annotate("rect",
+                         xmin=(i-1+dl_grid+space)*ech_x,
+                         xmax=(i-1-dx_label+space-dspace_label -
+                               dx_rect)*ech_x,
+                         ymin=ymin_grid - dy_rect*ech_bar,
+                         ymax=ymax_grid + dy_rect*ech_bar,
+                         fill=IPCCgrey95,
+                         size=0)
+
             for (t in perfect_tick) {
                 Ind = Ind +
                     annotate("line",
@@ -404,16 +418,6 @@ panel_diagnostic_criteria = function (dataEXind,
                              size=0.2,
                              lineend="round")
             }
-
-            Ind = Ind +
-                annotate("rect",
-                         xmin=(i-1+dl_grid+space)*ech_x,
-                         xmax=(i-1-dx_label+space-dspace_label -
-                               dx_rect)*ech_x,
-                         ymin=ymin_grid - dy_rect*ech_bar,
-                         ymax=ymax_grid + dy_rect*ech_bar,
-                         fill=IPCCgrey95,
-                         size=0)
 
             for (t in perfect_tick) {
                 Ind = Ind +
@@ -769,15 +773,15 @@ panel_diagnostic_criteria = function (dataEXind,
                 
                 if (above) {
                     y = ymax_grid +
-                        dy_arrow*norm
+                        dy_arrow
                     yend = ymax_grid +
-                        dy_arrow*norm +
+                        dy_arrow +
                         dl_arrow
                 } else if (below) {
                     y = ymin_grid -
-                        dy_arrow*norm
+                        dy_arrow
                     yend = ymin_grid -
-                        dy_arrow*norm -
+                        dy_arrow -
                         dl_arrow
                 }
                 Ind = Ind +
@@ -1060,7 +1064,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
     for (k in 1:NP) {
         if (k == 1) {
-            end = " des résultats dans le groupe de stations"
+            end = paste0(" des résultats ", group_name)
         } else {
             end = ""
         }
@@ -1101,7 +1105,7 @@ panel_diagnostic_criteria = function (dataEXind,
     if (!is.null(codeLight)) {
         label = "<b>Valeur</b> du critère à la station"
     } else {
-        label = "<b>Médiane</b> du critère dans le groupe de stations"
+        label = paste0("<b>Médiane</b> du critère ", group_name)
     }
         Ind = Ind +
             annotate("line",
@@ -1138,7 +1142,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
     for (k in 1:NP) {
         if (k == 1) {
-            end = " des résultats dans le groupe de stations"
+            end = paste0(" des résultats ", group_name)
         } else {
             end = ""
         }
@@ -1242,7 +1246,6 @@ panel_diagnostic_criteria = function (dataEXind,
 
 
 ## 8. INTERPRETATION BLOC ____________________________________________
-    nLim = 99
     if (is.null(codeLight)) {
         Ind = Ind +
             annotate("text",
@@ -1256,7 +1259,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
         Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
         
-        Label = guess_newline(Label, nLim=nLim)
+        Label = guess_newline(Label, nLim=nLim_interp)
         Label = unlist(strsplit(Label, "\n"))
             
         for (j in 1:length(Label)) {
@@ -1294,7 +1297,8 @@ panel_diagnostic_criteria = function (dataEXind,
                 break
             }
 
-            Label = guess_newline(Warnings_code$warning[i], nLim=nLim)
+            Label = guess_newline(Warnings_code$warning[i],
+                                  nLim=nLim_interp)
             Label = unlist(strsplit(Label, "\n"))
 
             if (i + nLine + length(Label)-1 > nWar_lim | i > nWar) {

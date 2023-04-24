@@ -136,6 +136,10 @@ sheet_diagnostic_station = function (data,
                                     minor_breaks="1 years",
                                     limits_ymin=0,
                                     isBackObsAbove=FALSE,
+                                    lwObs=0.2,
+                                    lwObs_back=0.4,
+                                    lwSim=0.4,
+                                    lwSim_back=0.7,
                                     grid=TRUE,
                                     ratio_title=1/4,
                                     margin_title=
@@ -175,6 +179,10 @@ sheet_diagnostic_station = function (data,
             breaks="5 years",
             minor_breaks="1 years",
             isBackObsAbove=TRUE,
+            lwObs=0.6,
+            lwObs_back=1.3,
+            lwSim=0.4,
+            lwSim_back=0.7,
             axis_xlim=c(min(data_obs_code$Date),
                         max(data_obs_code$Date)),
             grid=TRUE,
@@ -199,36 +207,41 @@ sheet_diagnostic_station = function (data,
         # print(flock)
 
         
-        # dataMOD = dataEXserie_code[["median{QJ}C5"]]
+        dataMOD = dataEXserie_code[["median{QJ}C5"]]
         # dataMOD$Date = as.Date(dataMOD$Yearday-1,
-        #                        origin=as.Date("1972-01-01"))
-        # dataMOD = dplyr::rename(dataMOD,
-        #                         Q_obs="median{QJ}C5_obs",
-        #                         Q_sim="median{QJ}C5_sim")
-        # medQJ = panel_spaghetti(dataMOD,
-        #                         Colors,
-        #                         title="(c) Débit journalier médian inter-annuel",
-        #                         unit="m^{3}.s^{-1}",
-        #                         alpha=0.85,
-        #                         isSqrt=TRUE,
-        #                         missRect=FALSE,
-        #                         isBack=FALSE,
-        #                         isTitle=TRUE,
-        #                         date_labels="%d %b",
-        #                         breaks="3 months",
-        #                         minor_breaks="1 months",
-        #                         Xlabel="",
-        #                         limits_ymin=0,
-        #                         isBackObsAbove=TRUE,
-        #                         grid=TRUE,
-        #                         ratio_title=1/15,
-        #                         margin_title=
-        #                             margin(t=0, r=7, b=0, l=0, "mm"),
-        #                         margin_spag=
-        #                             margin(t=0, r=3.5, b=0, l=0, "mm"),
-        #                         first=FALSE,
-        #                         last=TRUE)
-        medQJ = contour()
+                               # origin=as.Date("1972-01-01"))
+        dataMOD = dplyr::rename(dataMOD,
+                                Date="Yearday",
+                                Q_obs="median{QJ}C5_obs",
+                                Q_sim="median{QJ}C5_sim")
+        medQJ = panel_spaghetti(dataMOD,
+                                Colors,
+                                title="(c) Débit journalier médian inter-annuel",
+                                unit="m^{3}.s^{-1}",
+                                alpha=0.85,
+                                isSqrt=TRUE,
+                                missRect=FALSE,
+                                isBack=FALSE,
+                                isTitle=TRUE,
+                                date_labels="%d %b",
+                                breaks="3 months",
+                                minor_breaks="1 months",
+                                Xlabel="",
+                                limits_ymin=0,
+                                isBackObsAbove=TRUE,
+                                lwObs=0.6,
+                                lwObs_back=1.3,
+                                lwSim=0.4,
+                                lwSim_back=0.7,
+                                grid=TRUE,
+                                ratio_title=1/15,
+                                margin_title=
+                                    margin(t=0, r=7, b=0, l=0, "mm"),
+                                margin_spag=
+                                    margin(t=0, r=3.5, b=0, l=0, "mm"),
+                                first=FALSE,
+                                last=TRUE)
+        # medQJ = contour()
         flock = add_sheep(flock,
                           sheep=medQJ,
                           id="medQJ",
@@ -238,36 +251,40 @@ sheet_diagnostic_station = function (data,
         # print("medQJ")
         # print(flock)
 
-        # dataMOD = dataEXserie_code[["FDC"]]
-        # dataMOD = dplyr::rename(dataMOD,
-        #                         Date="FDC_obs_p",
-        #                         Q_obs="FDC_obs_Q",
-        #                         Q_sim="FDC_sim_Q")
-        # FDC = panel_spaghetti(dataMOD,
-        #                       Colors,
-        #                       title="(d) Courbe des débits classés",
-        #                       unit="m^{3}.s^{-1}",
-        #                       alpha=0.85,
-        #                       isSqrt=TRUE,
-        #                       missRect=FALSE,
-        #                       isTitle=TRUE,
-        #                       isBack=FALSE,
-        #                       breaks=0.2,
-        #                       minor_breaks=0.1,
-        #                       break_round=1,
-        #                       isNormLaw=TRUE,
-        #                       Xlabel="Probabilité de dépassement",
-        #                       limits_ymin=0,
-        #                       isBackObsAbove=TRUE,
-        #                       grid=TRUE,
-        #                       ratio_title=1/15,
-        #                       margin_title=
-        #                           margin(t=0, r=0, b=0, l=3.5, "mm"),
-        #                       margin_spag=
-        #                           margin(t=0, r=0, b=0, l=3.5, "mm"),
-        #                       first=FALSE,
-        #                       last=TRUE)
-        FDC = contour()
+        dataMOD = dataEXserie_code[["FDC"]]
+        dataMOD = dplyr::rename(dataMOD,
+                                Date="FDC_obs_p",
+                                Q_obs="FDC_obs_Q",
+                                Q_sim="FDC_sim_Q")
+        FDC = panel_spaghetti(dataMOD,
+                              Colors,
+                              title="(d) Courbe des débits classés",
+                              unit="m^{3}.s^{-1}",
+                              alpha=0.85,
+                              isSqrt=TRUE,
+                              missRect=FALSE,
+                              isTitle=TRUE,
+                              isBack=FALSE,
+                              breaks=0.2,
+                              minor_breaks=0.1,
+                              break_round=1,
+                              isNormLaw=TRUE,
+                              Xlabel="Probabilité de dépassement",
+                              limits_ymin=0,
+                              isBackObsAbove=TRUE,
+                              lwObs=0.6,
+                              lwObs_back=1.3,
+                              lwSim=0.4,
+                              lwSim_back=0.7,
+                              grid=TRUE,
+                              ratio_title=1/15,
+                              margin_title=
+                                  margin(t=0, r=0, b=0, l=3.5, "mm"),
+                              margin_spag=
+                                  margin(t=0, r=0, b=0, l=3.5, "mm"),
+                              first=FALSE,
+                              last=TRUE)
+        # FDC = contour()
         flock = add_sheep(flock,
                           sheep=FDC,
                           id="FDC",
@@ -279,24 +296,25 @@ sheet_diagnostic_station = function (data,
 
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
 
-        # criteria = panel_diagnostic_criteria(
-        #     dataEXind,
-        #     metaEXind,
-        #     meta,
-        #     Colors,
-        #     codeLight=code,
-        #     groupCode=Code_region,
-        #     icon_path=icon_path,
-        #     Warnings=Warnings,
-        #     title="(e) Critères de diagnostic",
-        #     alpha_marker=0.85,
-        #     Alpha=0.25,
-        #     Probs=0.1,
-        #     dTitle=0,
-        #     add_name=TRUE,
-        #     margin_add=
-        #         margin(t=-3, r=0, b=0, l=0, "cm"))
-        criteria = contour()
+        criteria = panel_diagnostic_criteria(
+            dataEXind,
+            metaEXind,
+            meta,
+            Colors,
+            codeLight=code,
+            groupCode=Code_region,
+            icon_path=icon_path,
+            Warnings=Warnings,
+            title="(e) Critères de diagnostic",
+            alpha_marker=0.85,
+            Alpha=0.25,
+            Probs=0.1,
+            dTitle=0,
+            add_name=TRUE,
+            group_name="dans la région",
+            margin_add=
+                margin(t=-3, r=0, b=0, l=0, "cm"))
+        # criteria = contour()
         flock = add_sheep(flock,
                           sheep=criteria,
                           id="criteria",
