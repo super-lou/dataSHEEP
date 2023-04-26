@@ -1,0 +1,17 @@
+Package: dataSHEEP
+Version: 0.0.1
+Date: 2023-04-26
+Title: dataSHEEP
+Description: A more or less user friendly plotting package that aims to facilitate the creation of datasheet for research purposes.
+Authors@R: c(
+    person(given = "Louis",
+           family = "Héraut",
+           role = c("cre", "aut"),
+           email = "louis.heraut@inrae.fr")
+    )
+Encoding: UTF-8
+License: GPL-3 + file LICENSE
+Imports:
+    dplyr,
+    ggplot2
+RoxygenNote: 7.2.3
