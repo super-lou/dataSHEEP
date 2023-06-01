@@ -47,27 +47,30 @@ return_to_sheepfold = function (flock,
 
     SHEEP = flock$sheep
     PLAN = flock$plan
-
     Plots = SHEEP$plot
     Labels = SHEEP$label
-
+    
     widths_var = list()
     nPlot = length(Plots)
     for (k in 1:nPlot) {
         if (is.null(Plots[[k]])) {
             Plots[[k]] = void()
         }
+
         if (Labels[k] == "align") {
             Plots[[k]] =
                 ggplot_gtable(ggplot_build(Plots[[k]]))
             widths_var = append(widths_var,
                                 list(Plots[[k]]$widths))
         }
-    }        
-    maxWidth = do.call(grid::unit.pmax, widths_var)
-    for (k in 1:nPlot) {
-        if (Labels[k] == "align") {
-            Plots[[k]]$widths = as.list(maxWidth)
+    }
+    
+    if (length(widths_var) > 0) {
+        maxWidth = do.call(grid::unit.pmax, widths_var)
+        for (k in 1:nPlot) {
+            if (Labels[k] == "align") {
+                Plots[[k]]$widths = as.list(maxWidth)
+            }
         }
     }
 
@@ -137,14 +140,6 @@ return_to_sheepfold = function (flock,
     WIDTH = SHEEP$width[match(PLAN, SHEEP$id)]
     WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
     
-#' @title plan_of_flock
-#' @description ...
-#' @param flock ...
-#' @param plan ...
-#' @return ...
-#' @examples
-#' ...
-#' @export
     get_group = function (SHEEP) {
         dot = gsub("[^.]", "", SHEEP$id)
         dot = nchar(dot)
@@ -154,16 +149,6 @@ return_to_sheepfold = function (flock,
         return (SHEEP)
     }
 
-#' @title shear_sheeps
-#' @description ...
-#' @param flock ...
-#' @param height ...
-#' @param TRUE ...
-#' @param width ...
-#' @return ...
-#' @examples
-#' ...
-#' @export
     get_block = function (SHEEP_group) {
         SHEEP_group$block =
             gsub("[.]$", "",
@@ -186,16 +171,24 @@ return_to_sheepfold = function (flock,
             SHEEP_group = SHEEP[SHEEP$group == i,]
             SHEEP_group = get_block(SHEEP_group)
             SHEEP$block[SHEEP$group == i] = SHEEP_group$block
-            
+
             Block = levels(factor(SHEEP_group$block))
             nBlock = length(Block)
             for (j in 1:nBlock) {
                 block = Block[j]
                 SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
 
-                OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
+                if (i == 1) {
+                    OK = apply(PLAN, c(1, 2), grepl,
+                               pattern=paste0(gsub("[.]", "[.]", block), "$"))
+                } else {
+                    OK = apply(PLAN, c(1, 2), grepl,
+                               pattern=paste0(gsub("[.]", "[.]", block), "[.]"))
+                }
+                
                 nrowOK = max(apply(OK, 2, sum))
                 ncolOK = max(apply(OK, 1, sum))
+
                 NUM_group_block = matrix(NUM[OK], nrow=nrowOK, ncol=ncolOK)
                 PLAN_group_block = matrix(PLAN[OK], nrow=nrowOK, ncol=ncolOK)
                 HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
@@ -237,6 +230,7 @@ return_to_sheepfold = function (flock,
 
                 grobs = SHEEP$plot[SHEEP$num %in%
                                    sort(select_grobs(NUM_group_block))]
+                
                 grob =
                     arrangeGrob(grobs=grobs,
                                 nrow=nrow(NUM_group_block),
@@ -265,7 +259,7 @@ return_to_sheepfold = function (flock,
                 SHEEP[OK_block,]$block = ""
                 SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
                 SHEEP$num = 1:nrow(SHEEP)
-
+                
                 PLAN[OK] = block
                 
                 okPLAN = t(!apply(PLAN, 1, duplicated)) &
@@ -284,7 +278,7 @@ return_to_sheepfold = function (flock,
             }
         }
     }
-    
+
     if (!is.null(paper_size)) {
 
         if (verbose) {
@@ -387,7 +381,6 @@ return_to_sheepfold = function (flock,
             widths = NULL
         }
     }
-
 
     select = select_grobs(NUM)
     select = sort(select)
