@@ -49,27 +49,33 @@ return_to_sheepfold = function (flock,
     PLAN = flock$plan
     Plots = SHEEP$plot
     Labels = SHEEP$label
-    
-    widths_var = list()
-    nPlot = length(Plots)
-    for (k in 1:nPlot) {
-        if (is.null(Plots[[k]])) {
-            Plots[[k]] = void()
-        }
 
-        if (Labels[k] == "align") {
-            Plots[[k]] =
-                ggplot_gtable(ggplot_build(Plots[[k]]))
-            widths_var = append(widths_var,
-                                list(Plots[[k]]$widths))
-        }
-    }
-    
-    if (length(widths_var) > 0) {
-        maxWidth = do.call(grid::unit.pmax, widths_var)
-        for (k in 1:nPlot) {
-            if (Labels[k] == "align") {
-                Plots[[k]]$widths = as.list(maxWidth)
+
+    Aligns = levels(factor(Labels[grepl("align", Labels)]))
+    nAlign = length(Aligns)
+
+    if (nAlign > 0) {
+        for (i in 1:nAlign) {
+            
+            widths_var = list()
+            nPlot = length(Plots)
+            for (k in 1:nPlot) {
+                if (is.null(Plots[[k]])) {
+                    Plots[[k]] = void()
+                }
+                if (grepl(Aligns[i], Labels[k])) {
+                    Plots[[k]] =
+                        ggplot_gtable(ggplot_build(Plots[[k]]))
+                    widths_var = append(widths_var,
+                                        list(Plots[[k]]$widths))
+                }
+            }
+            
+            maxWidth = do.call(grid::unit.pmax, widths_var)
+            for (k in 1:nPlot) {
+                if (grepl(Aligns[i], Labels[k])) {
+                    Plots[[k]]$widths = as.list(maxWidth)
+                }
             }
         }
     }
@@ -248,12 +254,7 @@ return_to_sheepfold = function (flock,
                 SHEEP[OK_block,]$label =
                     paste0(SHEEP_group_block$label[nchar(SHEEP_group_block$label) > 0],
                            collapse="/")
-                SHEEP[OK_block,]$plot =
-                    list(
-                        # ggplotify::as.ggplot(
-                        grob
-                        # )
-                    )
+                SHEEP[OK_block,]$plot = list(grob)
                 SHEEP[OK_block,]$group = SHEEP_group_block$group-1
                 SHEEP[OK_block,]$num = 0
                 SHEEP[OK_block,]$block = ""
