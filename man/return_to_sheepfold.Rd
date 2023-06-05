@@ -14,13 +14,15 @@ return_to_sheepfold(
 )
 }
 \arguments{
-\item{flock}{...}
-
 \item{sheep}{...}
 
 \item{NULL}{...}
 
 \item{id}{... (default : "")}
+
+\item{height}{...}
+
+\item{width}{...}
 
 \item{0}{...}
 
@@ -31,29 +33,13 @@ return_to_sheepfold(
 \item{FALSE}{...}
 
 \item{plan}{...}
-
-\item{height}{...}
-
-\item{TRUE}{...}
-
-\item{width}{...}
 }
 \value{
-...
-
-...
-
 ...
 }
 \description{
 ...
-
-...
-
-...
 }
 \examples{
-...
-...
 ...
 }

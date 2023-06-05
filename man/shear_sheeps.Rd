@@ -7,30 +7,16 @@
 shear_sheeps(flock, height = TRUE, width = TRUE)
 }
 \arguments{
-\item{tol}{... (default : .Machine$double.eps^0.5)}
-
-\item{x}{...}
-
 \item{X}{...}
 
-\item{den}{...}
+\item{tol}{... (default : .Machine$double.eps^0.5)}
 }
 \value{
-...
-
-...
-
 ...
 }
 \description{
 ...
-
-...
-
-...
 }
 \examples{
-...
-...
 ...
 }
