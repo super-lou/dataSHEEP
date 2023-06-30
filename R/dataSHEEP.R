@@ -35,6 +35,21 @@ get_block = function (SHEEP_group) {
     return (SHEEP_group)
 }
 
+normalize_reduce = function (vect, plan, vect_plans) {
+    ok = vect_plans == plan
+    ok[is.na(ok)] = FALSE
+    vect[ok] = vect[ok] / sum(ok)
+    return (vect)
+}
+
+normalize_mapply = function (vect, vect_plans) {
+    if (!all(is.na(vect))) {
+        plans = table(vect_plans)
+        vect = purrr::reduce(plans, normalize_reduce,
+                             .init=vect, vect_plans=vect_plans)
+    }
+    return (vect)
+}
 
 
 get_heights = function (HEIGHT, PLAN) {
@@ -45,17 +60,67 @@ get_heights = function (HEIGHT, PLAN) {
     colPLAN = lapply(colPLAN, as.character)
     colPLAN_dup = lapply(colPLAN, duplicated)
     colPLAN_dup = lapply(colPLAN_dup, '!')
+
     colHEIGHT_not_dup = mapply('[', colHEIGHT, colPLAN_dup,
-                              SIMPLIFY=FALSE)
-    colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
-    colHEIGHT_id = which.max(colHEIGHT_sum)[1]
+                               SIMPLIFY=FALSE)
     
-    heights = colHEIGHT[[colHEIGHT_id]]
-    heights_real = colHEIGHT_not_dup[[colHEIGHT_id]]
+    # colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
+    # colHEIGHT_id = which.max(colHEIGHT_sum)[1]
+    
+    # heights = colHEIGHT[[colHEIGHT_id]]
+    # heights_real = colHEIGHT_not_dup[[colHEIGHT_id]]
+
+
+
+    Plans = levels(factor(PLAN))
+    PLAN_table = c()
+    for (plan in Plans) {
+        PLAN_table =
+            c(PLAN_table,
+              max(sapply(colPLAN, length_ok, plan=plan),
+                  na.rm=TRUE))
+        names(PLAN_table)[length(PLAN_table)] = plan
+    }
+    
+    for (i in 1:length(PLAN_table)) {
+        plan = names(PLAN_table)[i]
+        n = PLAN_table[i]
+        colHEIGHT = mapply(divide_where,
+                           colHEIGHT, colPLAN,
+                           plan=plan, n=n,
+                           SIMPLIFY=FALSE)
+    }
+    
+    colHEIGHT = mapply(normalize_mapply,
+                       colHEIGHT, colPLAN,
+                       SIMPLIFY=FALSE)
+    colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
+    colHEIGHT_id = which(colHEIGHT_sum ==
+                         max(colHEIGHT_sum, na.rm=TRUE))
+    
+    heights = do.call(pmax,
+                      args=append(colHEIGHT[colHEIGHT_id],
+                                  list(na.rm=TRUE)))
+    heights_real = do.call(pmax,
+                           args=append(colHEIGHT_not_dup[colHEIGHT_id],
+                                       list(na.rm=TRUE)))
 
     return (list(heights=heights, heights_real=heights_real))
 }
 
+length_ok = function (vect, plan) {
+    ok = vect == plan
+    ok[is.na(ok)] = FALSE
+    len = sum(ok)
+    return (len)
+}
+
+divide_where = function (vect, vect_plan, plan, n) {
+    if (!all(is.na(vect))) {
+        vect[vect_plan == plan] = vect[vect_plan == plan] / n
+    }
+    return (vect)
+}
 
 get_widths = function (WIDTH, PLAN) {
     colWIDTH = as.list(as.data.frame(t(WIDTH)))
@@ -65,13 +130,42 @@ get_widths = function (WIDTH, PLAN) {
     colPLAN = lapply(colPLAN, as.character)
     colPLAN_dup = lapply(colPLAN, duplicated)
     colPLAN_dup = lapply(colPLAN_dup, '!')
+    
     colWIDTH_not_dup = mapply('[', colWIDTH, colPLAN_dup,
                               SIMPLIFY=FALSE)
-    colWIDTH_sum = sapply(colWIDTH_not_dup, sum, na.rm=TRUE)
-    colWIDTH_id = which.max(colWIDTH_sum)[1]
+
+    Plans = levels(factor(PLAN))
+    PLAN_table = c()
+    for (plan in Plans) {
+        PLAN_table =
+            c(PLAN_table,
+              max(sapply(colPLAN, length_ok, plan=plan),
+                  na.rm=TRUE))
+        names(PLAN_table)[length(PLAN_table)] = plan
+    }
     
-    widths = colWIDTH[[colWIDTH_id]]
-    widths_real = colWIDTH_not_dup[[colWIDTH_id]]
+    for (i in 1:length(PLAN_table)) {
+        plan = names(PLAN_table)[i]
+        n = PLAN_table[i]
+        colWIDTH = mapply(divide_where,
+                          colWIDTH, colPLAN,
+                          plan=plan, n=n,
+                          SIMPLIFY=FALSE)
+    }
+    
+    colWIDTH = mapply(normalize_mapply,
+                      colWIDTH, colPLAN,
+                      SIMPLIFY=FALSE)
+    colWIDTH_sum = sapply(colWIDTH_not_dup, sum, na.rm=TRUE)
+    colWIDTH_id = which(colWIDTH_sum ==
+                        max(colWIDTH_sum, na.rm=TRUE))
+    
+    widths = do.call(pmax,
+                     args=append(colWIDTH[colWIDTH_id],
+                                 list(na.rm=TRUE)))
+    widths_real = do.call(pmax,
+                          args=append(colWIDTH_not_dup[colWIDTH_id],
+                                      list(na.rm=TRUE)))
 
     return (list(widths=widths, widths_real=widths_real))
 }
@@ -214,7 +308,7 @@ return_to_sheepfold = function (herd,
     SHEEP$num = 1:nrow(SHEEP)
 
     if (nGroup > 1) {
-        
+
         for (i in nGroup:1) {
             if (i == 1) {
                 break
@@ -254,7 +348,6 @@ return_to_sheepfold = function (herd,
                 res = get_widths(WIDTH_group_block, PLAN_group_block)
                 widths_group_block = res$widths
                 widths_real = res$widths_real                 
-
                     
                 if (all(heights_group_block == 0)) {
                     heights = NULL
@@ -269,7 +362,7 @@ return_to_sheepfold = function (herd,
 
                 grobs = SHEEP$plot[SHEEP$num %in%
                                    sort(select_grobs(NUM_group_block))]
-                
+
                 grob =
                     arrangeGrob(grobs=grobs,
                                 nrow=nrow(NUM_group_block),
@@ -282,8 +375,12 @@ return_to_sheepfold = function (herd,
                 OK_block = SHEEP$group == i &
                     SHEEP$block == block            
                 SHEEP[OK_block,]$id = block
-                SHEEP[OK_block,]$height = sum(heights_real)
-                SHEEP[OK_block,]$width = sum(widths_real)
+                #################################################
+                # SHEEP[OK_block,]$height = sum(heights_real) 
+                # SHEEP[OK_block,]$width = sum(widths_real)
+                SHEEP[OK_block,]$height = sum(heights) 
+                SHEEP[OK_block,]$width = sum(widths)
+                #################################################
                 SHEEP[OK_block,]$label =
                     paste0(SHEEP_group_block$label[nchar(SHEEP_group_block$label) > 0],
                            collapse="/")
@@ -324,15 +421,24 @@ return_to_sheepfold = function (herd,
 
         res = get_heights(HEIGHT, PLAN)
         heights = res$heights
-        heights_real = res$heights_real   
         
-        maxHeight = sum(heights_real, na.rm=TRUE)
-        
-        maxHeight = maxHeight + page_margin["t"] + page_margin["b"]
-        
-        ratioHeight = paperHeight / (paperHeight - maxHeight)
-        tjust_height = paperHeight * (1-vjust) / ratioHeight
-        bjust_height = paperHeight * vjust / ratioHeight
+        maxHeight = sum(heights, na.rm=TRUE)
+        if (maxHeight == 0) {
+            HEIGHT[!grepl("(just)|(margin)", PLAN)] =
+                paperHeight - page_margin["t"] - page_margin["b"]
+            maxHeight = paperHeight
+            
+        } else {
+            maxHeight = maxHeight + page_margin["t"] + page_margin["b"]
+        }
+
+        if (paperHeight != maxHeight) {
+            tjust_height = (1-vjust) / (paperHeight - maxHeight)
+            bjust_height = vjust / (paperHeight - maxHeight)
+        } else {
+            tjust_height = 0
+            bjust_height = 0
+        }
 
         HEIGHT[PLAN == "tjust"] = tjust_height
         HEIGHT[PLAN == "bjust"] = bjust_height
@@ -341,20 +447,32 @@ return_to_sheepfold = function (herd,
 
         res = get_heights(HEIGHT, PLAN)
         heights = res$heights
-        heights_real = res$heights_real
 
+
+        
 
         res = get_widths(WIDTH, PLAN)
         widths = res$widths
         widths_real = res$widths_real   
         
-        maxWidth = sum(widths_real, na.rm=TRUE)
-        
-        maxWidth = maxWidth + page_margin["l"] + page_margin["r"]
-        ratioWidth = paperWidth / (paperWidth - maxWidth)
-        ljust_width = paperWidth * hjust / ratioWidth
-        rjust_width = paperWidth * (1-hjust) / ratioWidth
+        maxWidth = sum(widths, na.rm=TRUE)
+        if (maxWidth == 0) {
+            WIDTH[!grepl("(just)|(margin)", PLAN)] =
+                paperWidth - page_margin["l"] - page_margin["r"]
+            maxWidth = paperWidth
+            
+        } else {
+            maxWidth = maxWidth + page_margin["l"] + page_margin["r"]
+        }
 
+        if (paperWidth != maxWidth) {
+            ljust_width = hjust / (paperWidth - maxWidth)
+            rjust_width = (1-hjust) / (paperWidth - maxWidth)
+        } else {
+            ljust_width = 0
+            rjust_width = 0
+        }
+        
         WIDTH[PLAN == "ljust"] = ljust_width
         WIDTH[PLAN == "rjust"] = rjust_width
         WIDTH[PLAN == "lmargin"] = page_margin["l"]
@@ -362,8 +480,6 @@ return_to_sheepfold = function (herd,
 
         res = get_widths(WIDTH, PLAN)
         widths = res$widths
-        widths_real = res$widths_real
-        
 
     } else {
         heights = SHEEP$height
@@ -394,13 +510,12 @@ return_to_sheepfold = function (herd,
     grobs = SHEEP$plot[select]
 
     plot =
-        arrangeGrob(grobs=grobs,
-                    nrow=nrowPLAN,
-                    ncol=ncolPLAN,
-                    heights=heights,
-                    widths=widths,
-                    layout_matrix=NUM,
-                    as.table=FALSE)
+        gridExtra::arrangeGrob(grobs=grobs,
+                               nrow=nrowPLAN,
+                               ncol=ncolPLAN,
+                               heights=heights,
+                               widths=widths,
+                               layout_matrix=NUM)
     
     if (!is.null(paper_size)) {
         res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
@@ -609,7 +724,7 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
 #' ...
 #' @export
 add_sheep = function (herd, sheep=NULL, id="",
-                      height=1, width=1,
+                      height=NA, width=NA,
                       label="",
                       overwrite_by_id=FALSE,
                       verbose=FALSE) {
@@ -618,17 +733,9 @@ add_sheep = function (herd, sheep=NULL, id="",
         print(paste0("Adding of ", id, " to the herd !"))
     }
     
-    # if (!is.ggplot(sheep)) {
-    if (!(is.ggplot(sheep) | grid::is.grob(sheep))) {
-
-        # print("aaaaaaaa")
-        # print(sheep)
-        
+    if (tibble::is_tibble(sheep)) {
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
-
-        # print(sheep)
-        # print("aaaaaaaaa")
         
         sheep$sheep$height = sheep$sheep$height * height
         sheep$sheep$width = sheep$sheep$width * width
