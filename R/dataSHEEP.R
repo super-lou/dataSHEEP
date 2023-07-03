@@ -347,14 +347,14 @@ return_to_sheepfold = function (herd,
                 
                 res = get_widths(WIDTH_group_block, PLAN_group_block)
                 widths_group_block = res$widths
-                widths_real = res$widths_real                 
-                    
-                if (all(heights_group_block == 0)) {
+                widths_real = res$widths_real
+
+                if (all(is.na(heights_group_block))) {
                     heights = NULL
                 } else {
                     heights = heights_group_block
                 }
-                if (all(widths_group_block == 0)) {
+                if (all(is.na(widths_group_block))) {
                     widths = NULL
                 } else {
                     widths = widths_group_block
@@ -698,13 +698,13 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
 
     res = get_heights(HEIGHT, PLAN)
     colHEIGHT_sum_max = sum(res$heights_real, na.rm=TRUE)
-    if (height & !all(herd$sheep$height == 0)) {
+    if (height & !all(is.na(herd$sheep$height))) {
         herd$sheep$height = herd$sheep$height/colHEIGHT_sum_max
     }
     
     res = get_widths(WIDTH, PLAN)
     colWIDTH_sum_max = sum(res$widths_real, na.rm=TRUE)
-    if (width & !all(herd$sheep$width == 0)) {
+    if (width & !all(is.na(herd$sheep$width))) {
         herd$sheep$width = herd$sheep$width/colWIDTH_sum_max
     }
 
@@ -712,7 +712,13 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
 }
 
 
+is_sheep = function (pseudo_sheep) {
+    return (tibble::is_tibble(pseudo_sheep[[1]]) &
+            is.matrix(pseudo_sheep[[2]]))
+}
 
+
+# is.ggplot(sheep) | grid::is.grob(sheep)
 
 #' @title load_font
 #' @description ...
@@ -732,8 +738,8 @@ add_sheep = function (herd, sheep=NULL, id="",
     if (verbose) {
         print(paste0("Adding of ", id, " to the herd !"))
     }
-    
-    if (tibble::is_tibble(sheep)) {
+
+    if (is_sheep(sheep)) {
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
         
@@ -748,7 +754,7 @@ add_sheep = function (herd, sheep=NULL, id="",
             id = nrow(herd$sheep) + 1
         }
         
-        if (is.ggplot(sheep) | grid::is.grob(sheep)) {
+        if (!is_sheep(sheep)) {
             herd$sheep =
                 dplyr::bind_rows(herd$sheep,
                                  dplyr::tibble(id=id,
@@ -832,7 +838,7 @@ add_sheep = function (herd, sheep=NULL, id="",
         }
         
     } else {
-        if (is.ggplot(sheep)) {
+        if (!is_sheep(sheep)) {
             here = which(sheep$id == id)
             sheep$height[here] = height
             sheep$width[here] = width
