@@ -376,10 +376,10 @@ return_to_sheepfold = function (herd,
                     SHEEP$block == block            
                 SHEEP[OK_block,]$id = block
                 #################################################
-                # SHEEP[OK_block,]$height = sum(heights_real) 
-                # SHEEP[OK_block,]$width = sum(widths_real)
-                SHEEP[OK_block,]$height = sum(heights) 
-                SHEEP[OK_block,]$width = sum(widths)
+                SHEEP[OK_block,]$height = sum(heights_real) 
+                SHEEP[OK_block,]$width = sum(widths_real)
+                # SHEEP[OK_block,]$height = sum(heights) 
+                # SHEEP[OK_block,]$width = sum(widths)
                 #################################################
                 SHEEP[OK_block,]$label =
                     paste0(SHEEP_group_block$label[nchar(SHEEP_group_block$label) > 0],
@@ -742,9 +742,18 @@ add_sheep = function (herd, sheep=NULL, id="",
     if (is_sheep(sheep)) {
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
+
+        if (is.na(sheep$sheep$height)) {
+            sheep$sheep$height = height
+        } else {
+            sheep$sheep$height = sheep$sheep$height * height
+        }
         
-        sheep$sheep$height = sheep$sheep$height * height
-        sheep$sheep$width = sheep$sheep$width * width
+        if (is.na(sheep$sheep$width)) {
+            sheep$sheep$width = width
+        } else {
+            sheep$sheep$width = sheep$sheep$width * width
+        }
     }
     
     if (overwrite_by_id == FALSE |
@@ -775,7 +784,8 @@ add_sheep = function (herd, sheep=NULL, id="",
                                  sheep$sheep)
             
             index = which(herd$plan == id, arr.ind=TRUE)
-            index = index[nrow(index):1,]
+            index = index[nrow(index):1,, drop=FALSE]
+            
             nh = length(levels(factor(index[, "row"])))
             nw = length(levels(factor(index[, "col"])))
             h = nrow(sheep$plan)
