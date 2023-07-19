@@ -105,6 +105,9 @@ get_heights = function (HEIGHT, PLAN) {
                            args=append(colHEIGHT_not_dup[colHEIGHT_id],
                                        list(na.rm=TRUE)))
 
+    heights = round(heights, 5)
+    heights_real = round(heights_real, 5)
+
     return (list(heights=heights, heights_real=heights_real))
 }
 
@@ -167,6 +170,9 @@ get_widths = function (WIDTH, PLAN) {
                           args=append(colWIDTH_not_dup[colWIDTH_id],
                                       list(na.rm=TRUE)))
 
+    widths = round(widths, 5)
+    widths_real = round(widths_real, 5)
+    
     return (list(widths=widths, widths_real=widths_real))
 }
 
