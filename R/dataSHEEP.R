@@ -105,8 +105,8 @@ get_heights = function (HEIGHT, PLAN) {
                            args=append(colHEIGHT_not_dup[colHEIGHT_id],
                                        list(na.rm=TRUE)))
 
-    heights = round(heights, 5)
-    heights_real = round(heights_real, 5)
+    # heights = round(heights, 5)
+    # heights_real = round(heights_real, 5)
 
     return (list(heights=heights, heights_real=heights_real))
 }
@@ -170,8 +170,8 @@ get_widths = function (WIDTH, PLAN) {
                           args=append(colWIDTH_not_dup[colWIDTH_id],
                                       list(na.rm=TRUE)))
 
-    widths = round(widths, 5)
-    widths_real = round(widths_real, 5)
+    # widths = round(widths, 5)
+    # widths_real = round(widths_real, 5)
     
     return (list(widths=widths, widths_real=widths_real))
 }
@@ -439,8 +439,8 @@ return_to_sheepfold = function (herd,
         }
 
         if (paperHeight != maxHeight) {
-            tjust_height = (1-vjust) / (paperHeight - maxHeight)
-            bjust_height = vjust / (paperHeight - maxHeight)
+            tjust_height = (1-vjust) / round(paperHeight - maxHeight, 5)
+            bjust_height = vjust / round(paperHeight - maxHeight, 5)
         } else {
             tjust_height = 0
             bjust_height = 0
@@ -472,8 +472,8 @@ return_to_sheepfold = function (herd,
         }
 
         if (paperWidth != maxWidth) {
-            ljust_width = hjust / (paperWidth - maxWidth)
-            rjust_width = (1-hjust) / (paperWidth - maxWidth)
+            ljust_width = hjust / round(paperWidth - maxWidth, 5)
+            rjust_width = (1-hjust) / round(paperWidth - maxWidth, 5)
         } else {
             ljust_width = 0
             rjust_width = 0
