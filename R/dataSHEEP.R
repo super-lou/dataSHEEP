@@ -417,7 +417,7 @@ return_to_sheepfold = function (herd,
     }
 
     if (!is.null(paper_size)) {
-        if (paper_size == 'A4') {
+        if (all(paper_size == 'A4')) {
             paperWidth = 21
             paperHeight = 29.7
         } else if (is.vector(paper_size) & length(paper_size) > 1) {
@@ -749,13 +749,13 @@ add_sheep = function (herd, sheep=NULL, id="",
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
 
-        if (is.na(sheep$sheep$height)) {
+        if (all(is.na(sheep$sheep$height))) {
             sheep$sheep$height = height
         } else {
             sheep$sheep$height = sheep$sheep$height * height
         }
         
-        if (is.na(sheep$sheep$width)) {
+        if (all(is.na(sheep$sheep$width))) {
             sheep$sheep$width = width
         } else {
             sheep$sheep$width = sheep$sheep$width * width
