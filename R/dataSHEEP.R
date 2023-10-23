@@ -802,10 +802,16 @@ add_sheep = function (herd, sheep=NULL, id="",
 
                 if (h > 0) {
                     if (row == 1) {
-                        herd$plan =
-                            rbind(matrix(rep(herd$plan[row,], h),
-                                         nrow=h, byrow=TRUE),
-                                  herd$plan[(row+1):nrow(herd$plan),])
+                        if (nrow(herd$plan) == 1) {
+                            herd$plan =
+                                matrix(rep(herd$plan[row,], h),
+                                       nrow=h, byrow=TRUE)
+                        } else {
+                            herd$plan =
+                                rbind(matrix(rep(herd$plan[row,], h),
+                                             nrow=h, byrow=TRUE),
+                                      herd$plan[(row+1):nrow(herd$plan),])
+                        } 
                     } else if (row == nrow(herd$plan)) {
                         herd$plan =
                             rbind(herd$plan[1:(row-1),],
@@ -823,13 +829,18 @@ add_sheep = function (herd, sheep=NULL, id="",
 
             for (i in 1:nw) {
                 col = index[i, "col"]
-
                 if (w > 0) {
                     if (col == 1) {
-                        herd$plan =
-                            cbind(matrix(rep(herd$plan[, col], w),
-                                         ncol=w, byrow=FALSE),
-                                  herd$plan[, (col+1):ncol(herd$plan)])
+                        if (ncol(herd$plan) == 1) {
+                            herd$plan =
+                                matrix(rep(herd$plan[, col], w),
+                                       ncol=w, byrow=FALSE)
+                        } else {
+                            herd$plan =
+                                cbind(matrix(rep(herd$plan[, col], w),
+                                             ncol=w, byrow=FALSE),
+                                      herd$plan[, (col+1):ncol(herd$plan)])
+                        }
                     } else if (col == ncol(herd$plan)) {
                         herd$plan =
                             cbind(herd$plan[, 1:(col-1)],
