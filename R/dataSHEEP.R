@@ -810,19 +810,19 @@ add_sheep = function (herd, sheep=NULL, id="",
                             herd$plan =
                                 rbind(matrix(rep(herd$plan[row,], h),
                                              nrow=h, byrow=TRUE),
-                                      herd$plan[(row+1):nrow(herd$plan),])
+                                      herd$plan[(row+1):nrow(herd$plan),, drop=FALSE])
                         } 
                     } else if (row == nrow(herd$plan)) {
                         herd$plan =
-                            rbind(herd$plan[1:(row-1),],
+                            rbind(herd$plan[1:(row-1),, drop=FALSE],
                                   matrix(rep(herd$plan[row,], h),
                                          nrow=h, byrow=TRUE))
                     } else {
                         herd$plan =
-                            rbind(herd$plan[1:(row-1),],
+                            rbind(herd$plan[1:(row-1),, drop=FALSE],
                                   matrix(rep(herd$plan[row,], h),
                                          nrow=h, byrow=TRUE),
-                                  herd$plan[(row+1):nrow(herd$plan),])
+                                  herd$plan[(row+1):nrow(herd$plan),, drop=FALSE])
                     }
                 }
             }
@@ -839,23 +839,23 @@ add_sheep = function (herd, sheep=NULL, id="",
                             herd$plan =
                                 cbind(matrix(rep(herd$plan[, col], w),
                                              ncol=w, byrow=FALSE),
-                                      herd$plan[, (col+1):ncol(herd$plan)])
+                                      herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
                         }
                     } else if (col == ncol(herd$plan)) {
                         herd$plan =
-                            cbind(herd$plan[, 1:(col-1)],
+                            cbind(herd$plan[, 1:(col-1), drop=FALSE],
                                   matrix(rep(herd$plan[, col], w),
                                          ncol=w, byrow=FALSE))
                     } else {
                         herd$plan =
-                            cbind(herd$plan[, 1:(col-1)],
+                            cbind(herd$plan[, 1:(col-1), drop=FALSE],
                                   matrix(rep(herd$plan[, col], w),
                                          ncol=w, byrow=FALSE),
-                                  herd$plan[, (col+1):ncol(herd$plan)])
+                                  herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
                     }
                 }
             }
-
+            
             sheep$plan = matrix(rep(sheep$plan, each=nh),
                                 nrow=nrow(sheep$plan)*nh, byrow=FALSE)
             sheep$plan = t(matrix(rep(t(sheep$plan), each=nw),
