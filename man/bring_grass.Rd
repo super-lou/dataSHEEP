@@ -11,7 +11,8 @@ bring_grass(
   width = 0,
   label = "",
   overwrite_by_id = FALSE,
-  plan = NULL
+  plan = NULL,
+  verbose = FALSE
 )
 }
 \arguments{

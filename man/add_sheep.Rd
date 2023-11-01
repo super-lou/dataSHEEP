@@ -5,13 +5,14 @@
 \title{load_font}
 \usage{
 add_sheep(
-  flock,
+  herd,
   sheep = NULL,
   id = "",
-  height = 0,
-  width = 0,
+  height = NA,
+  width = NA,
   label = "",
-  overwrite_by_id = FALSE
+  overwrite_by_id = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

@@ -5,7 +5,7 @@
 \title{Merge}
 \usage{
 return_to_sheepfold(
-  flock,
+  herd,
   page_margin = c(t = 0, r = 0, b = 0, l = 0),
   paper_size = NULL,
   hjust = 0,
