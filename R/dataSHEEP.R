@@ -658,6 +658,7 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
                 SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
 
                 OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
+                # OK = apply(PLAN, c(1, 2), grepl, pattern=block, fixed=TRUE)
                 nrowOK = max(apply(OK, 2, sum))
                 ncolOK = max(apply(OK, 1, sum))
 

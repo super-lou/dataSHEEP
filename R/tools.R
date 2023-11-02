@@ -734,3 +734,48 @@ convert2TeX = function (Var, size=NULL, is_it_small=FALSE, replace_space=FALSE, 
     }
     return (VarTEX)
 }
+
+
+
+
+
+get_breaks_function = function (breaks, isDate=TRUE,
+                                d_breaks=0,
+                                break_round=-1,
+                                add_breaks=NULL,
+                                rm_breaks=NULL) {
+
+    get_breaks = function (X) {
+        if (isDate) {
+            Xmin = round(lubridate::year(min(X)), break_round)
+            Xmax = round(lubridate::year(max(X)), break_round)
+            if (Xmax-Xmin <= 1) {
+                Xmin = lubridate::year(X)[1]
+                Xmax = lubridate::year(X)[1] + 1
+            }
+            res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")) +
+                               d_breaks,
+                           to=as.Date(paste0(Xmax, "-01-01")) +
+                               d_breaks,
+                           by=breaks)
+        } else {
+            Xmin = round(min(X), break_round)
+            Xmax = round(max(X), break_round)
+            res = seq(from=Xmin + d_breaks,
+                      to=Xmax + d_breaks,
+                      by=breaks)
+        }
+
+        if (!is.null(add_breaks)) {
+            res = sort(c(res, add_breaks))
+        }
+
+        if (!is.null(rm_breaks)) {
+            res = res[!(res %in% rm_breaks)]
+        }
+
+        return (res)
+    }
+
+    return (get_breaks)
+}

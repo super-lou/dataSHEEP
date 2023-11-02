@@ -396,13 +396,9 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     
     bin = seq(minValue, maxValue, length.out=nBin)
 
-    print(bin)
-    
     if (round) {
         bin = round_pimp(bin, center=center)
     }
-
-    print(bin)
     
     if (length(include) == 1) {
         if (!include) {
