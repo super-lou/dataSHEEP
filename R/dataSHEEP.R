@@ -769,7 +769,7 @@ add_sheep = function (herd, sheep=NULL, id="",
         if (nchar(id) == 0) {
             id = nrow(herd$sheep) + 1
         }
-        
+
         if (!is_sheep(sheep)) {
             herd$sheep =
                 dplyr::bind_rows(herd$sheep,
@@ -781,6 +781,11 @@ add_sheep = function (herd, sheep=NULL, id="",
             herd$sheep$plot[[nrow(herd$sheep)]] = sheep
             
         } else {
+
+            # print("IN")
+            # print(herd$plan)
+            # print(sheep$plan)
+            
             sheep$sheep$id = paste0(id, ".", sheep$sheep$id)
             sheep$plan = matrix(paste0(id, ".", sheep$plan),
                                 nrow=nrow(sheep$plan),
@@ -797,7 +802,7 @@ add_sheep = function (herd, sheep=NULL, id="",
             nw = length(levels(factor(index[, "col"])))
             h = nrow(sheep$plan)
             w = ncol(sheep$plan)
-            
+
             for (i in 1:nh) {
                 row = index[i, "row"]
 
@@ -828,6 +833,9 @@ add_sheep = function (herd, sheep=NULL, id="",
                 }
             }
 
+            # print("after row before col")
+            # print(herd$plan)
+
             for (i in 1:nw) {
                 col = index[i, "col"]
                 if (w > 0) {
@@ -856,15 +864,29 @@ add_sheep = function (herd, sheep=NULL, id="",
                     }
                 }
             }
+
+            # print("presque OUT")
+            # print(herd$plan)
+            # print(sheep$plan)
+            # print("")
             
             sheep$plan = matrix(rep(sheep$plan, each=nh),
                                 nrow=nrow(sheep$plan)*nh, byrow=FALSE)
             sheep$plan = t(matrix(rep(t(sheep$plan), each=nw),
                                   nrow=ncol(sheep$plan)*nw, byrow=FALSE))
+
+            # print("quasi OUT")
+            # print(herd$plan)
+            # print(sheep$plan)
+            # print("")
             
-            herd$plan[herd$plan == id] = sheep$plan
+            herd$plan[herd$plan == id] = sheep$plan[herd$plan == id]
+
+            # print("OUT")
+            # print(herd$plan)
+            # print("")
         }
-        
+
     } else {
         if (!is_sheep(sheep)) {
             here = which(sheep$id == id)
