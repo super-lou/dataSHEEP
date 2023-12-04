@@ -95,6 +95,11 @@ get_heights = function (HEIGHT, PLAN) {
                        colHEIGHT, colPLAN,
                        SIMPLIFY=FALSE)
     colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
+
+# print("colHEIGHT_sum")
+# print(colHEIGHT_sum)
+
+
     colHEIGHT_id = which(colHEIGHT_sum ==
                          max(colHEIGHT_sum, na.rm=TRUE))
     
@@ -162,7 +167,7 @@ get_widths = function (WIDTH, PLAN) {
     colWIDTH_sum = sapply(colWIDTH_not_dup, sum, na.rm=TRUE)
     colWIDTH_id = which(colWIDTH_sum ==
                         max(colWIDTH_sum, na.rm=TRUE))
-    
+
     widths = do.call(pmax,
                      args=append(colWIDTH[colWIDTH_id],
                                  list(na.rm=TRUE)))
@@ -454,9 +459,6 @@ return_to_sheepfold = function (herd,
         res = get_heights(HEIGHT, PLAN)
         heights = res$heights
 
-
-        
-
         res = get_widths(WIDTH, PLAN)
         widths = res$widths
         widths_real = res$widths_real   
@@ -483,10 +485,11 @@ return_to_sheepfold = function (herd,
         WIDTH[PLAN == "rjust"] = rjust_width
         WIDTH[PLAN == "lmargin"] = page_margin["l"]
         WIDTH[PLAN == "rmargin"] = page_margin["r"]
-
+        
         res = get_widths(WIDTH, PLAN)
         widths = res$widths
 
+        
     } else {
         heights = SHEEP$height
         widths = SHEEP$width
@@ -747,6 +750,13 @@ add_sheep = function (herd, sheep=NULL, id="",
     }
 
     if (is_sheep(sheep)) {
+
+        print("HERD")
+        print(herd)
+        print("SHEEP")
+        print(sheep)
+
+        
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
 
@@ -876,12 +886,15 @@ add_sheep = function (herd, sheep=NULL, id="",
                                   nrow=ncol(sheep$plan)*nw, byrow=FALSE))
 
             # print("quasi OUT")
+            # print(id)
             # print(herd$plan)
             # print(sheep$plan)
             # print("")
-            
-            herd$plan[herd$plan == id] = sheep$plan[herd$plan == id]
 
+            # herd$plan[herd$plan == id] = sheep$plan[herd$plan == id]
+            herd$plan[herd$plan == id] = sheep$plan
+            
+            
             # print("OUT")
             # print(herd$plan)
             # print("")
