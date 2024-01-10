@@ -750,13 +750,6 @@ add_sheep = function (herd, sheep=NULL, id="",
     }
 
     if (is_sheep(sheep)) {
-
-        print("HERD")
-        print(herd)
-        print("SHEEP")
-        print(sheep)
-
-        
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
 
@@ -791,16 +784,10 @@ add_sheep = function (herd, sheep=NULL, id="",
             herd$sheep$plot[[nrow(herd$sheep)]] = sheep
             
         } else {
-
-            # print("IN")
-            # print(herd$plan)
-            # print(sheep$plan)
-            
             sheep$sheep$id = paste0(id, ".", sheep$sheep$id)
             sheep$plan = matrix(paste0(id, ".", sheep$plan),
                                 nrow=nrow(sheep$plan),
                                 ncol=ncol(sheep$plan))
-            
             herd$sheep =
                 dplyr::bind_rows(herd$sheep,
                                  sheep$sheep)
@@ -842,9 +829,6 @@ add_sheep = function (herd, sheep=NULL, id="",
                     }
                 }
             }
-
-            # print("after row before col")
-            # print(herd$plan)
 
             for (i in 1:nw) {
                 col = index[i, "col"]

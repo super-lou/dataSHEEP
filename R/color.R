@@ -19,62 +19,6 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-IPCCgrey99 = "#f8f9f9" # lighter lighter plot background
-IPCCgrey97b = "#f9f8f7" # lighter hot plot background
-IPCCgrey97 = "#f6f7f7" # lighter blue plot background
-IPCCgrey95 = "#f4f2f1" # plot background
-IPCCgrey92 = "#e9eceb" # 
-IPCCgrey90 = "#e3e2e0" # minor tick
-IPCCgrey85 = "#dcdad9" # grid on grey background low important axis 
-IPCCgrey80 = "#cfd1d0" # grid on white background
-IPCCgrey75 = "#bebdbb" # major tick
-IPCCgrey67 = "#adabaa" # minor line
-IPCCgrey60 = "#9c9c9b" # important axis
-IPCCgrey50 = "#81848b" # low important annotation
-IPCCgrey48 = "#847b73" # major line
-IPCCgrey40 = "#656769" # low important label
-IPCCgrey25 = "#454547"
-IPCCgrey23 = "#3b3b3c"
-IPCCgrey20 = "#060403" # important title, label or annotation
-IPCCgrey18 = "#2f2f32" # low important title
-IPCCgrey13 = "#231f20" # font
-IPCCgrey05 = "#100f0d" # realy important title
-IPCCcyan = "#449c93"
-IPCCligthcyan = "#90d6c6"
-IPCCwhitecyan = "#a8ded3"
-IPCCbrique = "#794822"
-IPCCgold = "#e6d495"
-IPCCblue = "#1e2f59"
-IPCCfreshblue = "#BBD6ED"
-
-INRAEcyan = "#00a3a6"
-INRAElightercyan = "#b2e0df"
-INRAElightcyan = "#66c1bf"
-INRAEmediumcyan = "#008c8e"
-INRAEdarkcyan = "#275662"
-INRAElightblue = "#9ed6e3"
-
-EXPLORE2blue = "#007A92"
-EXPLORE2orange = "#EE7402"
-
-# EXPLORE2pmc = "#008837"
-# EXPLORE2pc = "#a6dba0"
-# EXPLORE2pn = "#f7f7f7"
-# EXPLORE2np = "#c2a5cf"
-# EXPLORE2nng = "#7b3294"
-
-EXPLORE2pmc = '#075e9b'
-EXPLORE2pc = '#43a2ca'
-EXPLORE2pn = '#7bccc4'
-EXPLORE2np = '#bae4bc'
-EXPLORE2nng = '#f0f9e8'
-
-
-
-refCOL =
-    # INRAEcyan
-    EXPLORE2blue
-
 
 #' @title get_IPCC_Palette
 #' @export
@@ -86,6 +30,17 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#F68815",
               "#203563",
               "#45AED4")
+    }
+
+        if (palette_name == "Mini_Metro") {
+        Palette =
+            c("#A22525",
+              "#E59F00",
+              "#DCD000",
+              "#1A9D69",
+              "#B1A8B7",
+              "#59B3E8",
+              "#3C5797")
     }
 
     if (palette_name == "ground_8") {
@@ -345,20 +300,22 @@ get_nearest = function (x, X) {
     X[which.min(abs(x - X))]
 }
 
+
 round_pimp = function (bin, center=NULL) {
-    step = round(diff(bin)[1], -get_power(diff(bin)[1]))
+    step = round(min(diff(bin)), -get_power(min(diff(bin))))
     Step = step*0:round(10^(max(sapply(bin, get_power))+1))
     if (is.null(center)) {
         center = 0
     }
     Step = c(center-rev(Step[-1]), center + Step)
     Step = sapply(bin, get_nearest, Step)
-    
+    dStep = round(diff(Step), 10)
+
     i = 1
     while (any(duplicated(Step)) |
-           any(diff(Step) != diff(Step)[1])) {
-        step = round(diff(bin)[1],
-                     -get_power(diff(bin)[1])+i)
+           any(dStep != dStep[1])) {
+        step = round(min(diff(bin)),
+                     -get_power(min(diff(bin)))+i)
         Step = step*0:round(10^(max(sapply(bin,
                                            get_power))+(i+1)))
         if (is.null(center)) {
@@ -366,6 +323,7 @@ round_pimp = function (bin, center=NULL) {
         }
         Step = c(center-rev(Step[-1]), center + Step)
         Step = sapply(bin, get_nearest, Step)
+        dStep = round(diff(Step), 10)
         i = i+1
     }
     return (Step)
@@ -385,6 +343,10 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         minValue = min
         maxValue = max
     }
+
+    print("min max value")
+    print(minValue)
+    print(maxValue)
     
     if (all(include)) {
         nBin = colorStep + 1
@@ -393,12 +355,21 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     } else {
         nBin = colorStep
     }
+    print("nbin")
+    print(nBin)
+
     
     bin = seq(minValue, maxValue, length.out=nBin)
 
+    print("bin")
+    print(bin)
+    
     if (round) {
         bin = round_pimp(bin, center=center)
     }
+
+    print("bin round")
+    print(bin)
     
     if (length(include) == 1) {
         if (!include) {
@@ -432,17 +403,22 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         }
     }
 
+
+    print("up low bin")
+    print(upBin)
+    print(lowBin)
+
     midBin = zoo::rollmean(bin, 2)
 
+    print("midBin")
+    print(midBin)
+    
     res = list(bin=bin, upBin=upBin,
                midBin=midBin, lowBin=lowBin)
     return (res)
 }
 
 
-# get_id = function (value, upBin, lowBin, include_min, include_max) {
-#     if ()
-# }
 
 #' @title get_color
 #' @export
@@ -532,69 +508,6 @@ get_palette = function (palette_name="BrBG", colorStep=10,
 }
 
 
-
-# colorStep = palette_n_shade*2+1
-# Palette = get_palette(palette_name, colorStep, palette_reverse)
-# res = compute_colorBin(minValue, maxValue,
-#                        colorStep,
-#                        center=palette_is_center,
-#                        include=include)
-# stripe_color = unlist(sapply(Value, get_color,
-#                              upBin=res$upBin,
-#                              lowBin=res$lowBin,
-#                              Palette=Palette))
-
-
-
-
-
-##########
-
-# #' @title Compute color
-# #' @export
-# compute_color = function (value, min, max, Palette,
-#                           colorStep=256, include=FALSE,
-#                           reverse=FALSE) {
-
-#     if (is.na(value)) {
-#         return (NA)
-#     }
-    
-#     res = compute_colorBin(min=min, max=max, Palette=Palette,
-#                            colorStep=colorStep, include=include,
-#                            reverse=reverse)
-#     upBin = res$upBin
-#     lowBin = res$lowBin
-#     PaletteColors = res$Palette
-
-#     id = which(value <= upBin & value > lowBin)
-#     color = PaletteColors[id]
-#     return(color)
-# }
-# compute_color(-51, -50, 40, Palette, colorStep=10)
-
-### 2.2. Get colors __________________________________________________
-# #' @title Get color
-# #' @export
-# get_color = function (value, min, max, Palette, colorStep=256,
-#                       reverse=FALSE, include=FALSE,
-#                       noneColor='black') {
-    
-#     color = sapply(value, compute_color,
-#                    min=min,
-#                    max=max,
-#                    Palette=Palette,
-#                    colorStep=colorStep,
-#                    include=include,
-#                    reverse=reverse)
-    
-#     color[is.na(color)] = noneColor    
-#     return(color)
-# }
-
-
-
-
 #' @title Color event
 #' @export
 get_colorEvent = function () {
@@ -639,70 +552,3 @@ get_reverse = function (var) {
     }
     return (reverse)
 }
-
-# ### 2.3. Palette tester ______________________________________________
-# # Allows to display the current personal palette
-# #' @title Palette tester
-# #' @export
-# palette_tester = function (Palette, colorStep=256) {
-
-#     outdir = 'palette'
-#     if (!(file.exists(outdir))) {
-#         dir.create(outdir)
-#     }
-
-#     # An arbitrary x vector
-#     X = 1:colorStep
-#     # All the same arbitrary y position to create a colorbar
-#     Y = rep(0, times=colorStep)
-
-#     # Recreates a continuous color palette
-#     Palette = colorRampPalette(Palette)(colorStep)
-
-#     # Open a void plot
-#     p = ggplot() + theme_void()
-
-#     for (x in X) {
-#         # Plot the palette
-#         p = p +
-#             annotate("segment",
-#                      x=x, xend=x,
-#                      y=0, yend=1,
-#                      color=Palette[x], size=1)
-#     }
-
-#     p = p +
-#         scale_x_continuous(limits=c(0, colorStep),
-#                            expand=c(0, 0)) +
-        
-#         scale_y_continuous(limits=c(0, 1),
-#                            expand=c(0, 0))
-
-#     # Saves the plot
-#     outname = deparse(substitute(Palette))
-    
-#     ggsave(plot=p,
-#            path=outdir,
-#            filename=paste(outname, '.pdf', sep=''),
-#            width=10, height=10, units='cm', dpi=100)
-
-#     ggsave(plot=p,
-#            path=outdir,
-#            filename=paste(outname, '.png', sep=''),
-#            width=10, height=10, units='cm', dpi=300)
-# }
-
-
-# #' @title Get palette
-# #' @export
-# get_palette = function (Palette, colorStep=256) {
-    
-#     # Gets the number of discrete colors in the palette
-#     nSample = length(Palette)
-#     # Recreates a continuous color palette
-#     Palette = colorRampPalette(Palette)(colorStep)
-
-#     return (Palette)
-# }
-
-
