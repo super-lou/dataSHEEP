@@ -344,9 +344,9 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         maxValue = max
     }
 
-    print("min max value")
-    print(minValue)
-    print(maxValue)
+    # print("min max value")
+    # print(minValue)
+    # print(maxValue)
     
     if (all(include)) {
         nBin = colorStep + 1
@@ -355,21 +355,21 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     } else {
         nBin = colorStep
     }
-    print("nbin")
-    print(nBin)
+    # print("nbin")
+    # print(nBin)
 
     
     bin = seq(minValue, maxValue, length.out=nBin)
 
-    print("bin")
-    print(bin)
+    # print("bin")
+    # print(bin)
     
     if (round) {
         bin = round_pimp(bin, center=center)
     }
 
-    print("bin round")
-    print(bin)
+    # print("bin round")
+    # print(bin)
     
     if (length(include) == 1) {
         if (!include) {
@@ -404,14 +404,14 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     }
 
 
-    print("up low bin")
-    print(upBin)
-    print(lowBin)
+    # print("up low bin")
+    # print(upBin)
+    # print(lowBin)
 
     midBin = zoo::rollmean(bin, 2)
 
-    print("midBin")
-    print(midBin)
+    # print("midBin")
+    # print(midBin)
     
     res = list(bin=bin, upBin=upBin,
                midBin=midBin, lowBin=lowBin)
