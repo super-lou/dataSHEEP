@@ -315,7 +315,8 @@ load_shapefile = function (computer_shp_path, Code=NULL,
         entiteHydro_list = lapply(entiteHydro_path, read_sf)
         entiteHydro_list = lapply(entiteHydro_list, st_transform, 2154)
         entiteHydro = do.call(rbind, entiteHydro_list)
-        entiteHydro = entiteHydro[entiteHydro$Code %in% Code,]
+        entiteHydro = dplyr::rename(entiteHydro, code=Code)
+        entiteHydro = entiteHydro[entiteHydro$code %in% Code,]
         entiteHydro = st_simplify(entiteHydro,
                                   preserveTopology=TRUE,
                                   dTolerance=toleranceRel*0.4)

@@ -19,6 +19,84 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
+# "EXPLORE2", "IPCC"
+assign_color = function (refCOL="INRAE") {
+
+     # lighter lighter plot background
+    assign("IPCCgrey99", "#f8f9f9", .GlobalEnv)
+    # lighter hot plot background
+    assign("IPCCgrey97b", "#f9f8f7", .GlobalEnv)
+    # lighter blue plot background
+    assign("IPCCgrey97", "#f6f7f7", .GlobalEnv)
+    # plot background
+    assign("IPCCgrey95", "#f4f2f1", .GlobalEnv)
+    assign("IPCCgrey92", "#e9eceb", .GlobalEnv)
+    # minor tick
+    assign("IPCCgrey90", "#e3e2e0", .GlobalEnv)
+    # grid on grey background low important axis
+    assign("IPCCgrey85", "#dcdad9", .GlobalEnv)
+    # grid on white background
+    assign("IPCCgrey80", "#cfd1d0", .GlobalEnv)
+    # major tick
+    assign("IPCCgrey75", "#bebdbb", .GlobalEnv)
+    # minor line
+    assign("IPCCgrey67", "#adabaa", .GlobalEnv)
+    # important axis
+    assign("IPCCgrey60", "#9c9c9b", .GlobalEnv)
+    # low important annotation
+    assign("IPCCgrey50", "#81848b", .GlobalEnv)
+    # major line
+    assign("IPCCgrey48", "#847b73", .GlobalEnv)
+    # low important label
+    assign("IPCCgrey40", "#656769", .GlobalEnv) 
+    assign("IPCCgrey25", "#454547", .GlobalEnv)
+    assign("IPCCgrey23", "#3b3b3c", .GlobalEnv)
+    # important title, label or annotation
+    assign("IPCCgrey20", "#060403", .GlobalEnv)
+    # low important title
+    assign("IPCCgrey18", "#2f2f32", .GlobalEnv)
+    # font
+    assign("IPCCgrey13", "#231f20", .GlobalEnv)
+    # realy important title
+    assign("IPCCgrey05", "#100f0d", .GlobalEnv)
+    assign("IPCCcyan", "#449c93", .GlobalEnv)
+    assign("IPCCligthcyan", "#90d6c6", .GlobalEnv)
+    assign("IPCCwhitecyan", "#a8ded3", .GlobalEnv)
+    assign("IPCCbrique", "#794822", .GlobalEnv)
+    assign("IPCCgold", "#e6d495", .GlobalEnv)
+    assign("IPCCblue", "#1e2f59", .GlobalEnv)
+    assign("IPCCfreshblue", "#BBD6ED", .GlobalEnv)
+
+    assign("INRAEcyan", "#00a3a6", .GlobalEnv)
+    assign("INRAElightercyan", "#b2e0df", .GlobalEnv)
+    assign("INRAElightcyan", "#66c1bf", .GlobalEnv)
+    assign("INRAEmediumcyan", "#008c8e", .GlobalEnv)
+    assign("INRAEdarkcyan", "#275662", .GlobalEnv)
+    assign("INRAElightblue", "#9ed6e3", .GlobalEnv)
+
+    assign("EXPLORE2blue", "#007A92", .GlobalEnv)
+    assign("EXPLORE2orange", "#EE7402", .GlobalEnv)
+
+    assign("EXPLORE2pmc", '#075e9b', .GlobalEnv)
+    assign("EXPLORE2pc", '#43a2ca', .GlobalEnv)
+    assign("EXPLORE2pn", '#7bccc4', .GlobalEnv)
+    assign("EXPLORE2np", '#bae4bc', .GlobalEnv)
+    assign("EXPLORE2nng", '#f0f9e8', .GlobalEnv)
+
+    if (refCOL == "INRAE") {
+        assign("refCOL", INRAEcyan, .GlobalEnv)
+    }
+    if (refCOL == "EXPLORE2") {
+        assign("refCOL", EXPLORE2blue, .GlobalEnv)
+    }
+    if (refCOL == "IPCC") {
+        assign("refCOL", IPCCblue, .GlobalEnv)
+    }
+}
+
+
+
+
 
 #' @title get_IPCC_Palette
 #' @export
