@@ -65,6 +65,12 @@ contour = function () {
     return (plot)
 }
 
+# add_contour = function () {
+#     return (theme(plot.background=element_rect(fill=NA, color="#EC4899")))
+# }
+
+
+
 ### 1.3. Circle ______________________________________________________
 # Allow to draw circle in ggplot2 with a radius and a center position
 #' @title Circle
@@ -374,20 +380,20 @@ load_shapefile = function (computer_shp_path, Code=NULL,
                  river=river))
 }
 
-### 4.2. Logo loading ________________________________________________
-#' @title Logo loading
-#' @export
-load_logo = function (resources_path, logo_dir, logo_to_show) {
-    logo_path = c()
-    nLogo = length(logo_to_show)
-    for (i in 1:nLogo) { 
-        logo_path = c(logo_path, file.path(resources_path,
-                                           logo_dir,
-                                           logo_to_show[i]))
-        names(logo_path)[length(logo_path)] = names(logo_to_show)[i]
-    }
-    return (logo_path)
-}
+# ### 4.2. Logo loading ________________________________________________
+# #' @title Logo loading
+# #' @export
+# load_logo = function (resources_path, logo_dir, logo_to_show) {
+#     logo_path = c()
+#     nLogo = length(logo_to_show)
+#     for (i in 1:nLogo) { 
+#         logo_path = c(logo_path, file.path(resources_path,
+#                                            logo_dir,
+#                                            logo_to_show[i]))
+#         names(logo_path)[length(logo_path)] = names(logo_to_show)[i]
+#     }
+#     return (logo_path)
+# }
 
 ### 4.3. Font loading ________________________________________________
 #' @title load_font

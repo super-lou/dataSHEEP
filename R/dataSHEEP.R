@@ -209,7 +209,8 @@ return_to_sheepfold = function (herd,
                                 verbose=FALSE) {
     if (verbose) {
         print("Look at that impressive herd :")
-        print(herd)
+        print(herd$sheep, n=Inf)
+        print(herd$plan)
         print("YA YA !! EVERYONE TO THE SHEEPFOLD !!")
     }
     
@@ -442,13 +443,12 @@ return_to_sheepfold = function (herd,
         } else {
             maxHeight = maxHeight + page_margin["t"] + page_margin["b"]
         }
-
-        if (paperHeight != maxHeight) {
-            tjust_height = (1-vjust) / round(paperHeight - maxHeight, 5)
-            bjust_height = vjust / round(paperHeight - maxHeight, 5)
-        } else {
+        if (round(paperHeight, 5) == round(maxHeight, 5)) {
             tjust_height = 0
             bjust_height = 0
+        } else {
+            tjust_height = (1-vjust) / round(paperHeight - maxHeight, 5)
+            bjust_height = vjust / round(paperHeight - maxHeight, 5)
         }
 
         HEIGHT[PLAN == "tjust"] = tjust_height
@@ -473,14 +473,13 @@ return_to_sheepfold = function (herd,
             maxWidth = maxWidth + page_margin["l"] + page_margin["r"]
         }
 
-        if (paperWidth != maxWidth) {
-            ljust_width = hjust / round(paperWidth - maxWidth, 5)
-            rjust_width = (1-hjust) / round(paperWidth - maxWidth, 5)
-        } else {
+        if (round(paperWidth, 5) == round(maxWidth, 5)) {
             ljust_width = 0
             rjust_width = 0
+        } else {
+            ljust_width = hjust / round(paperWidth - maxWidth, 5)
+            rjust_width = (1-hjust) / round(paperWidth - maxWidth, 5)
         }
-        
         WIDTH[PLAN == "ljust"] = ljust_width
         WIDTH[PLAN == "rjust"] = rjust_width
         WIDTH[PLAN == "lmargin"] = page_margin["l"]
@@ -508,10 +507,12 @@ return_to_sheepfold = function (herd,
         print(HEIGHT)
         print("heights")
         print(heights)
+        print(sum(heights))
         print("WIDTH")
         print(WIDTH)
         print("widths")
         print(widths)
+        print(sum(widths))
     }
 
     select = select_grobs(NUM)
@@ -628,7 +629,7 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
     if (verbose) {
         print("A good shear before joining the herd")
     }
-    
+
     SHEEP = herd$sheep
     PLAN = herd$plan    
     nrowPLAN = nrow(PLAN)
@@ -642,7 +643,7 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
     SHEEP$block = ""    
     nGroup = max(SHEEP$group, na.rm=TRUE)
     SHEEP$num = 1:nrow(SHEEP)
-    
+
     if (nGroup > 1) {
         
         for (i in nGroup:1) {
@@ -718,6 +719,11 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
         herd$sheep$width = herd$sheep$width/colWIDTH_sum_max
     }
 
+    if (verbose) {
+        print("Nice shear, take care of proportions !")
+        print(herd$sheep, n=Inf)
+    }
+
     return (herd) 
 }
 
@@ -750,20 +756,31 @@ add_sheep = function (herd, sheep=NULL, id="",
     }
 
     if (is_sheep(sheep)) {
+
+        if (all(is.na(sheep$sheep$height))) {
+            sheep$sheep$height = 1
+        }
+        if (all(is.na(sheep$sheep$width))) {
+            sheep$sheep$width = 1
+        }
+        
         sheep = shear_sheeps(sheep, height=TRUE, width=TRUE,
                              verbose=verbose)
 
-        if (all(is.na(sheep$sheep$height))) {
-            sheep$sheep$height = height
-        } else {
-            sheep$sheep$height = sheep$sheep$height * height
-        }
+        # if (all(is.na(sheep$sheep$height))) {
+        #     sheep$sheep$height = height
+        # } else {
+        #     sheep$sheep$height = sheep$sheep$height * height
+        # }
         
-        if (all(is.na(sheep$sheep$width))) {
-            sheep$sheep$width = width
-        } else {
-            sheep$sheep$width = sheep$sheep$width * width
-        }
+        # if (all(is.na(sheep$sheep$width))) {
+        #     sheep$sheep$width = width
+        # } else {
+        #     sheep$sheep$width = sheep$sheep$width * width
+        # }
+
+        sheep$sheep$height = sheep$sheep$height * height
+        sheep$sheep$width = sheep$sheep$width * width
     }
     
     if (overwrite_by_id == FALSE |
