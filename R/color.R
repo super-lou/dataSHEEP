@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # "EXPLORE2", "IPCC"
-assign_color = function (refCOL="INRAE") {
+assign_colors_and_fonts = function (refCOL="INRAE") {
 
      # lighter lighter plot background
     assign("IPCCgrey99", "#f8f9f9", .GlobalEnv)
@@ -92,7 +92,18 @@ assign_color = function (refCOL="INRAE") {
     if (refCOL == "IPCC") {
         assign("refCOL", IPCCblue, .GlobalEnv)
     }
+
+
+# extrafont::font_import(paths = c("path/to/font1/directory", "path/to/font2/directory", ...))
+
+# # Select your fonts
+# # Replace "Custom Font 1", "Custom Font 2", etc. with the names of your fonts
+# extrafont::loadfonts(device = "win", quiet = TRUE)
+# font_names <- c("Custom Font 1", "Custom Font 2", ...) 
+    
 }
+
+
 
 
 
@@ -604,18 +615,14 @@ get_colorTextEvent = function () {
 
 #' @title Switch color label
 #' @export
-switch_colorLabel = function (color) {
+switch_color = function (color, color_to_switch) {
     #switch 12% https://mdigi.tools/darken-color/#f6e8c3
-    if (color == "#F6E8C3") {
-        newColor = "#efd695"
-        
-    } else if (color == "#C7EAE5") {
-        newColor = "#a1dcd3"
-        
-    } else {
-        newColor = color
+    color = toupper(color)
+    color_to_switch = toupper(color_to_switch)
+    if (color %in% color_to_switch) {
+        color = names(color_to_switch)[color_to_switch == color]
     }
-    return (newColor)
+    return (color)
 }
 
 #' @title Get reverse

@@ -53,6 +53,8 @@ normalize_mapply = function (vect, vect_plans) {
 
 
 get_heights = function (HEIGHT, PLAN) {
+    avoid = c("tjust", "ljust", "rjust", "bjust",
+              "tmargin", "lmargin", "rmargin", "bmargin")
     colHEIGHT = as.list(as.data.frame(HEIGHT))
     colPLAN = as.list(as.data.frame(PLAN))
     names(colHEIGHT) = NULL
@@ -63,14 +65,6 @@ get_heights = function (HEIGHT, PLAN) {
 
     colHEIGHT_not_dup = mapply('[', colHEIGHT, colPLAN_dup,
                                SIMPLIFY=FALSE)
-    
-    # colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
-    # colHEIGHT_id = which.max(colHEIGHT_sum)[1]
-    
-    # heights = colHEIGHT[[colHEIGHT_id]]
-    # heights_real = colHEIGHT_not_dup[[colHEIGHT_id]]
-
-
 
     Plans = levels(factor(PLAN))
     PLAN_table = c()
@@ -96,12 +90,24 @@ get_heights = function (HEIGHT, PLAN) {
                        SIMPLIFY=FALSE)
     colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
 
-# print("colHEIGHT_sum")
-# print(colHEIGHT_sum)
-
-
     colHEIGHT_id = which(colHEIGHT_sum ==
                          max(colHEIGHT_sum, na.rm=TRUE))
+    
+    if (length(colHEIGHT_id) > 1) {
+        colHEIGHT_id_not_dup = c()
+        for (id in colHEIGHT_id) {
+            PLAN_chunck = PLAN[, id]
+            PLAN_chunck = PLAN_chunck[!(PLAN_chunck %in% avoid)]
+            if (!all(PLAN_chunck == PLAN_chunck[1])) {
+                colHEIGHT_id_not_dup = c(colHEIGHT_id_not_dup, id)
+            }
+        }
+        if (length(colHEIGHT_id_not_dup) > 0) {
+            colHEIGHT_id = colHEIGHT_id_not_dup
+        } else {
+            message ("More than one column are driving heights")
+        }
+    }
     
     heights = do.call(pmax,
                       args=append(colHEIGHT[colHEIGHT_id],
@@ -109,10 +115,7 @@ get_heights = function (HEIGHT, PLAN) {
     heights_real = do.call(pmax,
                            args=append(colHEIGHT_not_dup[colHEIGHT_id],
                                        list(na.rm=TRUE)))
-
-    # heights = round(heights, 5)
-    # heights_real = round(heights_real, 5)
-
+    
     return (list(heights=heights, heights_real=heights_real))
 }
 
@@ -131,6 +134,8 @@ divide_where = function (vect, vect_plan, plan, n) {
 }
 
 get_widths = function (WIDTH, PLAN) {
+    avoid = c("tjust", "ljust", "rjust", "bjust",
+              "tmargin", "lmargin", "rmargin", "bmargin")
     colWIDTH = as.list(as.data.frame(t(WIDTH)))
     colPLAN = as.list(as.data.frame(t(PLAN)))
     names(colWIDTH) = NULL
@@ -143,6 +148,7 @@ get_widths = function (WIDTH, PLAN) {
                               SIMPLIFY=FALSE)
 
     Plans = levels(factor(PLAN))
+    
     PLAN_table = c()
     for (plan in Plans) {
         PLAN_table =
@@ -168,15 +174,28 @@ get_widths = function (WIDTH, PLAN) {
     colWIDTH_id = which(colWIDTH_sum ==
                         max(colWIDTH_sum, na.rm=TRUE))
 
+    if (length(colWIDTH_id) > 1) {
+        colWIDTH_id_not_dup = c()
+        for (id in colWIDTH_id) {
+            PLAN_chunck = PLAN[id, ]
+            PLAN_chunck = PLAN_chunck[!(PLAN_chunck %in% avoid)]
+            if (!all(PLAN_chunck == PLAN_chunck[1])) {
+                colWIDTH_id_not_dup = c(colWIDTH_id_not_dup, id)
+            }
+        }
+        if (length(colWIDTH_id_not_dup) > 0) {
+            colWIDTH_id = colWIDTH_id_not_dup
+        } else {
+            message ("More than one line are driving widths")
+        }
+    }
+    
     widths = do.call(pmax,
                      args=append(colWIDTH[colWIDTH_id],
                                  list(na.rm=TRUE)))
     widths_real = do.call(pmax,
                           args=append(colWIDTH_not_dup[colWIDTH_id],
                                       list(na.rm=TRUE)))
-
-    # widths = round(widths, 5)
-    # widths_real = round(widths_real, 5)
     
     return (list(widths=widths, widths_real=widths_real))
 }
@@ -473,6 +492,16 @@ return_to_sheepfold = function (herd,
             maxWidth = maxWidth + page_margin["l"] + page_margin["r"]
         }
 
+
+        # print("maxWidth")
+        # print(maxWidth)
+        # print("widths")
+        # print(widths)
+        # print("widths_real")
+        # print(widths_real)
+
+
+        
         if (round(paperWidth, 5) == round(maxWidth, 5)) {
             ljust_width = 0
             rjust_width = 0
@@ -488,6 +517,14 @@ return_to_sheepfold = function (herd,
         res = get_widths(WIDTH, PLAN)
         widths = res$widths
 
+        
+        # print("widths")
+        # print(widths)
+        # print("WIDTH")
+        # print(WIDTH)
+
+
+        
         
     } else {
         heights = SHEEP$height
