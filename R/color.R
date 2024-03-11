@@ -20,6 +20,9 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # "EXPLORE2", "IPCC"
+
+#' @title assign_colors_and_fonts
+#' @export
 assign_colors_and_fonts = function (refCOL="INRAE") {
 
      # lighter lighter plot background
