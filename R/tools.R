@@ -791,6 +791,6 @@ get_breaks_function = function (breaks, isDate=TRUE,
 to_link = function (x) {
     gsub("ç", "c", 
          gsub("à", "a",
-              gsub("é|è|ê|ë|É|È|Ê|Ë", "e",
-                   gsub(" ", "_", x))))
+              gsub("é|è|ê|ë", "e",
+                   gsub(" ", "_", tolower(x)))))
 }
