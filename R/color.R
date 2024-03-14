@@ -220,17 +220,19 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 
     if (palette_name == "MAKAHO_hydro") {
         Palette =
-            c("#543005",
-              "#8C510A",
-              "#BF812D",
-              "#DFC27D",
-              "#F6E8C3",
-              "#C7EAE5",
-              "#80CDC1",
-              "#35978F",
-              "#01665E",
-              "#003C30")
+            c("#452C1A",
+              "#7F4A23",
+              "#B3762A",
+              "#D4B86A",
+              "#EFE0B0",
+              "#BCE6DB",
+              "#7ACEB9",
+              "#449C93",
+              "#2A6863",
+              "#193830")
     }
+    # "#543005 #8C510A #BF812D #DFC27D #F6E8C3 #C7EAE5 #80CDC1 #35978F #01665E #003C30"
+    # "#452C1A #7F4A23 #B3762A #D4B86A #EFE0B0 #BCE6DB #7ACEB9 #449C93 #2A6863 #193830"
 
     if (palette_name == "MAKAHO_temperature") {
         Palette =
