@@ -279,8 +279,14 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
-                       dTitle=0, isLabelX=FALSE, isLabelY=FALSE) {
+theme_IPCC = function (isBack=FALSE,
+                       isTitle=TRUE,
+                       isGridX=FALSE, isGridY=TRUE, 
+                       tick_y=TRUE,
+                       label_y=TRUE,
+                       isLabelX=FALSE, isLabelY=FALSE, 
+                       border=FALSE,
+                       zeroLine=TRUE) {
 
     if (isBack) {
         panel.background=element_rect(fill=IPCCgrey97)
@@ -295,6 +301,19 @@ theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
         panel.grid.major.x=element_blank()
     }
 
+    if (tick_y) {
+        axis.ticks.y = element_line(color=IPCCgrey75, size=0.4)
+    } else {
+        axis.ticks.y = element_blank()
+    }
+    if (label_y) {
+        axis.text.y = element_text(color=IPCCgrey40, size=8)
+    } else {
+        axis.text.y = element_blank()
+    }
+
+    
+
     if (isGridY) {
         panel.grid.major.y=element_line(color=IPCCgrey85,
                                         size=0.25)
@@ -303,9 +322,10 @@ theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
     }
     
     if (isTitle) {
-        plot.title=element_text(size=9,
-                                vjust=0, hjust=dTitle,
-                                color=IPCCgrey25)
+        plot.title=element_text(size=12,
+                                vjust=0, hjust=0,
+                                color=IPCCgrey23,
+                                face="bold")
     } else {
         plot.title=element_blank()
     }
@@ -326,6 +346,20 @@ theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
         axis.title.y=element_blank()
     }
 
+    if (border) {
+        panel.border = element_rect(color=IPCCgrey85,
+                                    fill=NA,
+                                    size=0.7)
+    } else {
+        panel.border = element_blank()
+    }
+
+    if (zeroLine) {
+        axis.line.x = element_line(color=IPCCgrey60, size=0.45)
+    } else {
+        axis.line.x = element_blank()
+    }
+
     library(ggh4x)
     theme =
         theme(
@@ -335,20 +369,18 @@ theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
             # text=element_text(family='sans'),
             text=element_text(family="Helvetica"),
             # Border of plot
-            panel.border=element_rect(color=IPCCgrey85,
-                                      fill=NA,
-                                      size=0.7),
+            panel.border=panel.border,
             # Grid
             panel.grid.major.x=panel.grid.major.x,
             panel.grid.major.y=panel.grid.major.y,
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker
-            axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
-            axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
+            axis.ticks.x=element_line(color=IPCCgrey75, size=0.4),
+            axis.ticks.y=axis.ticks.y,
             # Ticks label
-            axis.text.x=element_text(color=IPCCgrey40),
-            axis.text.y=element_text(color=IPCCgrey40),
+            axis.text.x=element_text(color=IPCCgrey40, size=10),
+            axis.text.y=axis.text.y,
             # Ticks length
             axis.ticks.length=unit(1.5, 'mm'),
             # Ticks minor
@@ -359,9 +391,12 @@ theme_IPCC = function (isBack=TRUE, isGridX=FALSE, isGridY=TRUE, isTitle=FALSE,
             axis.title.x=axis.title.x,
             axis.title.y=axis.title.y,
             # Axis line
-            axis.line.x=element_blank(),
-            axis.line.y=element_blank()
-            )
+            axis.line.x=axis.line.x,
+            axis.line.y=element_blank(),
+
+            line=element_line(lineend="round")
+        )
+    
     return (theme)
 }
 

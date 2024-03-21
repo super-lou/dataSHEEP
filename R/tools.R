@@ -794,3 +794,21 @@ to_link = function (x) {
               gsub("é|è|ê|ë", "e",
                    gsub(" ", "_", tolower(x)))))
 }
+
+
+
+spline_to_date = function (data, Xname, Yname, na.rm=FALSE, ...) {
+    isNA = is.na(data[[Yname]])
+    X = as.numeric(seq.Date(min(data[[Xname]], na.rm=TRUE),
+                            max(data[[Xname]], na.rm=TRUE),
+                            "years"))
+    SS = predict(smooth.spline(as.numeric(data[[Xname]][!isNA]),
+                               data[[Yname]][!isNA], ...),
+                 X)
+    if (!na.rm) {
+        SS$y[isNA] = NA  
+    }
+    data = dplyr::tibble(!!Xname:=as.Date(SS$x),
+                         !!Yname:=SS$y)
+    return (data)
+}
