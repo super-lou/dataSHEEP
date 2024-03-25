@@ -51,7 +51,8 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     # major line
     assign("IPCCgrey48", "#847b73", .GlobalEnv)
     # low important label
-    assign("IPCCgrey40", "#656769", .GlobalEnv) 
+    assign("IPCCgrey40", "#656769", .GlobalEnv)
+    assign("IPCCgrey35", "#565859", .GlobalEnv) 
     assign("IPCCgrey25", "#454547", .GlobalEnv)
     assign("IPCCgrey23", "#3b3b3c", .GlobalEnv)
     # important title, label or annotation
@@ -105,11 +106,6 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
 # font_names <- c("Custom Font 1", "Custom Font 2", ...) 
     
 }
-
-
-
-
-
 
 
 #' @title get_IPCC_Palette
@@ -284,6 +280,7 @@ theme_IPCC = function (isBack=FALSE,
                        isGridX=FALSE, isGridY=TRUE, 
                        tick_y=TRUE,
                        label_y=TRUE,
+                       size_axis.text.x=10,
                        isLabelX=FALSE, isLabelY=FALSE, 
                        border=FALSE,
                        zeroLine=TRUE) {
@@ -355,7 +352,8 @@ theme_IPCC = function (isBack=FALSE,
     }
 
     if (zeroLine) {
-        axis.line.x = element_line(color=IPCCgrey60, size=0.45)
+        axis.line.x = element_line(color=IPCCgrey60, size=0.45,
+                                   lineend="square")
     } else {
         axis.line.x = element_blank()
     }
@@ -376,15 +374,18 @@ theme_IPCC = function (isBack=FALSE,
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker
-            axis.ticks.x=element_line(color=IPCCgrey75, size=0.4),
+            axis.ticks.x=element_line(color=IPCCgrey75, size=0.4,
+                                      lineend="square"),
             axis.ticks.y=axis.ticks.y,
             # Ticks label
-            axis.text.x=element_text(color=IPCCgrey40, size=10),
+            axis.text.x=element_markdown(color=IPCCgrey40,
+                                         size=size_axis.text.x),
             axis.text.y=axis.text.y,
             # Ticks length
-            axis.ticks.length=unit(1.5, 'mm'),
+            axis.ticks.length.x=unit(1.7, 'mm'),
+            axis.ticks.length.y=unit(1.5, 'mm'),
             # Ticks minor
-            ggh4x.axis.ticks.length.minor=rel(0.5),
+            ggh4x.axis.ticks.length.minor=rel(0.6),
             # Title
             plot.title=plot.title,
             # Axis title

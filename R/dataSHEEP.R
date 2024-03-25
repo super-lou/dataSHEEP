@@ -104,7 +104,7 @@ get_heights = function (HEIGHT, PLAN) {
         }
         if (length(colHEIGHT_id_not_dup) > 0) {
             colHEIGHT_id = colHEIGHT_id_not_dup
-        } else {
+        } else if (!is.null(colHEIGHT_id_not_dup)) {
             message ("More than one column are driving heights")
         }
     }
@@ -185,7 +185,7 @@ get_widths = function (WIDTH, PLAN) {
         }
         if (length(colWIDTH_id_not_dup) > 0) {
             colWIDTH_id = colWIDTH_id_not_dup
-        } else {
+        } else if (!is.null(colWIDTH_id_not_dup)) {
             message ("More than one line are driving widths")
         }
     }
@@ -639,6 +639,10 @@ plan_of_herd = function (herd, plan, verbose=FALSE) {
         print("Ohh it's a nice herd you want :")
         print(plan)
     }
+
+    if (!is.character(plan)) {
+        plan = apply(plan, c(1, 2), as.character)
+    }
     
     if (!is.matrix(plan) & is.character(plan)) {
         # plan =
@@ -725,15 +729,20 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
                 SHEEP[OK_block,]$block = ""
                 SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
                 SHEEP$num = 1:nrow(SHEEP)
-
+                
                 PLAN[OK] = block
 
-                okPLAN = t(!apply(PLAN, 1, duplicated)) &
-                    !apply(PLAN, 2, duplicated)
+                if (ncol(PLAN) == 1) {
+                    okPLAN = matrix(!apply(PLAN, 1, duplicated)) &
+                        !apply(PLAN, 2, duplicated)
+                } else {
+                    okPLAN = t(!apply(PLAN, 1, duplicated)) &
+                        !apply(PLAN, 2, duplicated)
+                }
+
                 row2rm = apply(okPLAN, 1, sum) != 0
                 col2rm = apply(okPLAN, 2, sum) != 0
-                PLAN = PLAN[row2rm, col2rm]
-
+                PLAN = PLAN[row2rm, col2rm, drop=FALSE]
                 nrowPLAN = nrow(PLAN)
                 ncolPLAN = ncol(PLAN)
                 HEIGHT = SHEEP$height[match(PLAN, SHEEP$id)]
@@ -788,6 +797,8 @@ add_sheep = function (herd, sheep=NULL, id="",
                       overwrite_by_id=FALSE,
                       verbose=FALSE) {
 
+    id = as.character(id)
+    
     if (verbose) {
         print(paste0("Adding of ", id, " to the herd !"))
     }

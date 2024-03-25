@@ -253,7 +253,7 @@ load_shapefile = function (computer_shp_path, Code=NULL,
                            basinHydro_shp_path=NULL,
                            regionHydro_shp_path=NULL,
                            secteurHydro_shp_path=NULL,
-                           entiteHydro_shp_path=NULL, entiteHydro_coord=NULL,
+                           entiteHydro_shp_path=NULL,
                            entitePiezo_shp_path=NULL,
                            river_shp_path=NULL,
                            river_class=NULL,
@@ -619,19 +619,28 @@ convert2TeX = function (Var, size=NULL, is_it_small=FALSE, replace_space=FALSE, 
     
     for (i in 1:nVar) {
         var = VarTEX[i]
-        
+
         if (grepl("[_]", var) & !grepl("[_][{]", var)) {
             var = gsub("[_]", ", ", var)
             var = sub("[,] ", "$_{$", var)
-            var = paste0(var, "}")           
+            var = paste0(var, "$}$")           
         } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
             var = gsub("[_]", ", ", var)
             var = sub("[,] [{]", "$_{$", var)
+            var = sub("[}] ", "$}$", var)
         }
+        # if (grepl("[_]", var) & !grepl("[_][{]", var)) {
+        #     var = gsub("[_]", ", ", var)
+        #     var = sub("[,] ", "$_{$", var)
+        #     var = paste0(var, "}")           
+        # } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
+        #     var = gsub("[_]", ", ", var)
+        #     var = sub("[,] [{]", "$_{$", var)
+        # }
 
         if (grepl("\\^[{]", var)) {
-            var = gsub("\\^[{]", "$^{", var)
-            var = gsub("[}]", "}$", var)
+            var = gsub("\\^[{]", "$^{$", var)
+            var = gsub("[}]", "$}$", var)
         }
         # if (grepl("\\^[{][$][-]", var)) {
         # var = gsub("\\^[{][$][-]", "^{-$", var)
