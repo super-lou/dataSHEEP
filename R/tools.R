@@ -233,9 +233,9 @@ float2frac = function (X, den) {
 #' @param france_dir Directory you want to use in ash\\resources_path\\
 #' to get the France shapefile.
 #' @param france_file Name of the France shapefile.
-#' @param basinHydro_dir Directory you want to use in ash\\resources_path\\
+#' @param bassinHydro_dir Directory you want to use in ash\\resources_path\\
 #' to get the hydrological basin shapefile.
-#' @param basinHydro_file Name of the hydrological basin shapefile.
+#' @param bassinHydro_file Name of the hydrological basin shapefile.
 #' @param regionHydro_dir Directory you want to use in
 #' ash\\resources_path\\ to get the hydrological sub-basin shapefile.
 #' @param regionHydro_file Name of the hydrological sub-basin shapefile.
@@ -250,7 +250,7 @@ float2frac = function (X, den) {
 #' @export
 load_shapefile = function (computer_shp_path, Code=NULL,
                            france_shp_path=NULL,
-                           basinHydro_shp_path=NULL,
+                           bassinHydro_shp_path=NULL,
                            regionHydro_shp_path=NULL,
                            secteurHydro_shp_path=NULL,
                            entiteHydro_shp_path=NULL,
@@ -276,16 +276,16 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     }
 
     # Hydrological basin
-    if (!is.null(basinHydro_shp_path)) {
-        basinHydro_path = file.path(computer_shp_path,
-                                    basinHydro_shp_path)
-        basinHydro = st_read(basinHydro_path)
-        basinHydro = st_transform(basinHydro, 2154)
-        basinHydro = st_simplify(basinHydro,
+    if (!is.null(bassinHydro_shp_path)) {
+        bassinHydro_path = file.path(computer_shp_path,
+                                    bassinHydro_shp_path)
+        bassinHydro = st_read(bassinHydro_path)
+        bassinHydro = st_transform(bassinHydro, 2154)
+        bassinHydro = st_simplify(bassinHydro,
                                  preserveTopology=TRUE,
                                  dTolerance=toleranceRel*0.6)
     } else {
-        basinHydro = NULL
+        bassinHydro = NULL
     }
     
     # Hydrological sub-basin
@@ -372,7 +372,7 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     }
 
     return (list(france=france,
-                 basinHydro=basinHydro,
+                 bassinHydro=bassinHydro,
                  regionHydro=regionHydro,
                  secteurHydro=secteurHydro,
                  entiteHydro=entiteHydro,
