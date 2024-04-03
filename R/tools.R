@@ -821,3 +821,13 @@ spline_to_date = function (data, Xname, Yname, na.rm=FALSE, ...) {
                          !!Yname:=SS$y)
     return (data)
 }
+
+
+get_regexp = function (X) {
+    X = paste0("(", paste0(X, collapse=")|("), ")")
+    X = gsub("[_]", "[_]", X)
+    X = gsub("[-]", "[-]", X)
+    X = gsub("[{]", "[{]", X)
+    X = gsub("[{]", "[}]", X)
+    return (X)
+}

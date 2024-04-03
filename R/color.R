@@ -275,38 +275,62 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isBack=FALSE,
+theme_IPCC = function (is_panel.background=FALSE,
                        isTitle=TRUE,
                        isGridX=FALSE, isGridY=TRUE, 
-                       tick_y=TRUE,
-                       label_y=TRUE,
-                       size_axis.text.x=10,
-                       isLabelX=FALSE, isLabelY=FALSE, 
-                       border=FALSE,
-                       zeroLine=TRUE) {
 
-    if (isBack) {
+                       is_axis.ticks.y=TRUE,
+                       is_axis.text.y=TRUE,
+                       axis.text.y_margin=NULL,
+                       axis.text.y_size=8,
+                       
+                       is_axis.line.x=TRUE,
+                       is_axis.ticks.x=TRUE,
+                       is_axis.text.x=TRUE,
+                       axis.text.x_size=10,
+
+                       isLabelX=FALSE, isLabelY=FALSE, 
+                       border=FALSE) {
+
+    if (is_panel.background) {
         panel.background=element_rect(fill=IPCCgrey97)
     } else {
         panel.background=element_blank()
     }
 
     if (isGridX) {
-        panel.grid.major.x=element_line(color=IPCCgrey85,
+        panel.grid.major.x = element_line(color=IPCCgrey85,
                                         size=0.25)
     } else {
-        panel.grid.major.x=element_blank()
+        panel.grid.major.x = element_blank()
     }
 
-    if (tick_y) {
+    
+    if (is_axis.ticks.y) {
         axis.ticks.y = element_line(color=IPCCgrey75, size=0.4)
     } else {
         axis.ticks.y = element_blank()
     }
-    if (label_y) {
-        axis.text.y = element_text(color=IPCCgrey40, size=8)
+    if (is_axis.text.y) {
+        axis.text.y = element_markdown(color=IPCCgrey40,
+                                       size=axis.text.y_size,
+                                       margin=axis.text.y_margin)
     } else {
         axis.text.y = element_blank()
+    }
+
+
+    if (is_axis.ticks.x) {
+        axis.ticks.x = element_line(color=IPCCgrey75, size=0.4,
+                                    lineend="square")
+    } else {
+        axis.ticks.x = element_blank()
+    }
+    if (is_axis.text.x) {
+        axis.text.x = element_markdown(color=IPCCgrey40,
+                                       size=axis.text.x_size)
+    } else {
+        axis.text.x = element_blank()
     }
 
     
@@ -351,7 +375,7 @@ theme_IPCC = function (isBack=FALSE,
         panel.border = element_blank()
     }
 
-    if (zeroLine) {
+    if (is_axis.line.x) {
         axis.line.x = element_line(color=IPCCgrey60, size=0.45,
                                    lineend="square")
     } else {
@@ -374,15 +398,13 @@ theme_IPCC = function (isBack=FALSE,
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker
-            axis.ticks.x=element_line(color=IPCCgrey75, size=0.4,
-                                      lineend="square"),
+            axis.ticks.x=axis.ticks.x,
             axis.ticks.y=axis.ticks.y,
             # Ticks label
-            axis.text.x=element_markdown(color=IPCCgrey40,
-                                         size=size_axis.text.x),
+            axis.text.x=axis.text.x,
             axis.text.y=axis.text.y,
             # Ticks length
-            axis.ticks.length.x=unit(1.7, 'mm'),
+            axis.ticks.length.x=unit(1.6, 'mm'),
             axis.ticks.length.y=unit(1.5, 'mm'),
             # Ticks minor
             ggh4x.axis.ticks.length.minor=rel(0.6),
@@ -401,26 +423,26 @@ theme_IPCC = function (isBack=FALSE,
     return (theme)
 }
 
-theme_WIP = function () {
-    theme(panel.background=element_rect(fill=IPCCgrey97),
-          axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
-          axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
-          # Ticks label
-          axis.text.x=element_text(color=IPCCgrey75),
-          axis.text.y=element_text(color=IPCCgrey75),
-          # Ticks length
-          axis.ticks.length=unit(1.5, 'mm'),
-          # Ticks minor
-          ggh4x.axis.ticks.length.minor=rel(0.5),
-          # Title
-          plot.title=element_blank(),
-          # Axis title
-          axis.title.x=element_blank(),
-          axis.title.y=element_blank(),
-          # Axis line
-          axis.line.x=element_line(color=IPCCgrey75, size=0.3),
-          axis.line.y=element_line(color=IPCCgrey75, size=0.3))
-}
+# theme_WIP = function () {
+#     theme(panel.background=element_rect(fill=IPCCgrey97),
+#           axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
+#           axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
+#           # Ticks label
+#           axis.text.x=element_text(color=IPCCgrey75),
+#           axis.text.y=element_text(color=IPCCgrey75),
+#           # Ticks length
+#           axis.ticks.length=unit(1.5, 'mm'),
+#           # Ticks minor
+#           ggh4x.axis.ticks.length.minor=rel(0.5),
+#           # Title
+#           plot.title=element_blank(),
+#           # Axis title
+#           axis.title.x=element_blank(),
+#           axis.title.y=element_blank(),
+#           # Axis line
+#           axis.line.x=element_line(color=IPCCgrey75, size=0.3),
+#           axis.line.y=element_line(color=IPCCgrey75, size=0.3))
+# }
 
 
 ## 2. COLOR MANAGEMENT _______________________________________________
