@@ -25,21 +25,15 @@
 # A plot completly blank
 #' @title Void plot
 #' @export
-void = function () {
-    plot = ggplot() + geom_blank(aes(1,1)) +
-        theme(
-            plot.background = element_blank(), 
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(), 
-            panel.border = element_blank(),
-            panel.background = element_blank(),
-            axis.title.x = element_blank(),
-            axis.title.y = element_blank(),
-            axis.text.x = element_blank(), 
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank()
-        )
+void = function (panel.background_fill=NA,
+                 plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) {
+
+    plot = ggplot() + theme_void() +
+        
+        theme(plot.margin=plot.margin,
+              panel.background=element_rect(fill=panel.background_fill,
+                                            color=NA))
+    
     return (plot)
 }
 
@@ -47,21 +41,14 @@ void = function () {
 # A plot completly blank with a contour
 #' @title Contour plot
 #' @export
-contour = function () {
-    plot = ggplot() + geom_blank(aes(1,1)) +
-        theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(), 
-            panel.border = element_blank(),
-            panel.background = element_blank(),
-            axis.title.x = element_blank(),
-            axis.title.y = element_blank(),
-            axis.text.x = element_blank(), 
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank(),
-            plot.background=element_rect(fill=NA, color="#EC4899"),
-            plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"))
+contour = function (panel.background_fill=NA) {
+    
+    plot = ggplot() + theme_void() +
+        
+        theme(plot.margin=margin(t=0, r=0, b=0, l=0, unit="mm"),
+              panel.background=element_rect(fill=panel.background_fill,
+                                            color="#EC4899"))
+    
     return (plot)
 }
 
@@ -828,6 +815,14 @@ get_regexp = function (X) {
     X = gsub("[_]", "[_]", X)
     X = gsub("[-]", "[-]", X)
     X = gsub("[{]", "[{]", X)
-    X = gsub("[{]", "[}]", X)
+    X = gsub("[}]", "[}]", X)
     return (X)
+}
+
+
+
+get_pattern_block = function (block) {
+    get_regexp(paste0(rep(c("^", "[.]"), 2),
+                      gsub("[.]", "[.]", block),
+                      rep(c("[.]", "$"), each=2)))
 }

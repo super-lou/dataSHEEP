@@ -90,6 +90,13 @@ get_heights = function (HEIGHT, PLAN) {
                        SIMPLIFY=FALSE)
     colHEIGHT_sum = sapply(colHEIGHT_not_dup, sum, na.rm=TRUE)
 
+    # print(PLAN)
+    # print(Plans)
+    # print(PLAN_table)
+    # print(colHEIGHT)
+    # print(colHEIGHT_not_dup)
+    # print(colHEIGHT_sum)
+    
     colHEIGHT_id = which(colHEIGHT_sum ==
                          max(colHEIGHT_sum, na.rm=TRUE))
     
@@ -228,8 +235,8 @@ return_to_sheepfold = function (herd,
                                 verbose=FALSE) {
     if (verbose) {
         print("Look at that impressive herd :")
-        print(herd$sheep, n=Inf)
-        print(herd$plan)
+        # print(herd$sheep, n=Inf)
+        # print(herd$plan)
         print("YA YA !! EVERYONE TO THE SHEEPFOLD !!")
     }
     
@@ -355,13 +362,38 @@ return_to_sheepfold = function (herd,
                 block = Block[j]
                 SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
 
-                if (i == 1) {
-                    OK = apply(PLAN, c(1, 2), grepl,
-                               pattern=paste0(gsub("[.]", "[.]", block), "$"))
-                } else {
-                    OK = apply(PLAN, c(1, 2), grepl,
-                               pattern=paste0(gsub("[.]", "[.]", block), "[.]"))
-                }
+                # if (i == 1) {
+                #     OK = apply(PLAN, c(1, 2), grepl,
+                #                pattern=paste0(gsub("[.]", "[.]", block), "$"))
+                # } else {
+                #     OK = apply(PLAN, c(1, 2), grepl,
+                #                pattern=paste0(gsub("[.]", "[.]", block), "[.]"))
+                # }
+
+                # if (verbose) print(block)
+
+                pattern = get_pattern_block(block)
+
+                # print(pattern)
+                # print(SHEEP_group_block, n=Inf)
+
+                pattern = SHEEP_group_block$id
+
+                # print(SHEEP, n=Inf)
+                # print(PLAN)
+                
+
+                # if (verbose) print(pattern)
+                
+                # OK = apply(PLAN, c(1, 2), grepl, pattern=pattern)
+                # OK = PLAN %in% pattern
+                OK = apply(PLAN, c(1, 2), "%in%", pattern)
+                
+
+                # print(OK)
+                # print("")
+
+                # if (verbose) print("a")
                 
                 nrowOK = max(apply(OK, 2, sum))
                 ncolOK = max(apply(OK, 1, sum))
@@ -371,6 +403,7 @@ return_to_sheepfold = function (herd,
                 HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
                 WIDTH_group_block = matrix(WIDTH[OK], nrow=nrowOK, ncol=ncolOK)
 
+                # if (verbose) print("b")
 
                 res = get_heights(HEIGHT_group_block, PLAN_group_block)
                 heights_group_block = res$heights
@@ -380,6 +413,8 @@ return_to_sheepfold = function (herd,
                 widths_group_block = res$widths
                 widths_real = res$widths_real
 
+                # if (verbose) print("c")
+                
                 if (all(is.na(heights_group_block))) {
                     heights = NULL
                 } else {
@@ -391,17 +426,24 @@ return_to_sheepfold = function (herd,
                     widths = widths_group_block
                 }
 
+                # if (verbose) print("d")
+
                 grobs = SHEEP$plot[SHEEP$num %in%
                                    sort(select_grobs(NUM_group_block))]
 
+                # if (verbose) print("e")
+                
                 grob =
-                    arrangeGrob(grobs=grobs,
-                                nrow=nrow(NUM_group_block),
-                                ncol=ncol(NUM_group_block),
-                                heights=heights,
-                                widths=widths,
-                                layout_matrix=NUM_group_block,
-                                as.table=FALSE)
+                    gridExtra::arrangeGrob(
+                                   grobs=grobs,
+                                   nrow=nrow(NUM_group_block),
+                                   ncol=ncol(NUM_group_block),
+                                   heights=heights,
+                                   widths=widths,
+                                   layout_matrix=NUM_group_block,
+                                   as.table=FALSE)
+
+                # if (verbose) print("f")
 
                 OK_block = SHEEP$group == i &
                     SHEEP$block == block            
@@ -421,6 +463,8 @@ return_to_sheepfold = function (herd,
                 SHEEP[OK_block,]$block = ""
                 SHEEP = dplyr::distinct(SHEEP, num, .keep_all=TRUE)
                 SHEEP$num = 1:nrow(SHEEP)
+
+                # if (verbose) print("g")
                 
                 PLAN[OK] = block
                 
@@ -437,6 +481,8 @@ return_to_sheepfold = function (herd,
                 WIDTH = matrix(WIDTH, nrow=nrowPLAN, ncol=ncolPLAN)
                 NUM = match(PLAN, SHEEP$id)
                 NUM = matrix(NUM, nrow=nrowPLAN, ncol=ncolPLAN)
+
+                # if (verbose) print("h")
             }
         }
     }
@@ -557,12 +603,13 @@ return_to_sheepfold = function (herd,
     grobs = SHEEP$plot[select]
 
     plot =
-        gridExtra::arrangeGrob(grobs=grobs,
-                               nrow=nrowPLAN,
-                               ncol=ncolPLAN,
-                               heights=heights,
-                               widths=widths,
-                               layout_matrix=NUM)
+        gridExtra::arrangeGrob(
+                       grobs=grobs,
+                       nrow=nrowPLAN,
+                       ncol=ncolPLAN,
+                       heights=heights,
+                       widths=widths,
+                       layout_matrix=NUM)
     
     if (!is.null(paper_size)) {
         res = list(plot=plot, paper_size=c(paperWidth, paperHeight))
@@ -685,6 +732,10 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
     nGroup = max(SHEEP$group, na.rm=TRUE)
     SHEEP$num = 1:nrow(SHEEP)
 
+
+    # if (verbose) print(PLAN)
+    # if (verbose) print(SHEEP, n=Inf)
+
     if (nGroup > 1) {
         
         for (i in nGroup:1) {
@@ -702,7 +753,11 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
                 block = Block[j]
                 SHEEP_group_block = SHEEP_group[SHEEP_group$block == block,]
 
-                OK = apply(PLAN, c(1, 2), grepl, pattern=gsub("[.]", "[.]", block))
+                pattern = get_pattern_block(block)
+
+                # print(pattern)
+                
+                OK = apply(PLAN, c(1, 2), grepl, pattern=pattern)
                 # OK = apply(PLAN, c(1, 2), grepl, pattern=block, fixed=TRUE)
                 nrowOK = max(apply(OK, 2, sum))
                 ncolOK = max(apply(OK, 1, sum))
@@ -711,7 +766,16 @@ shear_sheeps = function (herd, height=TRUE, width=TRUE,
                 HEIGHT_group_block = matrix(HEIGHT[OK], nrow=nrowOK, ncol=ncolOK)
                 WIDTH_group_block = matrix(WIDTH[OK], nrow=nrowOK, ncol=ncolOK)
 
+                # print("AA")
+                # if (verbose) print(block)
+                # print(SHEEP_group_block)
+                # print(PLAN_group_block)
+                # print("BB")
+                
                 res = get_heights(HEIGHT_group_block, PLAN_group_block)
+
+                # print("CC")
+                
                 heights_group_block = res$heights
                 heights_real = res$heights_real
                 
@@ -857,96 +921,199 @@ add_sheep = function (herd, sheep=NULL, id="",
                 dplyr::bind_rows(herd$sheep,
                                  sheep$sheep)
             
-            index = which(herd$plan == id, arr.ind=TRUE)
-            index = index[nrow(index):1,, drop=FALSE]
+            IN = which(herd$plan == id, arr.ind=TRUE)
+            IN = IN[nrow(IN):1,, drop=FALSE]
+
+            IN_row = sort(IN[, "row"][!duplicated(IN[, "row"])])
+            nIN_row = length(IN_row)
+            nALL_row = nrow(herd$plan)
+            n_row = nrow(sheep$plan)
             
-            nh = length(levels(factor(index[, "row"])))
-            nw = length(levels(factor(index[, "col"])))
-            h = nrow(sheep$plan)
-            w = ncol(sheep$plan)
+            IN_col = sort(IN[, "col"][!duplicated(IN[, "col"])])
+            nIN_col = length(IN_col)
+            nALL_col = ncol(herd$plan)
+            n_col = ncol(sheep$plan)
 
-            for (i in 1:nh) {
-                row = index[i, "row"]
+            # if (verbose) {
+            #     print("IN")
+            #     print(IN)
+            #     print(paste0("nIN_row ", nIN_row))
+            #     print(paste0("nIN_col ", nIN_col))
+                
+            #     print("herd")
+            #     print(herd$plan)
+            #     print(paste0("nALL_row ", nALL_row))
+            #     print(paste0("nALL_col ", nALL_col))
+                
+            #     print("sheep")
+            #     print(sheep$plan)
+            #     print(paste0("n_row ", n_row))
+            #     print(paste0("n_col ", n_col))
+            #     cat("\n")
+            # }
 
-                if (h > 0) {
-                    if (row == 1) {
-                        if (nrow(herd$plan) == 1) {
-                            herd$plan =
-                                matrix(rep(herd$plan[row,], h),
-                                       nrow=h, byrow=TRUE)
-                        } else {
-                            herd$plan =
-                                rbind(matrix(rep(herd$plan[row,], h),
-                                             nrow=h, byrow=TRUE),
-                                      herd$plan[(row+1):nrow(herd$plan),, drop=FALSE])
-                        } 
-                    } else if (row == nrow(herd$plan)) {
-                        herd$plan =
-                            rbind(herd$plan[1:(row-1),, drop=FALSE],
-                                  matrix(rep(herd$plan[row,], h),
-                                         nrow=h, byrow=TRUE))
-                    } else {
-                        herd$plan =
-                            rbind(herd$plan[1:(row-1),, drop=FALSE],
-                                  matrix(rep(herd$plan[row,], h),
-                                         nrow=h, byrow=TRUE),
-                                  herd$plan[(row+1):nrow(herd$plan),, drop=FALSE])
-                    }
+
+            if (n_row > 0 & nIN_row != n_row) {
+                # if (verbose) print("OK ROW")
+
+                planIN = herd$plan[IN_row,, drop=FALSE]
+                planIN = planIN[rep(1:nIN_row, each=n_row),, drop=FALSE]
+
+                # if (verbose) print("planIN")
+                # if (verbose) print(planIN)
+                
+                if (1 %in% IN_row & nALL_row %in% IN_row) {
+                    herd$plan = planIN
+
+                } else if (1 %in% IN_row & !(nALL_row %in% IN_row)) {
+                    herd$plan =
+                        rbind(planIN,
+                              herd$plan[(max(IN_row)+1):nALL_row,, drop=FALSE])
+                    
+                } else if (!(1 %in% IN_row) & nALL_row %in% IN_row) {
+                    herd$plan =
+                        rbind(herd$plan[1:(min(IN_row)-1),, drop=FALSE],
+                              planIN)
+                    
+                } else {
+                    herd$plan =
+                        rbind(herd$plan[1:(min(IN_row)-1),, drop=FALSE],
+                              planIN,
+                              herd$plan[(max(IN_row)+1):nALL_row,, drop=FALSE])
                 }
+
+
+
+
+
+                
+                # for (row in IN_row) {
+                    
+                #     if (row == 1) {
+                #         if (nrow(herd$plan) == 1) {
+                #             herd$plan =
+                #                 matrix(rep(herd$plan[row,], n_row),
+                #                        nrow=n_row, byrow=TRUE)
+                #         } else {
+                #             herd$plan =
+                #                 rbind(matrix(rep(herd$plan[row,], n_row),
+                #                              nrow=n_row, byrow=TRUE),
+                #                       herd$plan[(row+1):nrow(herd$plan),,
+                #                                 drop=FALSE])
+                #         }
+                        
+                #     } else if (row == nrow(herd$plan)) {
+                #         herd$plan =
+                #             rbind(herd$plan[1:(row-1),, drop=FALSE],
+                #                   matrix(rep(herd$plan[row,], n_row),
+                #                          nrow=n_row, byrow=TRUE))
+                #     } else {
+                #         herd$plan =
+                #             rbind(herd$plan[1:(row-1),, drop=FALSE],
+                #                   matrix(rep(herd$plan[row,], n_row),
+                #                          nrow=n_row, byrow=TRUE),
+                #                   herd$plan[(row+1):nrow(herd$plan),,
+                #                             drop=FALSE])
+                #     }
+                # }
             }
 
-            for (i in 1:nw) {
-                col = index[i, "col"]
-                if (w > 0) {
-                    if (col == 1) {
-                        if (ncol(herd$plan) == 1) {
-                            herd$plan =
-                                matrix(rep(herd$plan[, col], w),
-                                       ncol=w, byrow=FALSE)
-                        } else {
-                            herd$plan =
-                                cbind(matrix(rep(herd$plan[, col], w),
-                                             ncol=w, byrow=FALSE),
-                                      herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
-                        }
-                    } else if (col == ncol(herd$plan)) {
-                        herd$plan =
-                            cbind(herd$plan[, 1:(col-1), drop=FALSE],
-                                  matrix(rep(herd$plan[, col], w),
-                                         ncol=w, byrow=FALSE))
-                    } else {
-                        herd$plan =
-                            cbind(herd$plan[, 1:(col-1), drop=FALSE],
-                                  matrix(rep(herd$plan[, col], w),
-                                         ncol=w, byrow=FALSE),
-                                  herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
-                    }
+            
+
+            if (n_col > 0 & nIN_col != n_col) {
+                # if (verbose) print("OK COL")
+                
+                planIN = herd$plan[, IN_col, drop=FALSE]
+                planIN = planIN[, rep(1:nIN_col, each=n_col), drop=FALSE]
+
+                if (1 %in% IN_col & nALL_col %in% IN_col) {
+                    herd$plan = planIN
+
+                } else if (1 %in% IN_col & !(nALL_col %in% IN_col)) {
+                    herd$plan =
+                        cbind(planIN,
+                              herd$plan[, (max(IN_col)+1):nALL_col, drop=FALSE])
+                    
+                } else if (!(1 %in% IN_col) & nALL_col %in% IN_col) {
+                    herd$plan =
+                        cbind(herd$plan[, 1:(min(IN_col)-1), drop=FALSE],
+                              planIN)
+                    
+                } else {
+                    herd$plan =
+                        cbind(herd$plan[, 1:(min(IN_col)-1), drop=FALSE],
+                              planIN,
+                              herd$plan[, (max(IN_col)+1):nALL_col, drop=FALSE])
                 }
+
+                
+                # for (i in 1:nIN_col) {
+                #     col = index[i, "col"]
+                #     if (col == 1) {
+                #         if (ncol(herd$plan) == 1) {
+                #             herd$plan =
+                #                 matrix(rep(herd$plan[, col], w),
+                #                        ncol=w, byrow=FALSE)
+                #         } else {
+                #             herd$plan =
+                #                 cbind(matrix(rep(herd$plan[, col], w),
+                #                              ncol=w, byrow=FALSE),
+                #                       herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
+                #         }
+                        
+                #     } else if (col == ncol(herd$plan)) {
+                #         herd$plan =
+                #             cbind(herd$plan[, 1:(col-1), drop=FALSE],
+                #                   matrix(rep(herd$plan[, col], w),
+                #                          ncol=w, byrow=FALSE))
+                        
+                #     } else {
+                #         herd$plan =
+                #             cbind(herd$plan[, 1:(col-1), drop=FALSE],
+                #                   matrix(rep(herd$plan[, col], w),
+                #                          ncol=w, byrow=FALSE),
+                #                   herd$plan[, (col+1):ncol(herd$plan), drop=FALSE])
+                #     }
+                # }
             }
 
-            # print("presque OUT")
-            # print(herd$plan)
-            # print(sheep$plan)
-            # print("")
-            
-            sheep$plan = matrix(rep(sheep$plan, each=nh),
-                                nrow=nrow(sheep$plan)*nh, byrow=FALSE)
-            sheep$plan = t(matrix(rep(t(sheep$plan), each=nw),
-                                  nrow=ncol(sheep$plan)*nw, byrow=FALSE))
 
-            # print("quasi OUT")
-            # print(id)
-            # print(herd$plan)
-            # print(sheep$plan)
-            # print("")
+
+            
+
+            # if (verbose) {
+            #     print("presque OUT")
+            #     print(herd$plan)
+            #     print(sheep$plan)
+            #     cat("\n")
+            # }
+
+            if (nIN_row != n_row) {
+                sheep$plan = matrix(rep(sheep$plan, each=nIN_row),
+                                    nrow=nrow(sheep$plan)*nIN_row, byrow=FALSE) 
+            }
+
+            if (nIN_col != n_col) {
+                sheep$plan = t(matrix(rep(t(sheep$plan), each=nIN_col),
+                                      nrow=ncol(sheep$plan)*nIN_col, byrow=FALSE))
+            }
+            
+            # if (verbose) {
+            #     print("quasi OUT")
+            #     print(id)
+            #     print(herd$plan)
+            #     print(sheep$plan)
+            #     print("")
+            # }
 
             # herd$plan[herd$plan == id] = sheep$plan[herd$plan == id]
             herd$plan[herd$plan == id] = sheep$plan
             
-            
-            # print("OUT")
-            # print(herd$plan)
-            # print("")
+            # if (verbose) {
+            #     print("OUT")
+            #     print(herd$plan)
+            #     print("")
+            # }
         }
 
     } else {

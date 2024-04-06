@@ -276,7 +276,10 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 #' @title Ggplot2 theme ash
 #' @export
 theme_IPCC = function (is_panel.background=FALSE,
-                       isTitle=TRUE,
+
+                       is_plot.title=TRUE,
+                       plot.title_size=10,
+                       
                        isGridX=FALSE, isGridY=TRUE, 
 
                        is_axis.ticks.y=TRUE,
@@ -300,7 +303,7 @@ theme_IPCC = function (is_panel.background=FALSE,
 
     if (isGridX) {
         panel.grid.major.x = element_line(color=IPCCgrey85,
-                                        size=0.25)
+                                          size=0.25)
     } else {
         panel.grid.major.x = element_blank()
     }
@@ -342,8 +345,8 @@ theme_IPCC = function (is_panel.background=FALSE,
         panel.grid.major.y=element_blank()
     }
     
-    if (isTitle) {
-        plot.title=element_text(size=12,
+    if (is_plot.title) {
+        plot.title=element_text(size=plot.title_size,
                                 vjust=0, hjust=0,
                                 color=IPCCgrey23,
                                 face="bold")
