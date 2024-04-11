@@ -77,6 +77,11 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     assign("INRAEmediumcyan", "#008c8e", .GlobalEnv)
     assign("INRAEdarkcyan", "#275662", .GlobalEnv)
     assign("INRAElightblue", "#9ed6e3", .GlobalEnv)
+    assign("INRAEgreen", "#9dc544", .GlobalEnv)
+    assign("INRAEroyalblue", "#423089", .GlobalEnv)
+    assign("INRAEred", "#ed6e6c", .GlobalEnv)
+    assign("INRAEgrey", "#797870", .GlobalEnv)
+    assign("INRAElightgrey", "#c4c0b3", .GlobalEnv)
 
     assign("EXPLORE2blue", "#007A92", .GlobalEnv)
     assign("EXPLORE2orange", "#EE7402", .GlobalEnv)
@@ -118,6 +123,14 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#F68815",
               "#203563",
               "#45AED4")
+    }
+
+    if (palette_name == "RCP") {
+        Palette =
+            c("#003466",
+              "#C47900",
+              "#70A0CD",
+              "#990002")
     }
 
         if (palette_name == "Mini_Metro") {
