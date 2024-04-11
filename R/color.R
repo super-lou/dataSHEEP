@@ -128,8 +128,8 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
     if (palette_name == "RCP") {
         Palette =
             c("#003466",
-              "#C47900",
               "#70A0CD",
+              "#C47900",
               "#990002")
     }
 
