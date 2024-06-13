@@ -417,7 +417,7 @@ theme_IPCC = function (is_panel.background=FALSE,
             # Font
             # text=element_text(family='sans'),
             # text=element_text(family="Helvetica"),
-            text=element_text(family="TeX Gyre Heros"),
+            # text=element_text(family="TeX Gyre Heros"),
             # Border of plot
             panel.border=panel.border,
             # Grid
