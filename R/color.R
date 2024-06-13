@@ -306,6 +306,8 @@ theme_IPCC = function (is_panel.background=FALSE,
                        is_axis.text.y=TRUE,
                        axis.text.y_margin=NULL,
                        axis.text.y_size=8,
+                       axis.text.y_vjust=0.65,
+                       axis.ticks.length.y=1.5,
                        
                        is_axis.line.x=TRUE,
                        is_axis.ticks.x=TRUE,
@@ -313,10 +315,10 @@ theme_IPCC = function (is_panel.background=FALSE,
                        axis.text.x_size=10,
 
                        isLabelX=FALSE, isLabelY=FALSE, 
-                       border=FALSE) {
+                       is_border=FALSE) {
 
     if (is_panel.background) {
-        panel.background=element_rect(fill=IPCCgrey97)
+        panel.background=element_rect(fill=IPCCgrey97, color=NA)
     } else {
         panel.background=element_blank()
     }
@@ -328,16 +330,17 @@ theme_IPCC = function (is_panel.background=FALSE,
         panel.grid.major.x = element_blank()
     }
 
-    
     if (is_axis.ticks.y) {
         axis.ticks.y = element_line(color=IPCCgrey75, size=0.4)
     } else {
         axis.ticks.y = element_blank()
+        
     }
     if (is_axis.text.y) {
-        axis.text.y = element_markdown(color=IPCCgrey40,
-                                       size=axis.text.y_size,
-                                       margin=axis.text.y_margin)
+        axis.text.y = ggtext::element_markdown(color=IPCCgrey40,
+                                               size=axis.text.y_size,
+                                               margin=axis.text.y_margin,
+                                               vjust=axis.text.y_vjust)
     } else {
         axis.text.y = element_blank()
     }
@@ -350,8 +353,8 @@ theme_IPCC = function (is_panel.background=FALSE,
         axis.ticks.x = element_blank()
     }
     if (is_axis.text.x) {
-        axis.text.x = element_markdown(color=IPCCgrey40,
-                                       size=axis.text.x_size)
+        axis.text.x = ggtext::element_markdown(color=IPCCgrey40,
+                                               size=axis.text.x_size)
     } else {
         axis.text.x = element_blank()
     }
@@ -390,7 +393,7 @@ theme_IPCC = function (is_panel.background=FALSE,
         axis.title.y=element_blank()
     }
 
-    if (border) {
+    if (is_border) {
         panel.border = element_rect(color=IPCCgrey85,
                                     fill=NA,
                                     size=0.7)
@@ -428,7 +431,7 @@ theme_IPCC = function (is_panel.background=FALSE,
             axis.text.y=axis.text.y,
             # Ticks length
             axis.ticks.length.x=unit(1.6, 'mm'),
-            axis.ticks.length.y=unit(1.5, 'mm'),
+            axis.ticks.length.y=unit(axis.ticks.length.y, 'mm'),
             # Ticks minor
             ggh4x.axis.ticks.length.minor=rel(0.6),
             # Title
@@ -446,30 +449,61 @@ theme_IPCC = function (is_panel.background=FALSE,
     return (theme)
 }
 
-# theme_WIP = function () {
-#     theme(panel.background=element_rect(fill=IPCCgrey97),
-#           axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
-#           axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
-#           # Ticks label
-#           axis.text.x=element_text(color=IPCCgrey75),
-#           axis.text.y=element_text(color=IPCCgrey75),
-#           # Ticks length
-#           axis.ticks.length=unit(1.5, 'mm'),
-#           # Ticks minor
-#           ggh4x.axis.ticks.length.minor=rel(0.5),
-#           # Title
-#           plot.title=element_blank(),
-#           # Axis title
-#           axis.title.x=element_blank(),
-#           axis.title.y=element_blank(),
-#           # Axis line
-#           axis.line.x=element_line(color=IPCCgrey75, size=0.3),
-#           axis.line.y=element_line(color=IPCCgrey75, size=0.3))
-# }
+theme_WIP = function () {
+    theme(panel.background=element_rect(fill=IPCCgrey97),
+          axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
+          axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
+          # Ticks label
+          axis.text.x=element_text(color=IPCCgrey75),
+          axis.text.y=element_text(color=IPCCgrey75),
+          # Ticks length
+          axis.ticks.length=unit(1, 'mm'),
+          # Ticks minor
+          ggh4x.axis.ticks.length.minor=rel(0.5),
+          # Title
+          plot.title=element_blank(),
+          # Axis title
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          # Axis line
+          axis.line.x=element_line(color=IPCCgrey75, size=0.3),
+          axis.line.y=element_line(color=IPCCgrey75, size=0.3))
+}
 
 
 ## 2. COLOR MANAGEMENT _______________________________________________
 ### 2.1. Compute colors ______________________________________________
+#' @title Number formatting
+#' @export
+get_power = function (value) {
+    if (is.na(value) | !is.finite(value)) {
+        return (0)
+    }
+    if (length(value) > 1) {
+        power = unlist(as.list(sapply(value, get_power),
+                               recursive=TRUE,
+                               use.names=FALSE))
+    } else {
+        if (!is.na(value)) {
+            value = abs(value)
+            
+            if (value >= 1) {
+                power = nchar(as.character(as.integer(value))) - 1
+            } else if (value == 0) {
+                power = 0
+            } else {
+                dec = gsub('0.', '', as.character(value), fixed=TRUE)
+                ndec = nchar(dec)
+                nnum = nchar(as.character(
+                    as.numeric(dec)))
+                power = -(ndec - nnum + 1)
+            }
+        } else {
+            power = NA
+        }
+    }
+    return (power)
+}
 
 get_nearest = function (x, X) {
     X[which.min(abs(x - X))]
@@ -500,6 +534,10 @@ round_pimp = function (bin, center=NULL) {
         Step = sapply(bin, get_nearest, Step)
         dStep = round(diff(Step), 10)
         i = i+1
+
+        if (i == 4) {
+            break
+        }
     }
     return (Step)
 }
@@ -519,10 +557,6 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         maxValue = max
     }
 
-    # print("min max value")
-    # print(minValue)
-    # print(maxValue)
-    
     if (all(include)) {
         nBin = colorStep + 1
     } else if (all(!include)) {
@@ -530,21 +564,12 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     } else {
         nBin = colorStep
     }
-    # print("nbin")
-    # print(nBin)
-
     
     bin = seq(minValue, maxValue, length.out=nBin)
-
-    # print("bin")
-    # print(bin)
     
     if (round) {
         bin = round_pimp(bin, center=center)
     }
-
-    # print("bin round")
-    # print(bin)
     
     if (length(include) == 1) {
         if (!include) {
@@ -578,18 +603,7 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         }
     }
 
-
-    # print("up low bin")
-    # print(upBin)
-    # print(lowBin)
-
-    midBin = zoo::rollmean(bin, 2)
-
-    # print("midBin")
-    # print(midBin)
-    
-    res = list(bin=bin, upBin=upBin,
-               midBin=midBin, lowBin=lowBin)
+    res = list(bin=bin, upBin=upBin, lowBin=lowBin)
     return (res)
 }
 

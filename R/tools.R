@@ -86,50 +86,7 @@ nbsp = function (n, size=NA) {
 ## 3. NUMBER MANAGEMENT ______________________________________________
 ### 3.1. Number formatting ___________________________________________
 # Returns the power of ten of the scientific expression of a value
-#' @title Number formatting
-#' @export
-get_power = function (value) {
 
-    if (is.na(value) | !is.finite(value)) {
-        return (0)
-    }
-    
-    if (length(value) > 1) {
-        power = unlist(as.list(sapply(value, get_power),
-                               recursive=TRUE,
-                               use.names=FALSE))
-    } else {
-        if (!is.na(value)) {
-            # Do not care about the sign
-            value = abs(value)
-            
-            # If the value is greater than one
-            if (value >= 1) {
-                # The magnitude is the number of character of integer part
-                # of the value minus one
-                power = nchar(as.character(as.integer(value))) - 1
-                # If value is zero
-            } else if (value == 0) {
-                # The power is zero
-                power = 0
-                # If the value is less than one
-            } else {
-                # Extract the decimal part
-                dec = gsub('0.', '', as.character(value), fixed=TRUE)
-                # Number of decimal with zero
-                ndec = nchar(dec)
-                # Number of decimal without zero
-                nnum = nchar(as.character(
-                    as.numeric(dec)))
-                # Compute the power of ten associated
-                power = -(ndec - nnum + 1)
-            }
-        } else {
-            power = NA
-        }
-    }
-    return (power)
-}
 
 ### 3.2. Pourcentage of variable _____________________________________
 # Returns the value corresponding of a certain percentage of a
@@ -252,10 +209,10 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     if (!is.null(france_shp_path)) {
         france_path = file.path(computer_shp_path,
                                 france_shp_path)
-        france = st_read(france_path)
-        france = st_union(france)
-        france = st_transform(france, 2154)
-        france = st_simplify(france,
+        france = sf::st_read(france_path)
+        france = sf::st_union(france)
+        france = sf::st_transform(france, 2154)
+        france = sf::st_simplify(france,
                              preserveTopology=TRUE,
                              dTolerance=toleranceRel)
     } else {
@@ -266,9 +223,9 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     if (!is.null(bassinHydro_shp_path)) {
         bassinHydro_path = file.path(computer_shp_path,
                                     bassinHydro_shp_path)
-        bassinHydro = st_read(bassinHydro_path)
-        bassinHydro = st_transform(bassinHydro, 2154)
-        bassinHydro = st_simplify(bassinHydro,
+        bassinHydro = sf::st_read(bassinHydro_path)
+        bassinHydro = sf::st_transform(bassinHydro, 2154)
+        bassinHydro = sf::st_simplify(bassinHydro,
                                  preserveTopology=TRUE,
                                  dTolerance=toleranceRel*0.6)
     } else {
@@ -279,9 +236,9 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     if (!is.null(regionHydro_shp_path)) {
         regionHydro_path = file.path(computer_shp_path,
                                      regionHydro_shp_path)
-        regionHydro = st_read(regionHydro_path)
-        regionHydro = st_transform(regionHydro, 2154)
-        regionHydro = st_simplify(regionHydro,
+        regionHydro = sf::st_read(regionHydro_path)
+        regionHydro = sf::st_transform(regionHydro, 2154)
+        regionHydro = sf::st_simplify(regionHydro,
                                   preserveTopology=TRUE,
                                   dTolerance=toleranceRel*0.6)
     } else {
@@ -292,9 +249,9 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     if (!is.null(secteurHydro_shp_path)) {
         secteurHydro_path = file.path(computer_shp_path,
                                       secteurHydro_shp_path)
-        secteurHydro = st_read(secteurHydro_path)
-        secteurHydro = st_transform(secteurHydro, 2154)
-        secteurHydro = st_simplify(secteurHydro,
+        secteurHydro = sf::st_read(secteurHydro_path)
+        secteurHydro = sf::st_transform(secteurHydro, 2154)
+        secteurHydro = sf::st_simplify(secteurHydro,
                                    preserveTopology=TRUE,
                                    dTolerance=toleranceRel*0.6)
     } else {
@@ -306,11 +263,11 @@ load_shapefile = function (computer_shp_path, Code=NULL,
         entiteHydro_path = file.path(computer_shp_path,
                                      entiteHydro_shp_path)
         entiteHydro_list = lapply(entiteHydro_path, read_sf)
-        entiteHydro_list = lapply(entiteHydro_list, st_transform, 2154)
+        entiteHydro_list = lapply(entiteHydro_list, sf::st_transform, 2154)
         entiteHydro = do.call(rbind, entiteHydro_list)
         entiteHydro = dplyr::rename(entiteHydro, code=Code)
         entiteHydro = entiteHydro[entiteHydro$code %in% Code,]
-        entiteHydro = st_simplify(entiteHydro,
+        entiteHydro = sf::st_simplify(entiteHydro,
                                   preserveTopology=TRUE,
                                   dTolerance=toleranceRel*0.4)
     } else {
@@ -321,9 +278,9 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     if (!is.null(entitePiezo_shp_path)) {
         entitePiezo_path = file.path(computer_shp_path,
                                      entitePiezo_shp_path)
-        entitePiezo = st_read(entitePiezo_path)
-        entitePiezo = st_transform(entitePiezo, 2154)
-        entitePiezo = st_simplify(entitePiezo,
+        entitePiezo = sf::st_read(entitePiezo_path)
+        entitePiezo = sf::st_transform(entitePiezo, 2154)
+        entitePiezo = sf::st_simplify(entitePiezo,
                                   preserveTopology=TRUE,
                                   dTolerance=toleranceRel*0.6)
     } else {
@@ -335,23 +292,23 @@ load_shapefile = function (computer_shp_path, Code=NULL,
         river_path = file.path(computer_shp_path,
                                river_shp_path)
         # Hydrographic network
-        river = st_read(river_path)
-        river = st_transform(river, 2154)
+        river = sf::st_read(river_path)
+        river = sf::st_transform(river, 2154)
         
         if (!is.null(river_class)) {
             river = river[river$Classe %in% river_class,]
 
         }
         if (!is.null(river_length)) {
-            river$length = as.numeric(st_length(river$geometry))
+            river$length = as.numeric(sf::st_length(river$geometry))
             river = river[river$length >= river_length,]
         }
         if (!is.null(river_selection)) {
             river = river[grepl(paste(river_selection, collapse='|'),
-                                river$NomEntiteH),]
+                                river$TopoOH),]
         }
         
-        river = st_simplify(river,
+        river = sf::st_simplify(river,
                             preserveTopology=TRUE,
                             dTolerance=toleranceRel*0.4) 
     } else {
@@ -497,10 +454,16 @@ get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
                                        paste0(letter, ".txt")),
                         row.names=FALSE, col.names=FALSE)
         }
-        first_one = apply(pixels, 1, find_id, a=1, where="first")
-        last_one = apply(pixels, 1, find_id, a=1, where="last")
-        px = max(last_one, na.rm=TRUE) -
-            min(first_one, na.rm=TRUE) + 1
+        # firsf::
+            st_one = apply(pixels, 1, find_id, a=1, where="first")
+        # lasf::
+            st_one = apply(pixels, 1, find_id, a=1, where="last")
+        px = max(
+            # lasf::
+                 st_one, na.rm=TRUE) -
+            min(
+                # firsf::
+                st_one, na.rm=TRUE) + 1
         PX = c(PX, px)
         names(PX)[length(PX)] = letter
     }
