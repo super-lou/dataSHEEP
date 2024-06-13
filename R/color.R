@@ -453,6 +453,7 @@ theme_IPCC = function (is_panel.background=FALSE,
 
 theme_WIP = function () {
     theme(panel.background=element_rect(fill=IPCCgrey97),
+          text=element_text(family="TeX Gyre Heros"),
           axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
           axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
           # Ticks label
