@@ -102,7 +102,7 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
         assign("refCOL", IPCCblue, .GlobalEnv)
     }
 
-    # theme_set(theme(text=element_text(family="TeX Gyre Heros")))
+    # theme_set(theme(text=element_text(family="Lato")))
     
 # extrafont::font_import(paths = c("path/to/font1/directory", "path/to/font2/directory", ...))
 
@@ -417,7 +417,7 @@ theme_IPCC = function (is_panel.background=FALSE,
             # Font
             # text=element_text(family='sans'),
             # text=element_text(family="Helvetica"),
-            text=element_text(family="TeX Gyre Heros"),
+            text=element_text(family="Lato"),
             # Border of plot
             panel.border=panel.border,
             # Grid
@@ -453,7 +453,7 @@ theme_IPCC = function (is_panel.background=FALSE,
 
 theme_WIP = function () {
     theme(panel.background=element_rect(fill=IPCCgrey97),
-          text=element_text(family="TeX Gyre Heros"),
+          text=element_text(family="Lato"),
           axis.ticks.x=element_line(color=IPCCgrey75, size=0.3),
           axis.ticks.y=element_line(color=IPCCgrey75, size=0.3),
           # Ticks label
