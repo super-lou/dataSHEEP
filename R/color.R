@@ -101,8 +101,6 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     if (refCOL == "IPCC") {
         assign("refCOL", IPCCblue, .GlobalEnv)
     }
-
-    theme_set(theme(text=element_text(family="TeX Gyre Heros")))
     
 # extrafont::font_import(paths = c("path/to/font1/directory", "path/to/font2/directory", ...))
 
