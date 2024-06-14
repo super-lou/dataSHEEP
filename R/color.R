@@ -307,13 +307,13 @@ theme_IPCC = function (is_panel.background=FALSE,
                        is_axis.text.y=TRUE,
                        axis.text.y_margin=NULL,
                        axis.text.y_size=8,
-                       axis.text.y_vjust=0.65,
+                       axis.text.y_vjust=0.59,
                        axis.ticks.length.y=1.5,
                        
                        is_axis.line.x=TRUE,
                        is_axis.ticks.x=TRUE,
                        is_axis.text.x=TRUE,
-                       axis.text.x_size=10,
+                       axis.text.x_size=9,
 
                        isLabelX=FALSE, isLabelY=FALSE, 
                        is_border=FALSE) {
@@ -449,6 +449,10 @@ theme_IPCC = function (is_panel.background=FALSE,
         )
     
     return (theme)
+}
+
+theme_void_Lato = function () {
+    theme_void() + theme(text=element_text(family="Lato"))
 }
 
 theme_WIP = function () {
