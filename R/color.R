@@ -231,32 +231,22 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
     if (palette_name == "hydro_10") {
         Palette =
             c("#452C1A", "#7F4A23", "#B3762A", "#D4B86A", "#EFE0B0", "#BCE6DB", "#7ACEB9", "#449C93", "#2A6863", "#193830")
-        # "#452C1A #7F4A23 #B3762A #D4B86A #EFE0B0 #BCE6DB #7ACEB9 #449C93 #2A6863 #193830"
     }
 
     if (palette_name == "temperature_10") {
         Palette =
             c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F")
-        # "#053061 #2166AC #4393C3 #92C5DE #D1E5F0 #FDDBC7 #F4A582 #D6604D #B2182B #67001F"
     }
 
     if (palette_name == "date_10") {
-        # Palette =
-            # c("#893687", "#BC66A5", "#E596C3", "#EAC5DD", "#EFE2E9", "#F5E4E2", "#F2D7B5", "#E9BD6F", "#DC8C48", "#CD5629")
-        # "#893687 #BC66A5 #E596C3 #EAC5DD #EFE2E9 #F5E4E2 #F2D7B5 #E9BD6F #DC8C48 #CD5629"
-            # c("#5B245A", "#983C96", "#C367C1", "#DBA4DA", "#F3E0F3", "#F8E3DC","#EAAC95", "#DC754E", "#B14A23", "#6A2D15")
-        # "#5B245A #983C96 #C367C1 #DBA4DA #F3E0F3 #F8E3DC #EAAC95 #DC754E #B14A23 #6A2D15"
-
     Palette =
         c("#60265e", "#893687", "#c05fbe", "#dba3da", "#edd1ec", "#f6ddd3", "#edbaa7", "#e08765", "#CD5629", "#8f3c1d")
-        # "#60265e #893687 #c05fbe #dba3da #edd1ec #f6ddd3 #edbaa7 #e08765 #CD5629 #8f3c1d"
         # https://mdigi.tools/darken-color/#893687
         # -30 0 +30 +60 +80
     }
 
-    if (palette_name == "crue_10") {
+    if (palette_name == "risk_10") {
         Palette = c("#193830", "#2A6863", "#449C93", "#7ACEB9", "#BCE6DB", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F")
-        # "#193830 #2A6863 #449C93 #7ACEB9 #BCE6DB #FDDBC7 #F4A582 #D6604D #B2182B #67001F"
     }
     
     if (!is.na(colorStep)) {
