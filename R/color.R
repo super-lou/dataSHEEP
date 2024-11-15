@@ -92,6 +92,9 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     assign("EXPLORE2np", '#bae4bc', .GlobalEnv)
     assign("EXPLORE2nng", '#f0f9e8', .GlobalEnv)
 
+    assign("COLORmediumgreen", '#57bb8a', .GlobalEnv)
+    
+
     if (refCOL == "INRAE") {
         assign("refCOL", INRAEcyan, .GlobalEnv)
     }
@@ -226,7 +229,42 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
             c("#59141C",
               "#F9DDD5")
     }
+    if (palette_name == "green_ramp") {
+        Palette =  
+            c("#276245",
+              "#D5EEE2")
+    }
+    if (palette_name == "greyblue_ramp") {
+        Palette =  
+            c("#294756",
+              "#d6e4eb")
+    }
 
+    if (palette_name == "darkergreyblue_ramp") {
+        Palette =  
+            c("#213945",
+              "#d6e4eb")
+    }
+
+    if (palette_name == "YlGnBu_prettier") {
+        Palette =  
+            c("#2b3f5c",
+              "#41b6c4",
+              "#ffffcc")
+    }
+
+    if (palette_name == "YlGnBu") {
+        Palette =
+            c("#ffffd9",
+              "#edf8b1",
+              "#c7e9b4",
+              "#7fcdbb",
+              "#41b6c4",
+              "#1d91c0",
+              "#225ea8",
+              "#253494",
+              "#081d58")
+    }
 
     if (palette_name == "hydro_10") {
         Palette =
@@ -261,10 +299,14 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 }
 
 
-
-test_palette = function (Palette) {
+#' @title test_palette
+#' @export
+test_palette = function (palette_name, colorStep=NA, reverse=FALSE) {
+    Palette = get_IPCC_Palette(palette_name,
+                               colorStep=colorStep,
+                               reverse=reverse)
     plot = ggplot2::ggplot() + ggplot2::theme_void() +
-        ggplot2::annotate("tile", x=1:10, y=0,
+        ggplot2::annotate("tile", x=1:colorStep, y=0,
                           color=NA, fill=Palette)
     outdir = "../palette"
     if (!dir.exists(outdir)) {
@@ -272,7 +314,8 @@ test_palette = function (Palette) {
     }
     ggplot2::ggsave(plot=plot,
                     path=outdir,
-                    filename=paste0(paste0(Palette, collapse=" "),
+                    filename=paste0(palette_name, "_",
+                                    paste0(Palette, collapse="-"),
                                     ".pdf"),
                     width=10,
                     height=5, units='cm',
