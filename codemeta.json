@@ -31,6 +31,7 @@
     "description": "A more or less user friendly plotting package that aims to facilitate the creation of datasheet for research purposes.\n\nUn package de visualisation plus ou moins convivial qui vise à faciliter la création de fiches graphiques techniques à des fins de recherche.",
     "keywords": [
         "ggplot2",
+	"graphical visualisation",
         "datasheet",
         "workflow",
         "hydrological projection",
