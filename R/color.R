@@ -450,8 +450,8 @@ theme_IPCC = function (is_panel.background=FALSE,
             # White background
             panel.background=panel.background,
             # Font
-            # text=element_text(family='sans'),
-            # text=element_text(family="Helvetica"),
+            # text=element_text(family='Sans'),
+            text=element_text(family="DejaVu Sans"),
             # text=element_text(family="Lato"),
             # Border of plot
             panel.border=panel.border,
