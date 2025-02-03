@@ -16,5 +16,6 @@ Imports:
     ggtext,
     ggplot2,
     zoo,
+    magick,
     ggh4x
 RoxygenNote: 7.2.3
