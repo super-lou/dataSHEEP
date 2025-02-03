@@ -349,7 +349,9 @@ theme_IPCC = function (is_panel.background=FALSE,
                        axis.text.x_size=9,
 
                        isLabelX=FALSE, isLabelY=FALSE, 
-                       is_border=FALSE) {
+                       is_border=FALSE,
+
+                       use_Lato=FALSE) {
 
     if (is_panel.background) {
         panel.background=element_rect(fill=IPCCgrey97, color=NA)
@@ -443,14 +445,14 @@ theme_IPCC = function (is_panel.background=FALSE,
     }
 
     library(ggh4x)
-    theme =
+    theme_ =
         theme(
             # White background
             panel.background=panel.background,
             # Font
             # text=element_text(family='sans'),
             # text=element_text(family="Helvetica"),
-            text=element_text(family="Lato"),
+            # text=element_text(family="Lato"),
             # Border of plot
             panel.border=panel.border,
             # Grid
@@ -480,8 +482,13 @@ theme_IPCC = function (is_panel.background=FALSE,
 
             line=element_line(lineend="round")
         )
+
+    if (use_Lato) {
+        theme_ = theme_ +
+            theme(text=element_text(family="Lato"))
+    }
     
-    return (theme)
+    return (theme_)
 }
 
 theme_void_Lato = function () {
