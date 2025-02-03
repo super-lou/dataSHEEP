@@ -15,5 +15,6 @@ Imports:
     dplyr,
     ggtext,
     ggplot2,
-    zoo
+    zoo,
+    ggh4x
 RoxygenNote: 7.2.3
