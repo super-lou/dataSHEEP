@@ -4,7 +4,7 @@
 \alias{contour}
 \title{Contour plot}
 \usage{
-contour()
+contour(panel.background_fill = NA)
 }
 \description{
 Contour plot

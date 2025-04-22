@@ -8,11 +8,10 @@ load_shapefile(
   computer_shp_path,
   Code = NULL,
   france_shp_path = NULL,
-  basinHydro_shp_path = NULL,
+  bassinHydro_shp_path = NULL,
   regionHydro_shp_path = NULL,
   secteurHydro_shp_path = NULL,
   entiteHydro_shp_path = NULL,
-  entiteHydro_coord = NULL,
   entitePiezo_shp_path = NULL,
   river_shp_path = NULL,
   river_class = NULL,
@@ -29,10 +28,10 @@ to get the France shapefile.}
 
 \item{france_file}{Name of the France shapefile.}
 
-\item{basinHydro_dir}{Directory you want to use in ash\\resources_path\\
+\item{bassinHydro_dir}{Directory you want to use in ash\\resources_path\\
 to get the hydrological basin shapefile.}
 
-\item{basinHydro_file}{Name of the hydrological basin shapefile.}
+\item{bassinHydro_file}{Name of the hydrological basin shapefile.}
 
 \item{regionHydro_dir}{Directory you want to use in
 ash\\resources_path\\ to get the hydrological sub-basin shapefile.}

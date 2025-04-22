@@ -4,7 +4,10 @@
 \alias{void}
 \title{Void plot}
 \usage{
-void()
+void(
+  panel.background_fill = NA,
+  plot.margin = margin(t = 0, r = 0, b = 0, l = 0, "mm")
+)
 }
 \description{
 Void plot

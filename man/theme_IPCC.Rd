@@ -5,13 +5,25 @@
 \title{Ggplot2 theme ash}
 \usage{
 theme_IPCC(
-  isBack = TRUE,
+  is_panel.background = FALSE,
+  is_plot.title = TRUE,
+  plot.title_size = 10,
   isGridX = FALSE,
   isGridY = TRUE,
-  isTitle = FALSE,
-  dTitle = 0,
+  is_axis.ticks.y = TRUE,
+  is_axis.text.y = TRUE,
+  axis.text.y_margin = NULL,
+  axis.text.y_size = 8,
+  axis.text.y_vjust = 0.59,
+  axis.ticks.length.y = 1.5,
+  is_axis.line.x = TRUE,
+  is_axis.ticks.x = TRUE,
+  is_axis.text.x = TRUE,
+  axis.text.x_size = 9,
   isLabelX = FALSE,
-  isLabelY = FALSE
+  isLabelY = FALSE,
+  is_border = FALSE,
+  family = "DejaVu Sans"
 )
 }
 \description{
