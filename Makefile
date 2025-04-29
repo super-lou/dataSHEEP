@@ -5,7 +5,7 @@ doc:
 	R -e 'devtools::document()'
 
 install:
-	R -e "remotes::install_github('super-lou/dataSHEEP')"
+	R -e "remotes::install_github('louis-heraut/dataSHEEP')"
 
 check:
 	R -e 'devtools::check()'
