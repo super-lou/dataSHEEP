@@ -341,6 +341,8 @@ theme_IPCC = function (is_panel.background=FALSE,
                        is_axis.text.x=TRUE,
                        axis.text.x_size=9,
                        axis.text.x_angle=NULL,
+                       axis.text.x_hjust=NULL,
+                       axis.text.x_vjust=NULL,
                        
                        is_axis.ticks.y=TRUE,
                        is_axis.text.y=TRUE,
@@ -390,9 +392,12 @@ theme_IPCC = function (is_panel.background=FALSE,
         axis.ticks.x = element_blank()
     }
     if (is_axis.text.x) {
-        axis.text.x = ggtext::element_markdown(color=IPCCgrey40,
-                                               size=axis.text.x_size,
-                                               angle=axis.text.x_angle)
+        axis.text.x =
+            ggtext::element_markdown(color=IPCCgrey40,
+                                     size=axis.text.x_size,
+                                     angle=axis.text.x_angle,
+                                     hjust=axis.text.x_hjust,
+                                     vjust=axis.text.x_vjust)
     } else {
         axis.text.x = element_blank()
     }
