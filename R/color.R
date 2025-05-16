@@ -336,17 +336,18 @@ theme_IPCC = function (is_panel.background=FALSE,
                        
                        isGridX=FALSE, isGridY=TRUE, 
 
+                       is_axis.line.x=TRUE,
+                       is_axis.ticks.x=TRUE,
+                       is_axis.text.x=TRUE,
+                       axis.text.x_size=9,
+                       axis.text.x_angle=NULL,
+                       
                        is_axis.ticks.y=TRUE,
                        is_axis.text.y=TRUE,
                        axis.text.y_margin=NULL,
                        axis.text.y_size=8,
                        axis.text.y_vjust=0.59,
                        axis.ticks.length.y=1.5,
-                       
-                       is_axis.line.x=TRUE,
-                       is_axis.ticks.x=TRUE,
-                       is_axis.text.x=TRUE,
-                       axis.text.x_size=9,
 
                        isLabelX=FALSE, isLabelY=FALSE, 
                        is_border=FALSE,
@@ -390,12 +391,11 @@ theme_IPCC = function (is_panel.background=FALSE,
     }
     if (is_axis.text.x) {
         axis.text.x = ggtext::element_markdown(color=IPCCgrey40,
-                                               size=axis.text.x_size)
+                                               size=axis.text.x_size,
+                                               angle=axis.text.x_angle)
     } else {
         axis.text.x = element_blank()
     }
-
-    
 
     if (isGridY) {
         panel.grid.major.y=element_line(color=IPCCgrey85,
