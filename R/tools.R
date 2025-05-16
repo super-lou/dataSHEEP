@@ -231,12 +231,13 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     } else {
         bassinHydro = NULL
     }
-    
+
     # Hydrological sub-basin
     if (!is.null(regionHydro_shp_path)) {
         regionHydro_path = file.path(computer_shp_path,
                                      regionHydro_shp_path)
         regionHydro = sf::st_read(regionHydro_path)
+        regionHydro = sf::st_make_valid(regionHydro)
         regionHydro = sf::st_transform(regionHydro, 2154)
         regionHydro = sf::st_simplify(regionHydro,
                                   preserveTopology=TRUE,
@@ -244,12 +245,13 @@ load_shapefile = function (computer_shp_path, Code=NULL,
     } else {
         regionHydro = NULL
     }
-    
+
     # Hydrological sector
     if (!is.null(secteurHydro_shp_path)) {
         secteurHydro_path = file.path(computer_shp_path,
                                       secteurHydro_shp_path)
         secteurHydro = sf::st_read(secteurHydro_path)
+        secteurHydro = sf::st_make_valid(secteurHydro)
         secteurHydro = sf::st_transform(secteurHydro, 2154)
         secteurHydro = sf::st_simplify(secteurHydro,
                                    preserveTopology=TRUE,
