@@ -23,7 +23,7 @@
 
 #' @title assign_colors_and_fonts
 #' @export
-assign_colors_and_fonts = function (refCOL="INRAE") {
+assign_colors = function (refCOL="INRAE") {
 
      # lighter lighter plot background
     assign("IPCCgrey99", "#f8f9f9", .GlobalEnv)
@@ -92,6 +92,11 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     assign("EXPLORE2np", '#bae4bc', .GlobalEnv)
     assign("EXPLORE2nng", '#f0f9e8', .GlobalEnv)
 
+    assign("TRACCblue", '#2646A2', .GlobalEnv)
+    assign("TRACClightblue", '#E4E3F4', .GlobalEnv)
+    assign("TRACCorange", '#F47216', .GlobalEnv)
+    assign("TRACCred", '#AE1C27', .GlobalEnv)
+    
     assign("COLORmediumgreen", '#57bb8a', .GlobalEnv)
     
 
@@ -100,6 +105,9 @@ assign_colors_and_fonts = function (refCOL="INRAE") {
     }
     if (refCOL == "EXPLORE2") {
         assign("refCOL", EXPLORE2blue, .GlobalEnv)
+    }
+    if (refCOL == "TRACC") {
+        assign("refCOL", TRACCblue, .GlobalEnv)
     }
     if (refCOL == "IPCC") {
         assign("refCOL", IPCCblue, .GlobalEnv)
@@ -492,6 +500,14 @@ theme_IPCC = function (is_panel.background=FALSE,
 theme_void_Lato = function () {
     theme_void() + theme(text=element_text(family="Lato"))
 }
+
+
+theme_void_back = function () {
+    theme_void() + theme(panel.background=element_rect(fill=IPCCgrey97))
+}
+
+
+
 
 theme_WIP = function () {
     theme(panel.background=element_rect(fill=IPCCgrey97),
