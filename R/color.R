@@ -338,11 +338,13 @@ test_palette = function (palette_name, colorStep=NA, reverse=FALSE) {
 #' @title Ggplot2 theme ash
 #' @export
 theme_IPCC = function (is_panel.background=FALSE,
+                       is_plot.background=FALSE,
 
                        is_plot.title=TRUE,
                        plot.title_size=10,
                        
-                       isGridX=FALSE, isGridY=TRUE, 
+                       is_panel.grid.major.x=FALSE,
+                       is_panel.grid.major.y=TRUE, 
 
                        is_axis.line.x=TRUE,
                        is_axis.ticks.x=TRUE,
@@ -351,26 +353,34 @@ theme_IPCC = function (is_panel.background=FALSE,
                        axis.text.x_angle=NULL,
                        axis.text.x_hjust=NULL,
                        axis.text.x_vjust=NULL,
-                       
+                       axis.ticks.length.x=1.5,
+
+                       is_axis.line.y=FALSE,
                        is_axis.ticks.y=TRUE,
                        is_axis.text.y=TRUE,
                        axis.text.y_margin=NULL,
                        axis.text.y_size=8,
                        axis.text.y_vjust=0.59,
-                       axis.ticks.length.y=1.5,
+                       axis.ticks.length.y=axis.ticks.length.x,
 
                        isLabelX=FALSE, isLabelY=FALSE, 
                        is_border=FALSE,
 
-                       family="DejaVu Sans") {
+                       family="Lato") {
 
+    if (is_plot.background) {
+        plot.background=element_rect(fill=IPCCgrey97, color=NA)
+    } else {
+        plot.background=element_blank()
+    }
+    
     if (is_panel.background) {
         panel.background=element_rect(fill=IPCCgrey97, color=NA)
     } else {
         panel.background=element_blank()
     }
 
-    if (isGridX) {
+    if (is_panel.grid.major.x) {
         panel.grid.major.x = element_line(color=IPCCgrey85,
                                           size=0.25)
     } else {
@@ -410,7 +420,7 @@ theme_IPCC = function (is_panel.background=FALSE,
         axis.text.x = element_blank()
     }
 
-    if (isGridY) {
+    if (is_panel.grid.major.y) {
         panel.grid.major.y=element_line(color=IPCCgrey85,
                                         size=0.25)
     } else {
@@ -457,10 +467,18 @@ theme_IPCC = function (is_panel.background=FALSE,
         axis.line.x = element_blank()
     }
 
+    if (is_axis.line.y) {
+        axis.line.y = element_line(color=IPCCgrey60, size=0.45,
+                                   lineend="square")
+    } else {
+        axis.line.y = element_blank()
+    }
+
     library(ggh4x)
     theme_ =
         theme(
             # White background
+            plot.background=plot.background,
             panel.background=panel.background,
             # Font
             text=element_text(family=family),
@@ -478,7 +496,7 @@ theme_IPCC = function (is_panel.background=FALSE,
             axis.text.x=axis.text.x,
             axis.text.y=axis.text.y,
             # Ticks length
-            axis.ticks.length.x=unit(1.6, 'mm'),
+            axis.ticks.length.x=unit(axis.ticks.length.x, 'mm'),
             axis.ticks.length.y=unit(axis.ticks.length.y, 'mm'),
             # Ticks minor
             ggh4x.axis.ticks.length.minor=rel(0.6),
@@ -489,7 +507,7 @@ theme_IPCC = function (is_panel.background=FALSE,
             axis.title.y=axis.title.y,
             # Axis line
             axis.line.x=axis.line.x,
-            axis.line.y=element_blank(),
+            axis.line.y=axis.line.y,
 
             line=element_line(lineend="round")
         )
