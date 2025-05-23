@@ -2,10 +2,10 @@
 % Please edit documentation in R/color.R
 \name{assign_colors}
 \alias{assign_colors}
-\title{assign_colors_and_fonts}
+\title{assign_colors}
 \usage{
 assign_colors(refCOL = "INRAE")
 }
 \description{
-assign_colors_and_fonts
+assign_colors
 }

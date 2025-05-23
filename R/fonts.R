@@ -1,7 +1,8 @@
 
 
-
-load_dataSHEEP_fonts = function () {
+#' @title load_fonts
+#' @export
+load_fonts = function () {
     fonts_dir = "fonts"
     
     lato_dirpath = system.file(fonts_dir, "Lato", package="dataSHEEP")

@@ -21,7 +21,7 @@
 
 # "EXPLORE2", "IPCC"
 
-#' @title assign_colors_and_fonts
+#' @title assign_colors
 #' @export
 assign_colors = function (refCOL="INRAE") {
 
