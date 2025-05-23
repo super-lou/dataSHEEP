@@ -17,5 +17,6 @@ Imports:
     ggplot2,
     zoo,
     magick,
-    ggh4x
+    ggh4x,
+    showtext
 RoxygenNote: 7.3.2

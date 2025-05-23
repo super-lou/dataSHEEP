@@ -6,10 +6,11 @@
 \usage{
 theme_IPCC(
   is_panel.background = FALSE,
+  is_plot.background = FALSE,
   is_plot.title = TRUE,
   plot.title_size = 10,
-  isGridX = FALSE,
-  isGridY = TRUE,
+  is_panel.grid.major.x = FALSE,
+  is_panel.grid.major.y = TRUE,
   is_axis.line.x = TRUE,
   is_axis.ticks.x = TRUE,
   is_axis.text.x = TRUE,
@@ -17,16 +18,18 @@ theme_IPCC(
   axis.text.x_angle = NULL,
   axis.text.x_hjust = NULL,
   axis.text.x_vjust = NULL,
+  axis.ticks.length.x = 1.5,
+  is_axis.line.y = FALSE,
   is_axis.ticks.y = TRUE,
   is_axis.text.y = TRUE,
   axis.text.y_margin = NULL,
   axis.text.y_size = 8,
   axis.text.y_vjust = 0.59,
-  axis.ticks.length.y = 1.5,
+  axis.ticks.length.y = axis.ticks.length.x,
   isLabelX = FALSE,
   isLabelY = FALSE,
   is_border = FALSE,
-  family = "DejaVu Sans"
+  family = "Lato"
 )
 }
 \description{
