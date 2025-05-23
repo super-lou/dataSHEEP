@@ -233,6 +233,7 @@ return_to_sheepfold = function (herd,
                                 paper_size=NULL,
                                 hjust=0, vjust=1,
                                 verbose=FALSE) {
+
     if (verbose) {
         print("Look at that impressive herd :")
         # print(herd$sheep, n=Inf)
@@ -432,7 +433,7 @@ return_to_sheepfold = function (herd,
                                    sort(select_grobs(NUM_group_block))]
 
                 # if (verbose) print("e")
-                
+
                 grob =
                     gridExtra::arrangeGrob(
                                    grobs=grobs,
